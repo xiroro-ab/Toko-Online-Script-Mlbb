@@ -1,1 +1,394 @@
-test
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xiroro Script | Premium Mods</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-X_aeMFcuNO9xnvH3"></script>
+    
+    <style>
+        body { 
+            background-color: #000; 
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        #video-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            object-fit: cover; z-index: -1; opacity: 0.4;
+        }
+        
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4); 
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .card {
+            border-radius: 10px; padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 0 6px 6px rgba(0, 0, 0, 0.3); 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            margin: 10px; border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+        .card:hover {
+            transform: translateY(-5px); 
+            box-shadow: 0 15px 30px rgba(6, 182, 212, 0.2), 0 10px 10px rgba(0, 0, 0, 0.5); 
+            border-color: rgba(6, 182, 212, 0.8);
+        }
+
+        .swal2-title { color: #22d3ee !important; }
+        .swal2-popup {
+            background: rgba(15, 23, 42, 0.7) !important;
+            backdrop-filter: blur(10px) !important;
+            color: white !important;
+            border-radius: 15px !important;
+            border: 1px solid rgba(6, 182, 212, 0.5) !important; 
+        }
+        .swal2-input {
+            background: rgba(0, 0, 0, 0.5) !important;
+            color: white !important;
+            border: 1px solid rgba(6, 182, 212, 0.3) !important;
+        }
+        .swal2-input:focus { border-color: #22d3ee !important; }
+        
+        main { flex-grow: 1; }
+    </style>
+</head>
+<body class="text-white">
+
+    <video autoplay muted loop playsinline id="video-bg"></video>
+
+    <header class="py-10 text-center glass-panel border-b border-cyan-500/30">
+        <h1 class="text-4xl font-bold animate__animated animate__fadeInDown">
+            <i class="fa-solid fa-code text-cyan-400"></i> Xiroro <span class="text-cyan-400">Script</span>
+        </h1>
+        <div class="mt-6 flex justify-center animate__animated animate__zoomIn">
+            <img id="logo-toko" src="" alt="Logo Toko" class="w-28 h-28 rounded-full border-4 border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.8)] object-cover bg-slate-900">
+        </div>
+        <p class="mt-4 text-slate-300 font-medium">Premium Mod for Mobile Legends & More</p>
+    </header>
+
+    <main class="container mx-auto px-6 py-10">
+        <div id="katalog-produk" class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div class="col-span-full text-center text-cyan-400 mt-10">
+                <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+                <p class="mt-2">Memuat Etalase...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="glass-panel border-t border-cyan-500/30 pt-12 pb-6 mt-10">
+        <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-sm">
+            
+            <div>
+                <h3 class="text-lg font-bold text-cyan-400 mb-4"><i class="fa-solid fa-shield-halved"></i> Tentang Xiroro</h3>
+                <p class="text-slate-300 leading-relaxed">
+                    Platform penyedia Mod dan Script premium berkualitas tinggi. Kami memastikan setiap script aman, mudah digunakan, dan selalu *up-to-date* untuk pengalaman terbaik Anda.
+                </p>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4">Informasi</h3>
+                <ul class="space-y-2 text-slate-300">
+                    <li><a href="javascript:void(0)" onclick="bukaSK()" class="hover:text-cyan-400 hover:pl-2 transition-all duration-300"><i class="fa-solid fa-angle-right mr-1 text-cyan-500"></i> Syarat & Ketentuan</a></li>
+                    <li><a href="javascript:void(0)" onclick="bukaPrivasi()" class="hover:text-cyan-400 hover:pl-2 transition-all duration-300"><i class="fa-solid fa-angle-right mr-1 text-cyan-500"></i> Kebijakan Privasi</a></li>
+                    <li><a href="javascript:void(0)" onclick="bukaTutorial()" class="hover:text-cyan-400 hover:pl-2 transition-all duration-300"><i class="fa-solid fa-angle-right mr-1 text-cyan-500"></i> Cara Pemasangan Script</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4">Layanan Pelanggan</h3>
+                <ul class="space-y-3 text-slate-300">
+                    <li>
+                        <a href="https://wa.me/62895420471010" target="_blank" class="flex items-center hover:text-cyan-400 transition-colors">
+                            <i class="fa-brands fa-whatsapp text-green-400 text-xl w-6"></i> 
+                            WhatsApp Support
+                        </a>
+                    </li>
+                    <li>
+                        <a href="mailto:biscuit.yummy69@gmail.com" class="flex items-center hover:text-cyan-400 transition-colors">
+                            <i class="fa-solid fa-envelope text-xl w-6"></i> 
+                            Email Kami
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center hover:text-cyan-400 transition-colors">
+                            <i class="fa-brands fa-discord text-indigo-400 text-xl w-6"></i> 
+                            Join Discord
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-700/50 pt-6 px-6 flex flex-col md:flex-row justify-between items-center text-xs text-slate-400">
+            <p>© 2026 Xiroro Script. All Rights Reserved.</p>
+            <p class="mt-2 md:mt-0 tracking-widest uppercase">
+                Powered by <span class="text-cyan-400 font-bold ml-1">XIRORO</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // 1. PENGATURAN DATABASE & URL
+        // ==========================================
+        const projectID = "toko-mod-mlbb";
+        const firebaseUrl = `https://firestore.googleapis.com/v1/projects/${projectID}/databases/(default)/documents/script`;
+        
+        // !!! WAJIB ISI DENGAN URL APPS SCRIPT ANDA YANG TERBARU !!!
+        const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyfBzWmShFfm00QdleoSpxhgwPeRmwhu-OSte6JZcuza1G9sIfmlXgdeSjV1BLgsqoj/exec"; 
+
+        // ==========================================
+        // 2. TERAPKAN TEMA DARI PANEL ADMIN
+        // ==========================================
+        function terapkanTemaAdmin() {
+            const cfg = JSON.parse(localStorage.getItem('xiroro_config')) || {
+                video: "https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas9/main/background_2.mp4",
+                logo: "https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201105_143446.png",
+                kolom: "grid-cols-4"
+            };
+
+            if (cfg.video) document.getElementById('video-bg').src = cfg.video;
+
+            let finalLogo = cfg.logo;
+            if (finalLogo.includes("drive.google.com")) {
+                let fileId = "";
+                if (finalLogo.includes("/d/")) fileId = finalLogo.split("/d/")[1].split("/")[0];
+                else if (finalLogo.includes("id=")) fileId = finalLogo.split("id=")[1].split("&")[0];
+                if (fileId) finalLogo = "https://lh3.googleusercontent.com/d/" + fileId;
+            }
+            document.getElementById('logo-toko').src = finalLogo;
+            document.getElementById('katalog-produk').className = `grid grid-cols-1 sm:grid-cols-2 lg:${cfg.kolom} gap-8`;
+        }
+        terapkanTemaAdmin();
+
+        // ==========================================
+        // FITUR GESER SLIDER MANUAL
+        // ==========================================
+        function slideMedia(sliderId, arah) {
+            const slider = document.getElementById(sliderId);
+            const lebarGeser = slider.clientWidth; 
+            slider.scrollBy({ left: lebarGeser * arah, behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // 3. AMBIL DATA PRODUK DARI FIREBASE
+        // ==========================================
+        fetch(firebaseUrl)
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('katalog-produk');
+                container.innerHTML = "";
+                
+                if(!data.documents) {
+                    container.innerHTML = "<p class='col-span-full text-center text-slate-400'>Belum ada produk di etalase.</p>";
+                    return;
+                }
+
+                data.documents.forEach(doc => {
+                    const f = doc.fields;
+                    const id = doc.name.split('/').pop();
+                    const sliderId = `slider-${id}`; 
+                    
+                    let imgUrl = f.gambarUrl ? f.gambarUrl.stringValue : "";
+                    
+                    if (imgUrl.includes("GAGAL_UPLOAD")) {
+                        imgUrl = "https://dummyimage.com/400x200/1e293b/ef4444.png&text=Gagal+Upload";
+                    } else if (imgUrl.includes("drive.google.com")) {
+                        let fileId = "";
+                        if (imgUrl.includes("/d/")) fileId = imgUrl.split("/d/")[1].split("/")[0];
+                        else if (imgUrl.includes("id=")) fileId = imgUrl.split("id=")[1].split("&")[0];
+                        if (fileId) imgUrl = "https://lh3.googleusercontent.com/d/" + fileId;
+                    }
+                    
+                    if (!imgUrl) {
+                        imgUrl = "https://dummyimage.com/400x200/1e293b/22d3ee.png&text=Tanpa+Foto";
+                    }
+
+                    let vidId = f.videoID ? f.videoID.stringValue.trim() : "";
+                    let match = vidId.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|watch\?.+&v=))([^&?\n]{11})/);
+                    if (match) vidId = match[1];
+                    else if (vidId.length !== 11) vidId = ""; 
+
+                    let linkRahasia = f.fileLink ? f.fileLink.stringValue : "Tidak_Ada_Link";
+
+                    container.innerHTML += `
+                        <div class="card glass-panel flex flex-col justify-between">
+                            <div class="relative mb-4 group">
+                                <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-40 snap-x" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                    <img src="${imgUrl}" class="min-w-full h-full object-cover rounded-xl snap-center border border-slate-700/50" alt="Preview" onerror="this.src='https://dummyimage.com/400x200/1e293b/ef4444.png&text=Gambar+Error'">
+                                    ${vidId ? `<iframe src="https://www.youtube.com/embed/${vidId}?rel=0" class="min-w-full h-full rounded-xl snap-center border border-slate-700/50" frameborder="0" allowfullscreen></iframe>` : `<div class="min-w-full h-full rounded-xl snap-center bg-black/40 flex flex-col items-center justify-center text-slate-400 border border-slate-700/50"><i class="fa-solid fa-video-slash text-2xl mb-2"></i><span class="text-sm">Video Kosong</span></div>`}
+                                </div>
+                                <button onclick="slideMedia('${sliderId}', -1)" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/60 text-white rounded-full opacity-50 hover:opacity-100 hover:bg-cyan-600 transition z-10">
+                                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                                </button>
+                                <button onclick="slideMedia('${sliderId}', 1)" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/60 text-white rounded-full opacity-50 hover:opacity-100 hover:bg-cyan-600 transition z-10">
+                                    <i class="fa-solid fa-chevron-right text-sm"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold mb-2 text-white">${f.nama.stringValue}</h3>
+                                <p class="text-xs text-slate-300 mb-4 h-10 overflow-hidden leading-relaxed">${f.deskripsi.stringValue}</p>
+                            </div>
+                            <div class="mt-auto">
+                                <div class="text-xl font-extrabold text-cyan-400 mb-4 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">Rp ${parseInt(f.harga.stringValue).toLocaleString('id-ID')}</div>
+                                <button onclick="klikBeli('${id}', '${f.nama.stringValue}', ${f.harga.stringValue}, '${linkRahasia}')" class="w-full bg-cyan-600/80 hover:bg-cyan-500 text-white py-2.5 rounded-lg font-bold transition shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] backdrop-blur-sm border border-cyan-400/50">
+                                    <i class="fa-solid fa-cart-shopping mr-2"></i> Beli Sekarang
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if(window.autoSlideTimer) clearInterval(window.autoSlideTimer);
+                
+                window.autoSlideTimer = setInterval(() => {
+                    document.querySelectorAll('.xiroro-slider').forEach(slider => {
+                        if (slider.matches(':hover')) return;
+
+                        const limitKanan = slider.scrollWidth - slider.clientWidth;
+                        
+                        if (slider.scrollLeft >= limitKanan - 10) {
+                            slider.scrollTo({ left: 0, behavior: 'smooth' });
+                        } else {
+                            slider.scrollBy({ left: slider.clientWidth, behavior: 'smooth' });
+                        }
+                    });
+                }, 4000); 
+
+            })
+            .catch(err => console.log("Gagal memuat etalase:", err));
+
+        // ==========================================
+        // 4. FUNGSI PEMBAYARAN MIDTRANS & KIRIM EMAIL
+        // ==========================================
+        async function klikBeli(id, nama, harga, linkProduk) {
+            const { value: form, isConfirmed } = await Swal.fire({
+                title: '<i class="fa-solid fa-user-pen text-cyan-400"></i> Lengkapi Data',
+                html: '<input id="n" class="swal2-input" placeholder="Nama Lengkap"><input id="w" class="swal2-input" type="number" placeholder="No. WhatsApp"><input id="e" class="swal2-input" type="email" placeholder="Email Aktif">',
+                showCancelButton: true,
+                cancelButtonText: '<i class="fa-solid fa-xmark"></i> Batal',
+                confirmButtonText: 'Proses <i class="fa-solid fa-arrow-right"></i>',
+                preConfirm: () => {
+                    const n = document.getElementById('n').value;
+                    const w = document.getElementById('w').value;
+                    const e = document.getElementById('e').value;
+                    if(!n || !w || !e) Swal.showValidationMessage('Semua kolom wajib diisi!');
+                    return { n, w, e };
+                }
+            });
+
+            if (isConfirmed && form) {
+                Swal.fire({
+                    title: '<span class="text-cyan-400">Menyiapkan QRIS</span>',
+                    html: '<div class="my-4"><i class="fa-solid fa-circle-notch fa-spin fa-3x text-cyan-400"></i></div><p class="text-slate-300">Mohon tunggu...</p>',
+                    showConfirmButton: false, allowOutsideClick: false
+                });
+
+                let amanEmail = encodeURIComponent(form.e);
+                let amanLink = encodeURIComponent(linkProduk);
+                
+                fetch(URL_APPS_SCRIPT + `?id=${id}&harga=${harga}&email=${amanEmail}&link=${amanLink}`)
+                .then(r => r.text())
+                .then(token => {
+                    Swal.close();
+                    if(token.includes("Gagal")) {
+                        Swal.fire({ icon: 'error', title: 'Oops!', text: 'Sistem sedang sibuk atau URL Script salah.' });
+                        return;
+                    }
+                    window.snap.pay(token, {
+                        onSuccess: () => Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Pembayaran sukses. Cek Email Anda untuk mengambil Script.' }),
+                        onClose: () => Swal.fire({ icon: 'warning', title: 'Batal', text: 'Anda belum menyelesaikan pembayaran.' })
+                    });
+                })
+                .catch(err => Swal.fire({ icon: 'error', title: 'Error Koneksi', text: 'Gagal terhubung ke server pembayaran.' }));
+            }
+        }
+
+        // ==========================================
+        // FITUR POP-UP INFORMASI LEGAL
+        // ==========================================
+        function bukaSK() {
+            Swal.fire({
+                title: '<i class="fa-solid fa-file-contract text-cyan-400"></i> Syarat & Ketentuan',
+                html: `
+                    <div class="text-left text-sm text-slate-300 space-y-4 h-64 overflow-y-auto pr-3" style="scrollbar-width: thin; scrollbar-color: #22d3ee #1e293b;">
+                        <p>Selamat datang di Xiroro Script. Dengan melakukan pembelian, Anda menyetujui syarat berikut:</p>
+                        
+                        <h4 class="text-white font-bold mt-2">1. Risiko Penggunaan</h4>
+                        <p>Script dan modifikasi yang dijual digunakan sepenuhnya atas risiko pengguna sendiri. Kami tidak bertanggung jawab atas sanksi, pemblokiran akun (banned), atau kerugian yang diberikan oleh developer game resmi.</p>
+                        
+                        <h4 class="text-white font-bold mt-2">2. Kebijakan Pengembalian Dana (No Refund)</h4>
+                        <p>Dikarenakan produk kami berupa barang digital (file) yang otomatis terkirim, <strong>TIDAK ADA PENGEMBALIAN DANA</strong> dengan alasan apapun setelah transaksi berhasil dan file diterima.</p>
+                        
+                        <h4 class="text-white font-bold mt-2">3. Hak Cipta & Larangan Resell</h4>
+                        <p>Anda dilarang keras untuk menjual ulang (reseller tanpa izin), membagikan file secara gratis, atau membongkar ulang script buatan Xiroro ke pihak lain.</p>
+                        
+                        <h4 class="text-white font-bold mt-2">4. Layanan Bantuan</h4>
+                        <p>Support teknis hanya diberikan untuk kendala akses link rusak atau file corrupt saat diunduh, bukan untuk masalah kompatibilitas perangkat keras/HP pembeli.</p>
+                    </div>
+                `,
+                confirmButtonText: 'Saya Mengerti',
+                confirmButtonColor: '#0891b2',
+                width: '600px'
+            });
+        }
+
+        function bukaPrivasi() {
+            Swal.fire({
+                title: '<i class="fa-solid fa-user-shield text-cyan-400"></i> Kebijakan Privasi',
+                html: `
+                    <div class="text-left text-sm text-slate-300 space-y-4 h-64 overflow-y-auto pr-3" style="scrollbar-width: thin; scrollbar-color: #22d3ee #1e293b;">
+                        <p>Privasi Anda adalah prioritas utama di Xiroro Script.</p>
+                        
+                        <h4 class="text-white font-bold mt-2">1. Pengumpulan Data</h4>
+                        <p>Saat Anda melakukan pembelian, kami hanya mengumpulkan data berupa <strong>Nama, Nomor WhatsApp, dan Email</strong>. Data ini mutlak digunakan hanya untuk keperluan pengiriman resi pembayaran dan link download produk otomatis.</p>
+                        
+                        <h4 class="text-white font-bold mt-2">2. Keamanan Transaksi</h4>
+                        <p>Semua proses pembayaran diproses dan diamankan secara langsung oleh sistem <strong>Midtrans</strong>. Xiroro tidak pernah menyimpan atau meminta data sensitif seperti nomor PIN, password ATM, atau CVV kartu kredit Anda.</p>
+                        
+                        <h4 class="text-white font-bold mt-2">3. Perlindungan Data</h4>
+                        <p>Kami menjamin bahwa data kontak Anda (Email & WA) tidak akan pernah disewakan, disebarluaskan, atau dijual kepada pihak ketiga (Spammer/Telemarketing) manapun.</p>
+                    </div>
+                `,
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#0891b2',
+                width: '600px'
+            });
+        }
+
+        function bukaTutorial() {
+            Swal.fire({
+                title: '<i class="fa-solid fa-video text-cyan-400"></i> Tutorial Pemasangan',
+                html: `
+                    <div class="aspect-video w-full rounded-xl overflow-hidden border border-slate-700">
+                        <iframe 
+                            src="https://drive.google.com/file/d/17BUIZzUhNlaUNdJT4DAiGou2RH6Sz0xf/preview" 
+                            width="100%" 
+                            height="100%" 
+                            allow="autoplay">
+                        </iframe>
+                    </div>
+                    <p class="text-sm text-slate-400 mt-4 text-left">
+                        Ikuti petunjuk dalam video di atas untuk cara pemasangan script yang benar. Jika video tidak muncul, pastikan Anda sudah login ke akun Google.
+                    </p>
+                `,
+                confirmButtonText: 'Selesai Menonton',
+                confirmButtonColor: '#0891b2',
+                width: '700px'
+            });
+        }
+        
+    </script>
+</body>
+</html>
