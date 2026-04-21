@@ -16,8 +16,6 @@
         body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .tab-active { border-bottom: 2px solid #22d3ee; color: #22d3ee; }
-        
-        /* CSS Scrollbar untuk Judul & Deskripsi Panjang di Admin */
         .desc-scroll::-webkit-scrollbar { width: 4px; }
         .desc-scroll::-webkit-scrollbar-track { background: transparent; }
         .desc-scroll::-webkit-scrollbar-thumb { background: #22d3ee; border-radius: 10px; }
@@ -212,7 +210,6 @@
                         if (fileId) imgUrl = "https://lh3.googleusercontent.com/d/" + fileId;
                     }
 
-                    // Menambahkan fitur scroll pada judul admin panel jika nama terlalu panjang
                     list.innerHTML += `
                         <div class="flex items-center justify-between p-4 bg-slate-800/80 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition">
                             <div class="flex items-center gap-4 w-2/3">
@@ -222,6 +219,7 @@
                                 <div class="overflow-hidden w-full">
                                     <h4 class="font-bold text-white max-h-[2.8rem] overflow-y-auto desc-scroll leading-tight pr-1 mb-1">${data.nama}</h4>
                                     <p class="text-xs text-cyan-400 font-mono mb-1">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</p>
+                                    <span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-slate-300 mr-1"><i class="fa-solid fa-fire text-orange-400"></i> Terjual ${data.terjual || 0}</span>
                                     <span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-slate-300"><i class="fa-solid fa-eye text-cyan-400"></i> Dilihat ${data.views || 0}x</span>
                                 </div>
                             </div>
@@ -276,7 +274,9 @@
                     await db.collection("script").doc(editId).update(dataToSave);
                     Swal.fire('Berhasil!', 'Produk di-update.', 'success');
                 } else {
+                    // Setel views dan terjual menjadi 0 untuk produk baru
                     dataToSave.views = 0; 
+                    dataToSave.terjual = 0;
                     await db.collection("script").add(dataToSave);
                     Swal.fire('Berhasil!', 'Produk baru ditambahkan.', 'success');
                 }
