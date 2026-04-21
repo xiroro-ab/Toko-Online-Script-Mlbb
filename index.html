@@ -25,6 +25,14 @@
         .swal2-input { background: rgba(0,0,0,0.5) !important; color: white !important; border: 1px solid rgba(6,182,212,0.3) !important; }
         .swal2-input:focus { border-color: #22d3ee !important; }
         main { flex-grow: 1; }
+        
+        /* Animasi Keren Loading Custom */
+        .loader-ring { position: absolute; border-radius: 50%; border: 4px solid transparent; }
+        .ring-1 { inset: 0; border-top-color: #22d3ee; animation: spin 1.5s linear infinite; }
+        .ring-2 { inset: 8px; border-right-color: #a855f7; animation: spin-reverse 2s linear infinite; }
+        .ring-3 { inset: 16px; border-bottom-color: #ffffff; animation: spin 2.5s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
     </style>
 </head>
 <body class="text-white">
@@ -40,9 +48,23 @@
     </header>
 
     <main class="container mx-auto px-6 py-10">
+        
+        <div id="search-container" class="mb-10 max-w-xl mx-auto animate__animated animate__fadeIn" style="display: none;">
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400 text-lg"></i>
+                <input type="text" id="searchInput" onkeyup="cariScript()" placeholder="Cari nama script... (misal: Chou KOF)" class="w-full bg-slate-800/80 border border-cyan-500/50 text-white rounded-full py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.15)] backdrop-blur-sm transition-all">
+            </div>
+        </div>
+
         <div id="katalog-produk" class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            <div class="col-span-full text-center text-cyan-400 mt-10">
-                <i class="fa-solid fa-spinner fa-spin fa-2x"></i><p class="mt-2">Memuat Etalase...</p>
+            <div class="col-span-full flex flex-col items-center justify-center py-20 mt-10">
+                <div class="relative w-24 h-24 mb-6">
+                    <div class="loader-ring ring-1"></div>
+                    <div class="loader-ring ring-2"></div>
+                    <div class="loader-ring ring-3"></div>
+                    <i class="fa-solid fa-bolt absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl text-cyan-300 animate-pulse"></i>
+                </div>
+                <p class="text-cyan-400 font-medium tracking-widest animate-pulse">MEMUAT DATABASE...</p>
             </div>
         </div>
     </main>
@@ -83,7 +105,7 @@
         // !!! WAJIB ISI DENGAN URL APPS SCRIPT ANDA YANG TERBARU !!!
         const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyfBzWmShFfm00QdleoSpxhgwPeRmwhu-OSte6JZcuza1G9sIfmlXgdeSjV1BLgsqoj/exec"; 
 
-        function terapkanTemaAdmin() {
+        function terapkanTemaAdmin(isSingle) {
             const cfg = JSON.parse(localStorage.getItem('xiroro_config')) || {
                 video: "https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas9/main/background_2.mp4",
                 logo: "https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201105_143446.png",
@@ -98,9 +120,18 @@
                 if (fileId) finalLogo = "https://lh3.googleusercontent.com/d/" + fileId;
             }
             document.getElementById('logo-toko').src = finalLogo;
-            document.getElementById('katalog-produk').className = `grid grid-cols-1 sm:grid-cols-2 lg:${cfg.kolom} gap-8`;
+            
+            // --- FIX POSISI KETENGAH UNTUK 1 PRODUK ---
+            const katalog = document.getElementById('katalog-produk');
+            if (isSingle) {
+                // Menghilangkan grid dan mengubah menjadi Flex (Tengah)
+                katalog.className = `flex flex-col items-center justify-center max-w-md mx-auto w-full gap-8`;
+            } else {
+                // Tampilan Normal Etalase
+                katalog.className = `grid grid-cols-1 sm:grid-cols-2 lg:${cfg.kolom} gap-8 w-full`;
+                document.getElementById('search-container').style.display = 'block'; // Munculkan kolom search
+            }
         }
-        terapkanTemaAdmin();
 
         function slideMedia(sliderId, arah) {
             const slider = document.getElementById(sliderId);
@@ -108,26 +139,88 @@
         }
 
         // ==========================================
-        // SISTEM BACA LINK KHUSUS DARI YOUTUBE
+        // FITUR PENCARIAN REAL-TIME
         // ==========================================
+        function cariScript() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.produk-card');
+            let adaHasil = false;
+
+            cards.forEach(card => {
+                const namaScript = card.getAttribute('data-nama');
+                if (namaScript.includes(input)) {
+                    card.style.display = 'flex';
+                    adaHasil = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Tampilkan pesan jika script tidak ditemukan
+            let pesanKosong = document.getElementById('pesan-kosong');
+            if (!adaHasil && input !== "") {
+                if (!pesanKosong) {
+                    pesanKosong = document.createElement('div');
+                    pesanKosong.id = 'pesan-kosong';
+                    pesanKosong.className = 'col-span-full text-center py-10 animate__animated animate__fadeIn';
+                    pesanKosong.innerHTML = '<i class="fa-solid fa-magnifying-glass-minus text-5xl text-slate-600 mb-4"></i><h3 class="text-xl font-bold text-white">Oops! Tidak Ditemukan</h3><p class="text-slate-400">Coba gunakan kata kunci lain.</p>';
+                    document.getElementById('katalog-produk').appendChild(pesanKosong);
+                }
+            } else if (pesanKosong) {
+                pesanKosong.remove();
+            }
+        }
+
+        // ==========================================
+        // FITUR SHARE MEDSOS
+        // ==========================================
+        function bagikanScript(id, namaScript) {
+            let baseUrl = window.location.origin + window.location.pathname;
+            let directLink = baseUrl + "?id=" + id;
+            
+            // Jika HP Pelanggan support native Share API (Medsos bawaan)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Xiroro Script - ' + namaScript,
+                    text: 'Cek Mod/Script keren ini di Xiroro: ' + namaScript,
+                    url: directLink
+                }).catch(err => console.log('Share dibatalkan.'));
+            } else {
+                // Jika tidak support (Pakai PC/Browser lama), otomatis copy link
+                navigator.clipboard.writeText(directLink).then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Link Disalin!',
+                        text: 'Link berhasil disalin, siap dikirim ke teman Anda.',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#1e293b',
+                        color: '#fff'
+                    });
+                });
+            }
+        }
+
         fetch(firebaseUrl)
             .then(res => res.json())
             .then(data => {
                 const container = document.getElementById('katalog-produk');
                 const urlParams = new URLSearchParams(window.location.search);
-                const targetId = urlParams.get('id'); // Menangkap ID dari link YouTube
+                const targetId = urlParams.get('id'); 
                 
                 container.innerHTML = "";
+                
+                // Set layout (Tengah jika 1 produk, Normal jika etalase)
+                terapkanTemaAdmin(targetId ? true : false);
                 
                 if(!data.documents) {
                     container.innerHTML = "<p class='col-span-full text-center text-slate-400'>Belum ada produk di etalase.</p>";
                     return;
                 }
 
-                // Jika pelanggan datang dari link khusus, beri tombol kembali
                 if (targetId) {
                     container.innerHTML = `
-                        <div class="col-span-full mb-2 animate__animated animate__fadeInDown">
+                        <div class="col-span-full mb-2 animate__animated animate__fadeInDown w-full text-center">
                             <a href="?" class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
                                 <i class="fa-solid fa-arrow-left mr-2"></i> Lihat Semua Produk Xiroro
                             </a>
@@ -142,7 +235,6 @@
                     const id = doc.name.split('/').pop();
                     const sliderId = `slider-${id}`; 
                     
-                    // --- SISTEM FILTER: Jika ada target ID, sembunyikan produk lain ---
                     if (targetId && id !== targetId) return;
                     produkDitemukan = true;
 
@@ -161,11 +253,12 @@
                     if (match) vidId = match[1]; else if (vidId.length !== 11) vidId = ""; 
 
                     let linkRahasia = f.fileLink ? f.fileLink.stringValue : "Tidak_Ada_Link";
-
+                    
+                    // class "produk-card" dan attribute "data-nama" dibuat untuk sistem Pencarian
                     container.innerHTML += `
-                        <div class="card glass-panel flex flex-col justify-between ${targetId ? 'animate__animated animate__zoomIn border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : ''}">
+                        <div class="produk-card card glass-panel flex flex-col justify-between w-full ${targetId ? 'animate__animated animate__zoomIn border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : ''}" data-nama="${f.nama.stringValue.toLowerCase()}">
                             <div class="relative mb-4 group">
-                                <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-40 snap-x" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-40 md:h-48 snap-x" style="scrollbar-width: none; -ms-overflow-style: none;">
                                     <img src="${imgUrl}" class="min-w-full h-full object-cover rounded-xl snap-center border border-slate-700/50" alt="Preview" onerror="this.src='https://dummyimage.com/400x200/1e293b/ef4444.png&text=Gambar+Error'">
                                     ${vidId ? `<iframe src="https://www.youtube.com/embed/${vidId}?rel=0" class="min-w-full h-full rounded-xl snap-center border border-slate-700/50" frameborder="0" allowfullscreen></iframe>` : `<div class="min-w-full h-full rounded-xl snap-center bg-black/40 flex flex-col items-center justify-center text-slate-400 border border-slate-700/50"><i class="fa-solid fa-video-slash text-2xl mb-2"></i><span class="text-sm">Video Kosong</span></div>`}
                                 </div>
@@ -173,21 +266,27 @@
                                 <button onclick="slideMedia('${sliderId}', 1)" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/60 text-white rounded-full opacity-50 hover:opacity-100 hover:bg-cyan-600 transition z-10"><i class="fa-solid fa-chevron-right text-sm"></i></button>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold mb-2 text-white">${f.nama.stringValue}</h3>
+                                <h3 class="text-lg font-bold mb-2 text-white line-clamp-2 leading-tight">${f.nama.stringValue}</h3>
                                 <p class="text-xs text-slate-300 mb-4 h-10 overflow-hidden leading-relaxed">${f.deskripsi.stringValue}</p>
                             </div>
-                            <div class="mt-auto">
+                            <div class="mt-auto pt-4 border-t border-slate-700/50">
                                 <div class="text-xl font-extrabold text-cyan-400 mb-4 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">Rp ${parseInt(f.harga.stringValue).toLocaleString('id-ID')}</div>
-                                <button onclick="klikBeli('${id}', '${f.nama.stringValue}', ${f.harga.stringValue}, '${linkRahasia}')" class="w-full bg-cyan-600/80 hover:bg-cyan-500 text-white py-2.5 rounded-lg font-bold transition shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] backdrop-blur-sm border border-cyan-400/50"><i class="fa-solid fa-cart-shopping mr-2"></i> Beli Sekarang</button>
+                                
+                                <div class="flex gap-2">
+                                    <button onclick="klikBeli('${id}', '${f.nama.stringValue}', ${f.harga.stringValue}, '${linkRahasia}')" class="flex-1 bg-cyan-600/80 hover:bg-cyan-500 text-white py-2.5 rounded-lg font-bold transition shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] backdrop-blur-sm border border-cyan-400/50"><i class="fa-solid fa-cart-shopping mr-2"></i> Beli Sekarang</button>
+                                    
+                                    <button onclick="bagikanScript('${id}', \`${f.nama.stringValue}\`)" class="w-12 bg-slate-700/80 hover:bg-slate-600 text-white rounded-lg flex items-center justify-center transition border border-slate-600 hover:border-cyan-400/50 hover:text-cyan-400" title="Bagikan">
+                                        <i class="fa-solid fa-share-nodes"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
                 });
 
-                // Jika pengunjung membuka link produk yang sudah dihapus
                 if (targetId && !produkDitemukan) {
                      container.innerHTML += `
-                        <div class="col-span-full text-center py-10 animate__animated animate__fadeIn">
+                        <div class="col-span-full text-center py-10 animate__animated animate__fadeIn w-full">
                             <i class="fa-solid fa-box-open text-5xl text-slate-600 mb-4"></i>
                             <h3 class="text-xl font-bold text-white mb-2">Produk Tidak Ditemukan</h3>
                             <p class="text-slate-400">Script yang Anda cari mungkin sudah dihapus atau link tidak valid.</p>
@@ -208,13 +307,13 @@
             .catch(err => console.log("Gagal memuat etalase:", err));
 
         // ==========================================
-        // FUNGSI POP-UP & PEMBAYARAN
+        // FUNGSI POP-UP INFORMASI & PEMBAYARAN
         // ==========================================
         function bukaSK() {
             Swal.fire({
                 title: '<i class="fa-solid fa-file-contract text-cyan-400"></i> Syarat & Ketentuan',
                 html: `<div class="text-left text-sm text-slate-300 space-y-4 h-64 overflow-y-auto pr-3" style="scrollbar-width: thin; scrollbar-color: #22d3ee #1e293b;"><p>Selamat datang di Xiroro Script. Dengan melakukan pembelian, Anda menyetujui syarat berikut:</p><h4 class="text-white font-bold mt-2">1. Risiko Penggunaan</h4><p>Script dan modifikasi yang dijual digunakan sepenuhnya atas risiko pengguna sendiri. Kami tidak bertanggung jawab atas sanksi, pemblokiran akun (banned), atau kerugian yang diberikan oleh developer game resmi.</p><h4 class="text-white font-bold mt-2">2. Kebijakan Pengembalian Dana (No Refund)</h4><p>Dikarenakan produk kami berupa barang digital (file) yang otomatis terkirim, <strong>TIDAK ADA PENGEMBALIAN DANA</strong> dengan alasan apapun setelah transaksi berhasil dan file diterima.</p><h4 class="text-white font-bold mt-2">3. Hak Cipta & Larangan Resell</h4><p>Anda dilarang keras untuk menjual ulang (reseller tanpa izin), membagikan file secara gratis, atau membongkar ulang script buatan Xiroro ke pihak lain.</p><h4 class="text-white font-bold mt-2">4. Layanan Bantuan</h4><p>Support teknis hanya diberikan untuk kendala akses link rusak atau file corrupt saat diunduh, bukan untuk masalah kompatibilitas perangkat keras/HP pembeli.</p></div>`,
-                confirmButtonText: 'Saya Mengerti', confirmButtonColor: '#0891b2', width: '600px'
+                confirmButtonText: 'Saya Mengerti', confirmButtonColor: '#0891b2', width: '600px', background: '#0f172a'
             });
         }
 
@@ -222,7 +321,7 @@
             Swal.fire({
                 title: '<i class="fa-solid fa-user-shield text-cyan-400"></i> Kebijakan Privasi',
                 html: `<div class="text-left text-sm text-slate-300 space-y-4 h-64 overflow-y-auto pr-3" style="scrollbar-width: thin; scrollbar-color: #22d3ee #1e293b;"><p>Privasi Anda adalah prioritas utama di Xiroro Script.</p><h4 class="text-white font-bold mt-2">1. Pengumpulan Data</h4><p>Saat Anda melakukan pembelian, kami hanya mengumpulkan data berupa <strong>Nama, Nomor WhatsApp, dan Email</strong>. Data ini mutlak digunakan hanya untuk keperluan pengiriman resi pembayaran dan link download produk otomatis.</p><h4 class="text-white font-bold mt-2">2. Keamanan Transaksi</h4><p>Semua proses pembayaran diproses dan diamankan secara langsung oleh sistem <strong>Midtrans</strong>. Xiroro tidak pernah menyimpan atau meminta data sensitif seperti nomor PIN, password ATM, atau CVV kartu kredit Anda.</p><h4 class="text-white font-bold mt-2">3. Perlindungan Data</h4><p>Kami menjamin bahwa data kontak Anda (Email & WA) tidak akan pernah disewakan, disebarluaskan, atau dijual kepada pihak ketiga (Spammer/Telemarketing) manapun.</p></div>`,
-                confirmButtonText: 'Tutup', confirmButtonColor: '#0891b2', width: '600px'
+                confirmButtonText: 'Tutup', confirmButtonColor: '#0891b2', width: '600px', background: '#0f172a'
             });
         }
 
@@ -235,7 +334,7 @@
                     </div>
                     <p class="text-sm text-slate-400 mt-4 text-left">Ikuti petunjuk dalam video di atas untuk cara pemasangan script yang benar. Jika video tidak muncul, pastikan Anda sudah login ke akun Google.</p>
                 `,
-                confirmButtonText: 'Selesai Menonton', confirmButtonColor: '#0891b2', width: '700px'
+                confirmButtonText: 'Selesai Menonton', confirmButtonColor: '#0891b2', width: '700px', background: '#0f172a'
             });
         }
 
@@ -244,6 +343,7 @@
                 title: '<i class="fa-solid fa-user-pen text-cyan-400"></i> Lengkapi Data',
                 html: '<input id="n" class="swal2-input" placeholder="Nama Lengkap"><input id="w" class="swal2-input" type="number" placeholder="No. WhatsApp"><input id="e" class="swal2-input" type="email" placeholder="Email Aktif">',
                 showCancelButton: true, cancelButtonText: '<i class="fa-solid fa-xmark"></i> Batal', confirmButtonText: 'Proses <i class="fa-solid fa-arrow-right"></i>',
+                background: '#0f172a',
                 preConfirm: () => {
                     const n = document.getElementById('n').value; const w = document.getElementById('w').value; const e = document.getElementById('e').value;
                     if(!n || !w || !e) Swal.showValidationMessage('Semua kolom wajib diisi!'); return { n, w, e };
@@ -251,20 +351,20 @@
             });
 
             if (isConfirmed && form) {
-                Swal.fire({ title: '<span class="text-cyan-400">Menyiapkan QRIS</span>', html: '<div class="my-4"><i class="fa-solid fa-circle-notch fa-spin fa-3x text-cyan-400"></i></div><p class="text-slate-300">Mohon tunggu...</p>', showConfirmButton: false, allowOutsideClick: false });
+                Swal.fire({ title: '<span class="text-cyan-400">Menyiapkan QRIS</span>', html: '<div class="my-4"><i class="fa-solid fa-circle-notch fa-spin fa-3x text-cyan-400"></i></div><p class="text-slate-300">Mohon tunggu...</p>', showConfirmButton: false, allowOutsideClick: false, background: '#0f172a' });
                 let amanEmail = encodeURIComponent(form.e); let amanLink = encodeURIComponent(linkProduk);
                 
                 fetch(URL_APPS_SCRIPT + `?id=${id}&harga=${harga}&email=${amanEmail}&link=${amanLink}`)
                 .then(r => r.text())
                 .then(token => {
                     Swal.close();
-                    if(token.includes("Gagal")) { Swal.fire({ icon: 'error', title: 'Oops!', text: 'Sistem sedang sibuk atau URL Script salah.' }); return; }
+                    if(token.includes("Gagal")) { Swal.fire({ icon: 'error', title: 'Oops!', text: 'Sistem sedang sibuk atau URL Script salah.', background: '#0f172a' }); return; }
                     window.snap.pay(token, {
-                        onSuccess: () => Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Pembayaran sukses. Cek Email Anda.' }),
-                        onClose: () => Swal.fire({ icon: 'warning', title: 'Batal', text: 'Anda belum menyelesaikan pembayaran.' })
+                        onSuccess: () => Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Pembayaran sukses. Cek Email Anda.', background: '#0f172a' }),
+                        onClose: () => Swal.fire({ icon: 'warning', title: 'Batal', text: 'Anda belum menyelesaikan pembayaran.', background: '#0f172a' })
                     });
                 })
-                .catch(err => Swal.fire({ icon: 'error', title: 'Error Koneksi', text: 'Gagal terhubung ke server pembayaran.' }));
+                .catch(err => Swal.fire({ icon: 'error', title: 'Error Koneksi', text: 'Gagal terhubung ke server pembayaran.', background: '#0f172a' }));
             }
         }
     </script>
