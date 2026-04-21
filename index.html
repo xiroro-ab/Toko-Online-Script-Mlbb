@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -157,9 +157,7 @@
                 const targetId = new URLSearchParams(window.location.search).get('id'); 
                 
                 if (targetId) {
-                    try {
-                        db.collection("script").doc(targetId).update({ views: firebase.firestore.FieldValue.increment(1) });
-                    } catch(e) { }
+                    try { db.collection("script").doc(targetId).update({ views: firebase.firestore.FieldValue.increment(1) }); } catch(e) { }
                 }
                 renderProduk(); 
             })
@@ -226,6 +224,8 @@
                 const sliderId = `slider-${id}`; 
                 
                 let viewCount = f.views && f.views.integerValue ? f.views.integerValue : 0;
+                // Menarik jumlah terjual dari database
+                let terjualCount = f.terjual && f.terjual.integerValue ? f.terjual.integerValue : 0;
                 
                 let imgUrl = f.gambarUrl ? f.gambarUrl.stringValue : "";
                 if (imgUrl.includes("GAGAL_UPLOAD")) imgUrl = "https://dummyimage.com/400x200/1e293b/ef4444.png&text=Gagal+Upload";
@@ -245,12 +245,11 @@
                 let linkRahasia = f.fileLink ? f.fileLink.stringValue : "Tidak_Ada_Link";
                 let textDeskripsi = f.deskripsi.stringValue.replace(/\n/g, '<br>'); 
 
-                // Perbaikan Desain Card: Tambahkan Scroll pada Judul Produk (max-h-[3.5rem] overflow-y-auto desc-scroll)
                 container.innerHTML += `
                     <div class="produk-card card glass-panel flex flex-col w-full h-[460px] ${targetId ? 'animate__animated animate__zoomIn border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : ''}" data-nama="${f.nama.stringValue.toLowerCase()}">
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
-                            <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-fire text-orange-400 mr-1"></i> Terjual 0</span>
+                            <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-fire text-orange-400 mr-1"></i> Terjual ${terjualCount}</span>
                             <span class="text-[10px] text-cyan-400"><i class="fa-solid fa-eye mr-1"></i> ${viewCount} Dilihat</span>
                         </div>
                         
@@ -324,7 +323,14 @@
                 .then(r => r.text()).then(token => {
                     Swal.close();
                     if(token.includes("Gagal")) { Swal.fire({ icon: 'error', title: 'Oops!', text: 'Sistem sedang sibuk.', background: '#0f172a' }); return; }
-                    window.snap.pay(token, { onSuccess: () => Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Pembayaran sukses. Cek Email Anda.', background: '#0f172a' }), onClose: () => Swal.fire({ icon: 'warning', title: 'Batal', text: 'Anda belum menyelesaikan pembayaran.', background: '#0f172a' }) });
+                    window.snap.pay(token, { 
+                        onSuccess: () => {
+                            // --- PENAMBAHAN FITUR: Sensor +1 Terjual ---
+                            try { db.collection("script").doc(id).update({ terjual: firebase.firestore.FieldValue.increment(1) }); } catch(e) { }
+                            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Pembayaran sukses. Cek Email Anda.', background: '#0f172a' }) 
+                        }, 
+                        onClose: () => Swal.fire({ icon: 'warning', title: 'Batal', text: 'Anda belum menyelesaikan pembayaran.', background: '#0f172a' }) 
+                    });
                 }).catch(err => Swal.fire({ icon: 'error', title: 'Error Koneksi', text: 'Gagal terhubung ke server pembayaran.', background: '#0f172a' }));
             }
         }
