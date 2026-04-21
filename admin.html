@@ -16,6 +16,11 @@
         body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .tab-active { border-bottom: 2px solid #22d3ee; color: #22d3ee; }
+        
+        /* CSS Scrollbar untuk Judul & Deskripsi Panjang di Admin */
+        .desc-scroll::-webkit-scrollbar { width: 4px; }
+        .desc-scroll::-webkit-scrollbar-track { background: transparent; }
+        .desc-scroll::-webkit-scrollbar-thumb { background: #22d3ee; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -124,9 +129,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // KUNCI FIREBASE ASLI ANDA
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAXfLH19B6nQkEwUwnDoA2C-Nh5DQhwEIo",
             authDomain: "toko-mod-mlbb.firebaseapp.com",
@@ -136,40 +138,32 @@
             appId: "1:814354818916:web:452a04732f528abdec7c71",
             measurementId: "G-20KBWYYJXE"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // LINK GOOGLE APPS SCRIPT ANDA
+        // !!! WAJIB ISI DENGAN URL APPS SCRIPT ANDA YANG TERBARU !!!
         const appsScriptUrl = "https://script.google.com/macros/s/AKfycbyfBzWmShFfm00QdleoSpxhgwPeRmwhu-OSte6JZcuza1G9sIfmlXgdeSjV1BLgsqoj/exec";
 
         function loginAdmin() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
-            Swal.fire({ title: 'Memeriksa Akses...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-
+            Swal.fire({ title: 'Memeriksa...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
-                    Swal.close();
-                    Swal.fire({ icon: 'success', title: 'Selamat Datang!', text: 'Login berhasil.', timer: 1500, showConfirmButton: false });
+                    Swal.close(); Swal.fire({ icon: 'success', title: 'Selamat Datang!', timer: 1500, showConfirmButton: false });
                     document.getElementById('areaLogin').style.display = 'none';
                     document.getElementById('areaAdmin').style.display = 'block';
-                    loadProduk(); 
-                    loadConfig(); 
+                    loadProduk(); loadConfig(); 
                 })
-                .catch((error) => {
-                    Swal.fire({ icon: 'error', title: 'Gagal Login', text: error.message });
-                });
+                .catch((error) => { Swal.fire({ icon: 'error', title: 'Gagal Login', text: error.message }); });
         }
 
         function logoutAdmin() {
             auth.signOut().then(() => {
                 document.getElementById('areaLogin').style.display = 'block';
                 document.getElementById('areaAdmin').style.display = 'none';
-                document.getElementById('email').value = '';
-                document.getElementById('password').value = '';
+                document.getElementById('email').value = ''; document.getElementById('password').value = '';
             });
         }
 
@@ -180,83 +174,66 @@
             document.getElementById('btn-tampilan').className = tab === 'tampilan' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
         }
 
-        // ==========================================
-        // FITUR BARU: SALIN LINK KHUSUS YOUTUBE
-        // ==========================================
         function copyDirectLink(id) {
             let baseUrl = window.location.href.split('admin.html')[0];
             if (!baseUrl.endsWith('/')) baseUrl += '/';
-            
             const directLink = baseUrl + "?id=" + id;
-            
             navigator.clipboard.writeText(directLink).then(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Link Disalin!',
-                    html: 'Link khusus produk ini siap ditempel di deskripsi YouTube:<br><br><code class="text-cyan-400 text-xs break-all">' + directLink + '</code>',
-                    background: '#1e293b',
-                    color: '#fff'
-                });
-            }).catch(() => {
-                Swal.fire('Gagal', 'Tidak dapat menyalin link otomatis.', 'error');
+                Swal.fire({ icon: 'success', title: 'Link Disalin!', html: '<code class="text-cyan-400 text-xs break-all">' + directLink + '</code>', background: '#1e293b', color: '#fff' });
             });
         }
 
-        // ==========================================
-        // CRUD: LOAD PRODUK DARI FIRESTORE
-        // ==========================================
         async function loadProduk() {
             const list = document.getElementById('list-produk');
             list.innerHTML = '<div class="text-center text-cyan-400 py-4"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
-
             try {
                 const snapshot = await db.collection("script").get();
                 list.innerHTML = "";
-                
-                if(snapshot.empty) {
-                    list.innerHTML = "<p class='text-center text-slate-500'>Belum ada produk di etalase.</p>";
-                    return;
-                }
+                if(snapshot.empty) { list.innerHTML = "<p class='text-center text-slate-500'>Belum ada produk.</p>"; return; }
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const id = doc.id;
-                    
-                    let imgUrl = data.gambarUrl ? data.gambarUrl : "";
-                    
-                    if (imgUrl.includes("GAGAL_UPLOAD")) {
-                        imgUrl = "https://dummyimage.com/150x150/1e293b/ef4444.png&text=Gagal+Upload";
-                    } else if (imgUrl.includes("drive.google.com")) {
+                let docsArray = [];
+                snapshot.forEach(doc => docsArray.push({id: doc.id, data: doc.data()}));
+                
+                docsArray.sort((a, b) => {
+                    let timeA = a.data.createTime ? new Date(a.data.createTime).getTime() : 0;
+                    let timeB = b.data.createTime ? new Date(b.data.createTime).getTime() : 0;
+                    return timeB - timeA;
+                });
+
+                docsArray.forEach(item => {
+                    const data = item.data;
+                    const id = item.id;
+                    let imgUrl = data.gambarUrl || "https://dummyimage.com/150x150/1e293b/22d3ee.png&text=Tanpa+Foto";
+                    if (imgUrl.includes("GAGAL_UPLOAD")) imgUrl = "https://dummyimage.com/150x150/1e293b/ef4444.png&text=Error";
+                    else if (imgUrl.includes("drive.google.com")) {
                         let fileId = "";
                         if (imgUrl.includes("/d/")) fileId = imgUrl.split("/d/")[1].split("/")[0];
                         else if (imgUrl.includes("id=")) fileId = imgUrl.split("id=")[1].split("&")[0];
                         if (fileId) imgUrl = "https://lh3.googleusercontent.com/d/" + fileId;
                     }
-                    if (!imgUrl) imgUrl = "https://dummyimage.com/150x150/1e293b/22d3ee.png&text=Tanpa+Foto";
 
+                    // Menambahkan fitur scroll pada judul admin panel jika nama terlalu panjang
                     list.innerHTML += `
                         <div class="flex items-center justify-between p-4 bg-slate-800/80 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition">
                             <div class="flex items-center gap-4 w-2/3">
                                 <div class="w-14 h-14 bg-slate-900 rounded-lg overflow-hidden border border-slate-600 flex-shrink-0">
-                                    <img src="${imgUrl}" class="w-full h-full object-cover" onerror="this.src='https://dummyimage.com/150x150/1e293b/ef4444.png&text=Error'">
+                                    <img src="${imgUrl}" class="w-full h-full object-cover">
                                 </div>
-                                <div class="overflow-hidden">
-                                    <h4 class="font-bold text-white truncate">${data.nama}</h4>
-                                    <p class="text-xs text-cyan-400 font-mono">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</p>
+                                <div class="overflow-hidden w-full">
+                                    <h4 class="font-bold text-white max-h-[2.8rem] overflow-y-auto desc-scroll leading-tight pr-1 mb-1">${data.nama}</h4>
+                                    <p class="text-xs text-cyan-400 font-mono mb-1">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</p>
+                                    <span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-slate-300"><i class="fa-solid fa-eye text-cyan-400"></i> Dilihat ${data.views || 0}x</span>
                                 </div>
                             </div>
                             <div class="flex gap-2 flex-shrink-0">
-                                <button onclick="copyDirectLink('${id}')" class="w-10 h-10 bg-blue-600/80 rounded-lg hover:bg-blue-500 transition text-white" title="Salin Link untuk YouTube"><i class="fa-solid fa-link"></i></button>
-                                
-                                <button onclick="prepareEdit('${id}', \`${data.nama}\`, '${data.harga}', \`${data.deskripsi}\`, '${data.videoID || ''}', '${data.fileLink}', '${data.gambarUrl}')" class="w-10 h-10 bg-yellow-600/80 rounded-lg hover:bg-yellow-500 transition text-white" title="Edit Produk"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="hapusProduk('${id}')" class="w-10 h-10 bg-red-600/80 rounded-lg hover:bg-red-500 transition text-white" title="Hapus Produk"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="copyDirectLink('${id}')" class="w-10 h-10 bg-blue-600/80 rounded-lg hover:bg-blue-500 transition text-white" title="Salin Link YT"><i class="fa-solid fa-link"></i></button>
+                                <button onclick="prepareEdit('${id}', \`${data.nama}\`, '${data.harga}', \`${data.deskripsi}\`, '${data.videoID || ''}', '${data.fileLink}', '${data.gambarUrl}')" class="w-10 h-10 bg-yellow-600/80 rounded-lg hover:bg-yellow-500 transition text-white"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="hapusProduk('${id}')" class="w-10 h-10 bg-red-600/80 rounded-lg hover:bg-red-500 transition text-white"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
                     `;
                 });
-            } catch (error) {
-                list.innerHTML = `<p class='text-center text-red-500'>Gagal memuat data: ${error.message}</p>`;
-            }
+            } catch (error) { list.innerHTML = `<p class='text-red-500'>Error: ${error.message}</p>`; }
         }
 
         async function simpanProduk(e) {
@@ -266,33 +243,21 @@
             const editId = document.getElementById('edit-id').value;
             let imageUrl = document.getElementById('gambarUrlLama').value; 
 
-            if (!editId && !file) {
-                Swal.fire('Perhatian', 'Produk baru wajib menyertakan foto!', 'warning'); return;
-            }
+            if (!editId && !file) { Swal.fire('Perhatian', 'Produk baru wajib menyertakan foto!', 'warning'); return; }
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
 
             try {
                 if (file) {
-                    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce"></i> Mengupload Foto...';
+                    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce"></i> Upload Foto...';
                     const base64Data = await new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => resolve(e.target.result.split(',')[1]);
-                        reader.readAsDataURL(file);
+                        const reader = new FileReader(); reader.onload = (e) => resolve(e.target.result.split(',')[1]); reader.readAsDataURL(file);
                     });
-
-                    const response = await fetch(appsScriptUrl, {
-                        method: "POST",
-                        body: new URLSearchParams({ action: "upload", filename: file.name, mimetype: file.type, data: base64Data })
-                    });
-                    
+                    const response = await fetch(appsScriptUrl, { method: "POST", body: new URLSearchParams({ action: "upload", filename: file.name, mimetype: file.type, data: base64Data }) });
                     imageUrl = await response.text(); 
-                    
                     if (imageUrl.includes("GAGAL_UPLOAD")) {
                         Swal.fire({ icon: 'error', title: 'Upload Ditolak', text: imageUrl });
-                        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Etalase';
-                        return; 
+                        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Etalase'; return; 
                     }
                 }
 
@@ -303,17 +268,18 @@
                     deskripsi: document.getElementById('deskripsi').value,
                     videoID: document.getElementById('videoID').value,
                     fileLink: document.getElementById('fileLink').value,
-                    gambarUrl: imageUrl
+                    gambarUrl: imageUrl,
+                    createTime: new Date().toISOString() 
                 };
 
                 if (editId) {
                     await db.collection("script").doc(editId).update(dataToSave);
-                    Swal.fire('Berhasil!', 'Produk telah di-update.', 'success');
+                    Swal.fire('Berhasil!', 'Produk di-update.', 'success');
                 } else {
+                    dataToSave.views = 0; 
                     await db.collection("script").add(dataToSave);
-                    Swal.fire('Berhasil!', 'Produk baru ditambahkan ke etalase.', 'success');
+                    Swal.fire('Berhasil!', 'Produk baru ditambahkan.', 'success');
                 }
-
                 resetForm(); loadProduk(); 
             } catch (error) {
                 Swal.fire('Gagal!', error.message, 'error');
@@ -323,70 +289,38 @@
 
         function prepareEdit(id, nama, harga, deskripsi, video, fileLink, imgLama) {
             document.getElementById('form-title').innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Edit Produk";
-            document.getElementById('edit-id').value = id;
-            document.getElementById('gambarUrlLama').value = imgLama; 
-            document.getElementById('nama').value = nama;
-            document.getElementById('harga').value = harga;
-            document.getElementById('deskripsi').value = deskripsi;
-            document.getElementById('videoID').value = video;
-            document.getElementById('fileLink').value = fileLink;
-            document.getElementById('foto').value = ''; 
-            document.getElementById('info-foto').classList.remove('hidden'); 
+            document.getElementById('edit-id').value = id; document.getElementById('gambarUrlLama').value = imgLama; 
+            document.getElementById('nama').value = nama; document.getElementById('harga').value = harga;
+            document.getElementById('deskripsi').value = deskripsi; document.getElementById('videoID').value = video; document.getElementById('fileLink').value = fileLink;
+            document.getElementById('foto').value = ''; document.getElementById('info-foto').classList.remove('hidden'); 
             
-            const btn = document.getElementById('btn-submit');
-            btn.innerHTML = "<i class='fa-solid fa-check'></i> Update Produk";
-            btn.classList.replace('bg-cyan-600', 'bg-yellow-600');
-            btn.classList.replace('hover:bg-cyan-500', 'hover:bg-yellow-500');
+            const btn = document.getElementById('btn-submit'); btn.innerHTML = "<i class='fa-solid fa-check'></i> Update Produk";
+            btn.classList.replace('bg-cyan-600', 'bg-yellow-600'); btn.classList.replace('hover:bg-cyan-500', 'hover:bg-yellow-500');
             document.getElementById('btn-cancel').classList.remove('hidden');
         }
 
         function resetForm() {
-            document.getElementById('form-produk').reset();
-            document.getElementById('edit-id').value = "";
-            document.getElementById('gambarUrlLama').value = "";
-            document.getElementById('form-title').innerHTML = "<i class='fa-solid fa-plus'></i> Tambah Produk Baru";
-            document.getElementById('info-foto').classList.add('hidden');
-            
-            const btn = document.getElementById('btn-submit');
-            btn.disabled = false;
-            btn.innerHTML = "<i class='fa-solid fa-cloud-arrow-up'></i> Simpan ke Etalase";
-            btn.classList.replace('bg-yellow-600', 'bg-cyan-600');
-            btn.classList.replace('hover:bg-yellow-500', 'hover:bg-cyan-500');
+            document.getElementById('form-produk').reset(); document.getElementById('edit-id').value = ""; document.getElementById('gambarUrlLama').value = "";
+            document.getElementById('form-title').innerHTML = "<i class='fa-solid fa-plus'></i> Tambah Produk Baru"; document.getElementById('info-foto').classList.add('hidden');
+            const btn = document.getElementById('btn-submit'); btn.disabled = false; btn.innerHTML = "<i class='fa-solid fa-cloud-arrow-up'></i> Simpan ke Etalase";
+            btn.classList.replace('bg-yellow-600', 'bg-cyan-600'); btn.classList.replace('hover:bg-yellow-500', 'hover:bg-cyan-500');
             document.getElementById('btn-cancel').classList.add('hidden');
         }
 
         async function hapusProduk(id) {
-            Swal.fire({
-                title: 'Hapus Produk?', text: "Data ini tidak bisa dikembalikan!", icon: 'warning',
-                showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Hapus!'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    await db.collection("script").doc(id).delete();
-                    Swal.fire('Terhapus!', 'Produk telah dihapus dari etalase.', 'success');
-                    loadProduk();
-                }
+            Swal.fire({ title: 'Hapus Produk?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Hapus' }).then(async (result) => {
+                if (result.isConfirmed) { await db.collection("script").doc(id).delete(); loadProduk(); }
             });
         }
 
         function loadConfig() {
-            const config = JSON.parse(localStorage.getItem('xiroro_config')) || {
-                video: "https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas9/main/background_2.mp4",
-                logo: "https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas9/refs/heads/main/20201025_193555.png",
-                kolom: "grid-cols-4"
-            };
-            document.getElementById('cfg-video').value = config.video;
-            document.getElementById('cfg-logo').value = config.logo;
-            document.getElementById('cfg-kolom').value = config.kolom;
+            const config = JSON.parse(localStorage.getItem('xiroro_config')) || { video: "", logo: "", kolom: "grid-cols-4" };
+            document.getElementById('cfg-video').value = config.video; document.getElementById('cfg-logo').value = config.logo; document.getElementById('cfg-kolom').value = config.kolom;
         }
 
         function simpanConfig() {
-            const config = {
-                video: document.getElementById('cfg-video').value,
-                logo: document.getElementById('cfg-logo').value,
-                kolom: document.getElementById('cfg-kolom').value
-            };
-            localStorage.setItem('xiroro_config', JSON.stringify(config));
-            Swal.fire('Tersimpan!', 'Silakan Refresh website utama pembeli.', 'success');
+            localStorage.setItem('xiroro_config', JSON.stringify({ video: document.getElementById('cfg-video').value, logo: document.getElementById('cfg-logo').value, kolom: document.getElementById('cfg-kolom').value }));
+            Swal.fire('Tersimpan!', 'Silakan Refresh website utama.', 'success');
         }
     </script>
 </body>
