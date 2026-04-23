@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xiroro Script | Premium Mods</title>
+    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Toko Script MLBB Premium, Aman, dan Terpercaya. Update Patch Terbaru.">
+    <meta property="og:title" content="Xiroro Script | Premium Mods">
+    <meta property="og:description" content="Toko Script MLBB Premium, Aman, dan Terpercaya.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201025_193555%20(1).png">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201025_193555%20(1).png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Xiroro Script","short_name":"Xiroro","display":"standalone","background_color":"#000000","theme_color":"#0f172a","icons":[{"src":"https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201025_193555%20(1).png","sizes":"192x192","type":"image/png"}]}'>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
@@ -35,11 +48,20 @@
         .desc-scroll::-webkit-scrollbar { width: 4px; }
         .desc-scroll::-webkit-scrollbar-track { background: transparent; }
         .desc-scroll::-webkit-scrollbar-thumb { background: #22d3ee; border-radius: 10px; }
+        
+        @keyframes float-wa { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        .floating-wa { animation: float-wa 3s ease-in-out infinite; }
     </style>
 </head>
-<body class="text-white">
+<body class="text-white relative">
 
     <video autoplay muted loop playsinline id="video-bg"></video>
+
+    <div class="glass-panel text-white text-xs py-2 px-4 text-center border-b border-cyan-500/30">
+        <marquee scrollamount="5" class="max-w-4xl mx-auto">
+            <i class="fa-solid fa-bullhorn mr-2"></i> <b>PENGUMUMAN:</b> Selamat datang di Xiroro Script! Semua file kami dipastikan aman namun jika terjadi apapun pada akun anda itu bukan menjadi tanggung jawab kami dan semua script ini disesuaikan dengan update patch terbaru. | Gunakan fitur ❤️ <b>Favorit</b> untuk menyimpan script incaran Anda!
+        </marquee>
+    </div>
 
     <header class="py-10 text-center glass-panel border-b border-cyan-500/30">
         <h1 class="text-4xl font-bold animate__animated animate__fadeInDown"><i class="fa-solid fa-code text-cyan-400"></i> Xiroro <span class="text-cyan-400">Script</span></h1>
@@ -60,6 +82,7 @@
                 <option value="terpopuler">Urutkan: Paling Populer</option>
                 <option value="murah">Urutkan: Harga Termurah</option>
                 <option value="mahal">Urutkan: Harga Termahal</option>
+                <option value="favorit">Tampilkan Favorit Saya ❤️</option>
             </select>
         </div>
 
@@ -74,7 +97,7 @@
         </div>
     </main>
 
-    <footer class="glass-panel border-t border-cyan-500/30 pt-12 pb-6 mt-10">
+    <footer class="glass-panel border-t border-cyan-500/30 pt-12 pb-6 mt-10 relative z-10">
         <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-sm">
             <div>
                 <h3 class="text-lg font-bold text-cyan-400 mb-4"><i class="fa-solid fa-shield-halved"></i> Tentang Xiroro</h3>
@@ -86,6 +109,7 @@
                     <li><a href="javascript:void(0)" onclick="bukaSK()" class="hover:text-cyan-400 hover:pl-2 transition-all duration-300"><i class="fa-solid fa-angle-right mr-1 text-cyan-500"></i> Syarat & Ketentuan</a></li>
                     <li><a href="javascript:void(0)" onclick="bukaPrivasi()" class="hover:text-cyan-400 hover:pl-2 transition-all duration-300"><i class="fa-solid fa-angle-right mr-1 text-cyan-500"></i> Kebijakan Privasi</a></li>
                     <li><a href="javascript:void(0)" onclick="bukaTutorial()" class="hover:text-cyan-400 hover:pl-2 transition-all duration-300"><i class="fa-solid fa-angle-right mr-1 text-cyan-500"></i> Cara Pemasangan Script</a></li>
+                    <li><a href="javascript:void(0)" onclick="bukaFAQ()" class="hover:text-cyan-400 hover:pl-2 transition-all duration-300"><i class="fa-solid fa-angle-right mr-1 text-cyan-500"></i> Tanya Jawab (FAQ)</a></li>
                 </ul>
             </div>
             <div>
@@ -102,6 +126,10 @@
             <p class="mt-2 md:mt-0 tracking-widest uppercase">Powered by <span class="text-cyan-400 font-bold ml-1">XIRORO</span></p>
         </div>
     </footer>
+
+    <a href="https://wa.me/62895420471010" target="_blank" class="fixed bottom-6 right-6 bg-[#25D366] hover:bg-[#128C7E] text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(37,211,102,0.5)] z-50 transition-all hover:scale-110 floating-wa" title="Hubungi Kami via WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
 
     <script>
         const firebaseConfig = {
@@ -146,6 +174,21 @@
             }
         }
 
+        function toggleFavorit(id) {
+            let favList = JSON.parse(localStorage.getItem('xiroro_wishlist')) || [];
+            
+            if (favList.includes(id)) {
+                favList = favList.filter(item => item !== id);
+                Swal.fire({ toast: true, position: 'bottom-end', icon: 'info', title: 'Dihapus dari Favorit', showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff' });
+            } else {
+                favList.push(id);
+                Swal.fire({ toast: true, position: 'bottom-end', icon: 'success', title: 'Disimpan ke Favorit ❤️', showConfirmButton: false, timer: 1500, background: '#1e293b', color: '#fff' });
+            }
+            
+            localStorage.setItem('xiroro_wishlist', JSON.stringify(favList));
+            renderProduk();
+        }
+
         fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/script`)
             .then(res => res.json())
             .then(data => {
@@ -161,13 +204,15 @@
                 }
                 renderProduk(); 
             })
-            .catch(err => document.getElementById('katalog-produk').innerHTML = "<p class='col-span-full text-center text-red-400'>Gagal terhubung ke Database.</p>");
+            .catch(err => document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal terhubung ke Database. <br><span class="text-sm">(${err.message})</span></p>`);
 
         function renderProduk() {
             const container = document.getElementById('katalog-produk');
             const targetId = new URLSearchParams(window.location.search).get('id');
             const inputCari = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
             const inputSort = document.getElementById('sortInput') ? document.getElementById('sortInput').value : 'terbaru';
+            
+            const favList = JSON.parse(localStorage.getItem('xiroro_wishlist')) || [];
 
             terapkanTemaAdmin(targetId ? true : false);
             
@@ -176,11 +221,13 @@
                 const nama = doc.fields.nama.stringValue.toLowerCase();
                 if (targetId && id !== targetId) return false;
                 if (inputCari && !nama.includes(inputCari)) return false;
+                if (inputSort === 'favorit' && !favList.includes(id)) return false;
+                
                 return true;
             });
 
             dataTampil.sort((a, b) => {
-                if (inputSort === 'terbaru') {
+                if (inputSort === 'terbaru' || inputSort === 'favorit') {
                     let timeA = a.fields.createTime ? new Date(a.fields.createTime.stringValue).getTime() : 0;
                     let timeB = b.fields.createTime ? new Date(b.fields.createTime.stringValue).getTime() : 0;
                     return timeB - timeA;
@@ -208,11 +255,14 @@
             }
 
             if (dataTampil.length === 0) {
+                let pesanKosong = "Script yang Anda cari tidak ada atau link tidak valid.";
+                if (inputSort === 'favorit') pesanKosong = "Anda belum menyimpan script apapun ke daftar Favorit.";
+                
                  container.innerHTML += `
                     <div class="col-span-full text-center py-10 animate__animated animate__fadeIn w-full">
-                        <i class="fa-solid fa-box-open text-5xl text-slate-600 mb-4"></i>
+                        <i class="fa-solid ${inputSort === 'favorit' ? 'fa-heart-crack' : 'fa-box-open'} text-5xl text-slate-600 mb-4"></i>
                         <h3 class="text-xl font-bold text-white mb-2">Tidak Ditemukan</h3>
-                        <p class="text-slate-400">Script yang Anda cari tidak ada atau link tidak valid.</p>
+                        <p class="text-slate-400">${pesanKosong}</p>
                     </div>
                 `;
                 return;
@@ -223,8 +273,9 @@
                 const id = doc.name.split('/').pop();
                 const sliderId = `slider-${id}`; 
                 
+                const isFavorit = favList.includes(id); 
+                
                 let viewCount = f.views && f.views.integerValue ? f.views.integerValue : 0;
-                // Menarik jumlah terjual dari database
                 let terjualCount = f.terjual && f.terjual.integerValue ? f.terjual.integerValue : 0;
                 
                 let imgUrl = f.gambarUrl ? f.gambarUrl.stringValue : "";
@@ -278,6 +329,11 @@
                             <div class="text-xl font-extrabold text-cyan-400 mb-3 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">Rp ${parseInt(f.harga.stringValue).toLocaleString('id-ID')}</div>
                             <div class="flex gap-2">
                                 <button onclick="klikBeli('${id}', '${f.nama.stringValue}', ${f.harga.stringValue}, '${linkRahasia}')" class="flex-1 bg-cyan-600/80 hover:bg-cyan-500 text-white py-2 rounded-lg font-bold transition shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] backdrop-blur-sm border border-cyan-400/50"><i class="fa-solid fa-cart-shopping mr-2"></i> Beli Sekarang</button>
+                                
+                                <button onclick="toggleFavorit('${id}')" class="w-12 bg-slate-700/80 hover:bg-slate-600 rounded-lg flex items-center justify-center transition border border-slate-600 hover:border-red-400/50" title="Simpan ke Favorit">
+                                    <i class="${isFavorit ? 'fa-solid text-red-500' : 'fa-regular text-white'} fa-heart"></i>
+                                </button>
+                                
                                 <button onclick="bagikanScript('${id}', \`${f.nama.stringValue}\`)" class="w-12 bg-slate-700/80 hover:bg-slate-600 text-white rounded-lg flex items-center justify-center transition border border-slate-600 hover:border-cyan-400/50 hover:text-cyan-400" title="Bagikan"><i class="fa-solid fa-share-nodes"></i></button>
                             </div>
                         </div>
@@ -311,6 +367,28 @@
         function bukaSK() { Swal.fire({ title: '<i class="fa-solid fa-file-contract text-cyan-400"></i> Syarat & Ketentuan', html: `<div class="text-left text-sm text-slate-300 space-y-4 h-64 overflow-y-auto pr-3 desc-scroll"><p>Selamat datang di Xiroro Script. Dengan melakukan pembelian, Anda menyetujui syarat berikut:</p><h4 class="text-white font-bold mt-2">1. Risiko Penggunaan</h4><p>Script dan modifikasi yang dijual digunakan sepenuhnya atas risiko pengguna sendiri. Kami tidak bertanggung jawab atas sanksi, pemblokiran akun (banned), atau kerugian yang diberikan oleh developer game resmi.</p><h4 class="text-white font-bold mt-2">2. Kebijakan Pengembalian Dana (No Refund)</h4><p>Dikarenakan produk kami berupa barang digital (file) yang otomatis terkirim, <strong>TIDAK ADA PENGEMBALIAN DANA</strong> dengan alasan apapun setelah transaksi berhasil dan file diterima.</p><h4 class="text-white font-bold mt-2">3. Hak Cipta & Larangan Resell</h4><p>Anda dilarang keras untuk menjual ulang (reseller tanpa izin), membagikan file secara gratis, atau membongkar ulang script buatan Xiroro ke pihak lain.</p><h4 class="text-white font-bold mt-2">4. Layanan Bantuan</h4><p>Support teknis hanya diberikan untuk kendala akses link rusak atau file corrupt saat diunduh, bukan untuk masalah kompatibilitas perangkat keras/HP pembeli.</p></div>`, confirmButtonText: 'Saya Mengerti', confirmButtonColor: '#0891b2', width: '600px', background: '#0f172a' }); }
         function bukaPrivasi() { Swal.fire({ title: '<i class="fa-solid fa-user-shield text-cyan-400"></i> Kebijakan Privasi', html: `<div class="text-left text-sm text-slate-300 space-y-4 h-64 overflow-y-auto pr-3 desc-scroll"><p>Privasi Anda adalah prioritas utama di Xiroro Script.</p><h4 class="text-white font-bold mt-2">1. Pengumpulan Data</h4><p>Saat Anda melakukan pembelian, kami hanya mengumpulkan data berupa <strong>Nama, Nomor WhatsApp, dan Email</strong>. Data ini mutlak digunakan hanya untuk keperluan pengiriman resi pembayaran dan link download produk otomatis.</p><h4 class="text-white font-bold mt-2">2. Keamanan Transaksi</h4><p>Semua proses pembayaran diproses dan diamankan secara langsung oleh sistem <strong>Midtrans</strong>. Xiroro tidak pernah menyimpan atau meminta data sensitif seperti nomor PIN, password ATM, atau CVV kartu kredit Anda.</p><h4 class="text-white font-bold mt-2">3. Perlindungan Data</h4><p>Kami menjamin bahwa data kontak Anda (Email & WA) tidak akan pernah disewakan, disebarluaskan, atau dijual kepada pihak ketiga (Spammer/Telemarketing) manapun.</p></div>`, confirmButtonText: 'Tutup', confirmButtonColor: '#0891b2', width: '600px', background: '#0f172a' }); }
         function bukaTutorial() { Swal.fire({ title: '<i class="fa-solid fa-video text-cyan-400"></i> Tutorial Pemasangan', html: `<div class="aspect-video w-full rounded-xl overflow-hidden border border-slate-700"><iframe src="https://drive.google.com/file/d/17BUIZzUhNlaUNdJT4DAiGou2RH6Sz0xf/preview" width="100%" height="100%" allow="autoplay"></iframe></div><p class="text-sm text-slate-400 mt-4 text-left">Ikuti petunjuk dalam video di atas untuk cara pemasangan script yang benar. Jika video tidak muncul, pastikan Anda sudah login ke akun Google.</p>`, confirmButtonText: 'Selesai Menonton', confirmButtonColor: '#0891b2', width: '700px', background: '#0f172a' }); }
+        
+        function bukaFAQ() { 
+            Swal.fire({ 
+                title: '<i class="fa-solid fa-circle-question text-cyan-400"></i> Tanya Jawab (FAQ)', 
+                html: `
+                    <div class="text-left text-sm text-slate-300 space-y-4 h-64 overflow-y-auto pr-3 desc-scroll">
+                        <h4 class="text-white font-bold mt-2">Q: Apakah script ini aman dari ban?</h4>
+                        <p>A: Kami selalu berusaha membuat script seaman mungkin. Namun, modifikasi sistem game selalu memiliki resiko. Gunakan sewajarnya dan resiko ditanggung pengguna.</p>
+                        
+                        <h4 class="text-white font-bold mt-4">Q: Bagaimana cara mendapatkan update jika ada patch baru?</h4>
+                        <p>A: Pantau terus channel YouTube kami. Jika ada perubahan sistem besar-besaran dari developer resmi, kami akan menginfokan update terbaru di sana.</p>
+                        
+                        <h4 class="text-white font-bold mt-4">Q: Setelah membayar, di mana saya mendapatkan script-nya?</h4>
+                        <p>A: Begitu pembayaran Midtrans Anda berhasil (hijau), sistem kami akan langsung mengirimkan Link Download ke Email yang Anda ketikkan saat membeli. Pastikan email Anda aktif!</p>
+                        
+                        <h4 class="text-white font-bold mt-4">Q: Saya salah ketik email saat membeli, bagaimana ini?</h4>
+                        <p>A: Silakan klik tombol WhatsApp hijau di pojok layar, sertakan bukti/resi pembayaran dari bank Anda, Admin kami akan membantu mengirimkan link manual ke WhatsApp Anda.</p>
+                    </div>
+                `, 
+                confirmButtonText: 'Tutup', confirmButtonColor: '#0891b2', width: '600px', background: '#0f172a' 
+            }); 
+        }
 
         async function klikBeli(id, nama, harga, linkProduk) {
             const { value: form, isConfirmed } = await Swal.fire({
@@ -325,7 +403,6 @@
                     if(token.includes("Gagal")) { Swal.fire({ icon: 'error', title: 'Oops!', text: 'Sistem sedang sibuk.', background: '#0f172a' }); return; }
                     window.snap.pay(token, { 
                         onSuccess: () => {
-                            // --- PENAMBAHAN FITUR: Sensor +1 Terjual ---
                             try { db.collection("script").doc(id).update({ terjual: firebase.firestore.FieldValue.increment(1) }); } catch(e) { }
                             Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Pembayaran sukses. Cek Email Anda.', background: '#0f172a' }) 
                         }, 
