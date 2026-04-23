@@ -210,24 +210,31 @@
                         if (fileId) imgUrl = "https://lh3.googleusercontent.com/d/" + fileId;
                     }
 
+                    // --- PERBAIKAN RESPONSIVE DI SINI ---
+                    // Menggunakan flex-col pada HP (tumpuk bawah), dan flex-row pada PC (samping)
                     list.innerHTML += `
-                        <div class="flex items-center justify-between p-4 bg-slate-800/80 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition">
-                            <div class="flex items-center gap-4 w-2/3">
-                                <div class="w-14 h-14 bg-slate-900 rounded-lg overflow-hidden border border-slate-600 flex-shrink-0">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-800/80 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition gap-4">
+                            
+                            <div class="flex items-start sm:items-center gap-4 w-full overflow-hidden">
+                                <div class="w-16 h-16 sm:w-14 sm:h-14 bg-slate-900 rounded-lg overflow-hidden border border-slate-600 flex-shrink-0">
                                     <img src="${imgUrl}" class="w-full h-full object-cover">
                                 </div>
                                 <div class="overflow-hidden w-full">
-                                    <h4 class="font-bold text-white max-h-[2.8rem] overflow-y-auto desc-scroll leading-tight pr-1 mb-1">${data.nama}</h4>
-                                    <p class="text-xs text-cyan-400 font-mono mb-1">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</p>
-                                    <span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-slate-300 mr-1"><i class="fa-solid fa-fire text-orange-400"></i> Terjual ${data.terjual || 0}</span>
-                                    <span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-slate-300"><i class="fa-solid fa-eye text-cyan-400"></i> Dilihat ${data.views || 0}x</span>
+                                    <h4 class="font-bold text-white max-h-[3.2rem] overflow-y-auto desc-scroll leading-tight pr-1 mb-1">${data.nama}</h4>
+                                    <p class="text-xs text-cyan-400 font-mono mb-2">Rp ${parseInt(data.harga).toLocaleString('id-ID')}</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300"><i class="fa-solid fa-fire text-orange-400 mr-1"></i> Terjual ${data.terjual || 0}</span>
+                                        <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300"><i class="fa-solid fa-eye text-cyan-400 mr-1"></i> Dilihat ${data.views || 0}x</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex gap-2 flex-shrink-0">
-                                <button onclick="copyDirectLink('${id}')" class="w-10 h-10 bg-blue-600/80 rounded-lg hover:bg-blue-500 transition text-white" title="Salin Link YT"><i class="fa-solid fa-link"></i></button>
-                                <button onclick="prepareEdit('${id}', \`${data.nama}\`, '${data.harga}', \`${data.deskripsi}\`, '${data.videoID || ''}', '${data.fileLink}', '${data.gambarUrl}')" class="w-10 h-10 bg-yellow-600/80 rounded-lg hover:bg-yellow-500 transition text-white"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="hapusProduk('${id}')" class="w-10 h-10 bg-red-600/80 rounded-lg hover:bg-red-500 transition text-white"><i class="fa-solid fa-trash"></i></button>
+
+                            <div class="flex gap-2 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-700/50 mt-1 sm:mt-0 flex-shrink-0">
+                                <button onclick="copyDirectLink('${id}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-blue-600/80 rounded-lg hover:bg-blue-500 transition text-white flex items-center justify-center" title="Salin Link YT"><i class="fa-solid fa-link"></i></button>
+                                <button onclick="prepareEdit('${id}', \`${data.nama}\`, '${data.harga}', \`${data.deskripsi}\`, '${data.videoID || ''}', '${data.fileLink}', '${data.gambarUrl}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-yellow-600/80 rounded-lg hover:bg-yellow-500 transition text-white flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="hapusProduk('${id}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-red-600/80 rounded-lg hover:bg-red-500 transition text-white flex items-center justify-center" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                             </div>
+
                         </div>
                     `;
                 });
@@ -274,7 +281,6 @@
                     await db.collection("script").doc(editId).update(dataToSave);
                     Swal.fire('Berhasil!', 'Produk di-update.', 'success');
                 } else {
-                    // Setel views dan terjual menjadi 0 untuk produk baru
                     dataToSave.views = 0; 
                     dataToSave.terjual = 0;
                     await db.collection("script").add(dataToSave);
