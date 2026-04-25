@@ -9,13 +9,15 @@
     <meta name="description" content="Toko Script MLBB Premium, Aman, dan Terpercaya. Update Patch Terbaru.">
     <meta property="og:title" content="Xiroro Script | Premium Mods">
     <meta property="og:description" content="Toko Script MLBB Premium, Aman, dan Terpercaya.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201105_143446.png">
+    <meta property="og:image" content="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201025_193555%20(1).png">
     <meta property="og:type" content="website">
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201105_143446.png">
+    
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201025_193555%20(1).png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"Xiroro Script","short_name":"Xiroro","display":"standalone","background_color":"#000000","theme_color":"#0f172a","icons":[{"src":"https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201105_143446.png","sizes":"192x192","type":"image/png"}]}'>
+    
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Xiroro Script","short_name":"Xiroro","display":"standalone","background_color":"#000000","theme_color":"#0f172a","icons":[{"src":"https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201025_193555%20(1).png","sizes":"192x192","type":"image/png"}]}'>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -146,9 +148,10 @@
         window.dataToko = [];
 
         function terapkanTemaAdmin(isSingle) {
+            // LOGO DEFAULT JS JUGA SUDAH DIUPDATE
             const cfg = JSON.parse(localStorage.getItem('xiroro_config')) || {
                 video: "https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas9/main/background_2.mp4",
-                logo: "https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201105_143446.png",
+                logo: "https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201025_193555%20(1).png",
                 kolom: "grid-cols-4"
             };
             if (cfg.video) document.getElementById('video-bg').src = cfg.video;
@@ -283,7 +286,6 @@
                 let linkRedirect = f.fileLink ? f.fileLink.stringValue : "#";
                 let textDeskripsi = f.deskripsi.stringValue.replace(/\n/g, '<br>'); 
 
-                // TINGGI GRID TETAP 500PX, KATA "TERJUAL" DIGANTI "DICHECKOUT"
                 container.innerHTML += `
                     <div class="produk-card card glass-panel flex flex-col w-full h-[500px] ${targetId ? 'animate__animated animate__zoomIn border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : ''}" data-nama="${f.nama.stringValue.toLowerCase()}">
                         
@@ -378,33 +380,24 @@
             }); 
         }
 
-        // ==========================================
-        // FUNGSI BELI MENGGUNAKAN IFRAME POP-UP
-        // ==========================================
         function klikBeli(id, linkCheckout) {
             if (!linkCheckout || linkCheckout === "#" || linkCheckout === "Tidak_Ada_Link") {
                 Swal.fire({ icon: 'error', title: 'Oops!', text: 'Link pembayaran untuk produk ini belum tersedia.', background: '#0f172a' });
                 return;
             }
 
-            // Tambah jumlah dicheckout +1 secara otomatis
             try { db.collection("script").doc(id).update({ terjual: firebase.firestore.FieldValue.increment(1) }); } catch(e) { }
 
-            // Membuka Iframe Pop-up
-            Swal.fire({ 
-                title: '<span class="text-cyan-400"><i class="fa-solid fa-lock"></i> Kasir Aman</span>', 
-                html: `
-                    <div class="w-full h-[70vh] rounded-xl overflow-hidden bg-white border border-slate-700">
-                        <iframe src="${linkCheckout}" width="100%" height="100%" frameborder="0" allow="payment"></iframe>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-3"><i class="fa-solid fa-circle-info mr-1"></i> Tutup jendela ini (X) jika Anda sudah selesai membayar atau ingin membatalkan.</p>
-                `, 
-                showCloseButton: true,
-                showConfirmButton: false,
-                allowOutsideClick: false,
-                width: '800px',
+            window.open(linkCheckout, '_blank');
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Kasir Terbuka!',
+                text: 'Halaman pembayaran telah dibuka di tab baru. Silakan selesaikan pembayaran Anda di sana.',
                 background: '#0f172a',
-                padding: '1em'
+                color: '#fff',
+                confirmButtonColor: '#0891b2',
+                confirmButtonText: 'Oke, Mengerti'
             });
         }
     </script>
