@@ -280,17 +280,15 @@
                 let match = vidId.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|watch\?.+&v=))([^&?\n]{11})/);
                 if (match) vidId = match[1]; else if (vidId.length !== 11) vidId = ""; 
                 let ytThumb = vidId ? `https://img.youtube.com/vi/${vidId}/hqdefault.jpg` : '';
-                
-                // Variabel ini sekarang berisi link menuju Kasir Lynk.id / SociaBuzz
                 let linkRedirect = f.fileLink ? f.fileLink.stringValue : "#";
                 let textDeskripsi = f.deskripsi.stringValue.replace(/\n/g, '<br>'); 
 
-                // Tinggi kartu sudah 500px agar deskripsi PC terlihat bisa discroll
+                // TINGGI GRID TETAP 500PX, KATA "TERJUAL" DIGANTI "DICHECKOUT"
                 container.innerHTML += `
                     <div class="produk-card card glass-panel flex flex-col w-full h-[500px] ${targetId ? 'animate__animated animate__zoomIn border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : ''}" data-nama="${f.nama.stringValue.toLowerCase()}">
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
-                            <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-fire text-orange-400 mr-1"></i> Terjual ${terjualCount}</span>
+                            <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-cart-arrow-down text-orange-400 mr-1"></i> Dicheckout ${terjualCount}</span>
                             <span class="text-[10px] text-cyan-400"><i class="fa-solid fa-eye mr-1"></i> ${viewCount} Dilihat</span>
                         </div>
                         
@@ -381,7 +379,7 @@
         }
 
         // ==========================================
-        // FUNGSI BELI: REDIRECT KE PLATFORM EKSTERNAL
+        // FUNGSI BELI MENGGUNAKAN IFRAME POP-UP
         // ==========================================
         function klikBeli(id, linkCheckout) {
             if (!linkCheckout || linkCheckout === "#" || linkCheckout === "Tidak_Ada_Link") {
@@ -389,21 +387,25 @@
                 return;
             }
 
-            Swal.fire({ 
-                title: '<span class="text-cyan-400">Membuka Kasir</span>', 
-                html: '<div class="my-4"><i class="fa-solid fa-circle-notch fa-spin fa-3x text-cyan-400"></i></div><p class="text-slate-300">Mengarahkan ke halaman pembayaran aman...</p>', 
-                showConfirmButton: false, 
-                allowOutsideClick: false, 
-                background: '#0f172a' 
-            });
-            
-            // Tambah jumlah klik/terjual agar etalase terlihat hidup
+            // Tambah jumlah dicheckout +1 secara otomatis
             try { db.collection("script").doc(id).update({ terjual: firebase.firestore.FieldValue.increment(1) }); } catch(e) { }
 
-            // Beri jeda 1 detik untuk efek transisi, lalu redirect
-            setTimeout(() => {
-                window.location.href = linkCheckout;
-            }, 1000);
+            // Membuka Iframe Pop-up
+            Swal.fire({ 
+                title: '<span class="text-cyan-400"><i class="fa-solid fa-lock"></i> Kasir Aman</span>', 
+                html: `
+                    <div class="w-full h-[70vh] rounded-xl overflow-hidden bg-white border border-slate-700">
+                        <iframe src="${linkCheckout}" width="100%" height="100%" frameborder="0" allow="payment"></iframe>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-3"><i class="fa-solid fa-circle-info mr-1"></i> Tutup jendela ini (X) jika Anda sudah selesai membayar atau ingin membatalkan.</p>
+                `, 
+                showCloseButton: true,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                width: '800px',
+                background: '#0f172a',
+                padding: '1em'
+            });
         }
     </script>
 </body>
