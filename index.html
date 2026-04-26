@@ -11,19 +11,20 @@
     <meta property="og:description" content="Toko Script MLBB Premium, Aman, dan Terpercaya.">
     <meta property="og:url" content="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/">
     
-    <meta property="og:image" itemprop="image" content="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/main/logo.png">
+    <meta property="og:image" itemprop="image" content="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/logo.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="600">
     <meta property="og:image:height" content="600">
-    <meta itemprop="thumbnailUrl" content="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/main/logo.png">
-    <link rel="image_src" href="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/main/logo.png">
+    <meta itemprop="thumbnailUrl" content="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/logo.png">
+    <link rel="image_src" href="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/logo.png">
     
     <meta property="og:type" content="website">
     
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/main/logo.png">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/logo.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
@@ -72,7 +73,7 @@
     <header class="py-10 text-center glass-panel border-b border-cyan-500/30">
         <h1 class="text-4xl font-bold animate__animated animate__fadeInDown"><i class="fa-solid fa-code text-cyan-400"></i> Xiroro <span class="text-cyan-400">Script</span></h1>
         <div class="mt-6 flex justify-center animate__animated animate__zoomIn">
-            <img id="logo-toko" src="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/main/logo.png" alt="Logo Toko" class="w-28 h-28 rounded-full border-4 border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.8)] object-cover bg-slate-800">
+            <img id="logo-toko" src="https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/logo.png" alt="Logo Toko" class="w-28 h-28 rounded-full border-4 border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.8)] object-cover bg-slate-800">
         </div>
         <p class="mt-4 text-slate-300 font-medium">Premium Mod for Mobile Legends & More</p>
     </header>
@@ -154,7 +155,8 @@
         window.dataToko = [];
 
         function terapkanTemaAdmin(isSingle) {
-            const defaultLogoUrl = "https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/main/logo.png";
+            // LINK EXACT LOGO DI JAVASCRIPT
+            const defaultLogoUrl = "https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/logo.png";
             
             const cfg = JSON.parse(localStorage.getItem('xiroro_config')) || {
                 video: "https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas9/main/background_2.mp4",
@@ -165,8 +167,8 @@
             if (cfg.video) document.getElementById('video-bg').src = cfg.video;
             
             let finalLogo = cfg.logo;
-            // BYPASS: Jika localStorage menyimpan link yang salah, paksa pakai logo default yang baru
-            if (!finalLogo || finalLogo.includes("xiroro-ab.github.io")) {
+            // BYPASS LOGO: Pastikan selalu pakai link exact jika tidak ada logo / ada sisa link salah di memori browser
+            if (!finalLogo || finalLogo.includes("xiroro-ab.github.io") || finalLogo.includes("/main/logo.png") && !finalLogo.includes("refs")) {
                 finalLogo = defaultLogoUrl;
             } else if (finalLogo.includes("drive.google.com")) {
                 let fileId = "";
