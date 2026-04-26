@@ -80,7 +80,8 @@
             </div>
             <select id="sortInput" onchange="renderProduk()" class="bg-slate-800/80 border border-cyan-500/50 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.15)] backdrop-blur-sm cursor-pointer">
                 <option value="terbaru">Urutkan: Paling Baru</option>
-                <option value="terpopuler">Urutkan: Paling Populer</option>
+                <option value="terlaris">Urutkan: Paling Banyak Dicheckout</option>
+                <option value="terpopuler">Urutkan: Paling Banyak Dilihat</option>
                 <option value="murah">Urutkan: Harga Termurah</option>
                 <option value="mahal">Urutkan: Harga Termahal</option>
                 <option value="favorit">❤️ Tampilkan Favorit Saya</option>
@@ -148,7 +149,6 @@
         window.dataToko = [];
 
         function terapkanTemaAdmin(isSingle) {
-            // LOGO DEFAULT JS JUGA SUDAH DIUPDATE
             const cfg = JSON.parse(localStorage.getItem('xiroro_config')) || {
                 video: "https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas9/main/background_2.mp4",
                 logo: "https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/20201025_193555%20(1).png",
@@ -220,11 +220,17 @@
                 return true;
             });
 
+            // LOGIKA SORTING BARU DITAMBAHKAN DI SINI
             dataTampil.sort((a, b) => {
                 if (inputSort === 'terbaru' || inputSort === 'favorit') {
                     let timeA = a.fields.createTime ? new Date(a.fields.createTime.stringValue).getTime() : 0;
                     let timeB = b.fields.createTime ? new Date(b.fields.createTime.stringValue).getTime() : 0;
                     return timeB - timeA;
+                }
+                if (inputSort === 'terlaris') {
+                    let terjualA = a.fields.terjual && a.fields.terjual.integerValue ? parseInt(a.fields.terjual.integerValue) : 0;
+                    let terjualB = b.fields.terjual && b.fields.terjual.integerValue ? parseInt(b.fields.terjual.integerValue) : 0;
+                    return terjualB - terjualA;
                 }
                 if (inputSort === 'terpopuler') {
                     let viewA = a.fields.views && a.fields.views.integerValue ? parseInt(a.fields.views.integerValue) : 0;
