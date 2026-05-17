@@ -73,8 +73,8 @@
                             <textarea id="deskripsi" placeholder="Deskripsi mod..." class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg h-20 focus:outline-cyan-500" required></textarea>
                         </div>
                         <div>
-                            <label class="block text-sm mb-1 text-slate-400">Link File (Google Drive)</label>
-                            <input type="text" id="fileLink" placeholder="Link download untuk pembeli" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500" required>
+                            <label class="block text-sm mb-1 text-slate-400">Link File / Checkout</label>
+                            <input type="text" id="fileLink" placeholder="Link download/pembayaran" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500" required>
                         </div>
                         <div>
                             <label class="block text-sm mb-1 text-slate-400">Foto Produk</label>
@@ -172,12 +172,25 @@
             document.getElementById('btn-tampilan').className = tab === 'tampilan' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
         }
 
-        function copyDirectLink(id) {
+        // --- FUNGSI BARU: SALIN LINK CERDAS ---
+        function salinLinkCerdas(id, harga, namaScript) {
             let baseUrl = window.location.href.split('admin.html')[0];
             if (!baseUrl.endsWith('/')) baseUrl += '/';
-            const directLink = baseUrl + "?id=" + id;
-            navigator.clipboard.writeText(directLink).then(() => {
-                Swal.fire({ icon: 'success', title: 'Link Disalin!', html: '<code class="text-cyan-400 text-xs break-all">' + directLink + '</code>', background: '#1e293b', color: '#fff' });
+            
+            // Konversi harga ke angka, deteksi jika Gratis (<= 0)
+            let hargaNum = parseInt(harga) || 0;
+            let linkTujuan = (hargaNum <= 0) 
+                ? baseUrl + "gratis.html?id=" + id 
+                : baseUrl + "?id=" + id;
+
+            navigator.clipboard.writeText(linkTujuan).then(() => {
+                Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Link Siap Dibagikan!', 
+                    html: `<b>${namaScript}</b><br><br><code class="text-cyan-400 text-xs break-all">${linkTujuan}</code><br><br><span class="text-xs text-slate-400">(Sistem otomatis memilih jalur ${hargaNum <= 0 ? 'Gratis' : 'Premium'})</span>`, 
+                    background: '#1e293b', 
+                    color: '#fff' 
+                });
             });
         }
 
@@ -210,8 +223,6 @@
                         if (fileId) imgUrl = "https://lh3.googleusercontent.com/d/" + fileId;
                     }
 
-                    // --- PERBAIKAN RESPONSIVE DI SINI ---
-                    // Menggunakan flex-col pada HP (tumpuk bawah), dan flex-row pada PC (samping)
                     list.innerHTML += `
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-800/80 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition gap-4">
                             
@@ -230,7 +241,8 @@
                             </div>
 
                             <div class="flex gap-2 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-700/50 mt-1 sm:mt-0 flex-shrink-0">
-                                <button onclick="copyDirectLink('${id}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-blue-600/80 rounded-lg hover:bg-blue-500 transition text-white flex items-center justify-center" title="Salin Link YT"><i class="fa-solid fa-link"></i></button>
+                                <button onclick="salinLinkCerdas('${id}', '${data.harga}', \`${data.nama}\`)" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-blue-600/80 rounded-lg hover:bg-blue-500 transition text-white flex items-center justify-center" title="Salin Link Bagikan"><i class="fa-solid fa-share-nodes"></i></button>
+                                
                                 <button onclick="prepareEdit('${id}', \`${data.nama}\`, '${data.harga}', \`${data.deskripsi}\`, '${data.videoID || ''}', '${data.fileLink}', '${data.gambarUrl}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-yellow-600/80 rounded-lg hover:bg-yellow-500 transition text-white flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="hapusProduk('${id}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-red-600/80 rounded-lg hover:bg-red-500 transition text-white flex items-center justify-center" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                             </div>
@@ -328,6 +340,8 @@
             localStorage.setItem('xiroro_config', JSON.stringify({ video: document.getElementById('cfg-video').value, logo: document.getElementById('cfg-logo').value, kolom: document.getElementById('cfg-kolom').value }));
             Swal.fire('Tersimpan!', 'Silakan Refresh website utama.', 'success');
         }
+
+        
     </script>
 </body>
 </html>
