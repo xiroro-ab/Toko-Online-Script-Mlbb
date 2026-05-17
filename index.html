@@ -58,6 +58,13 @@
         
         @keyframes float-wa { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         .floating-wa { animation: float-wa 3s ease-in-out infinite; }
+        
+        /* Tampilan Scrollbar Gambar (Horizontal) Menjadi Kuning Terang */
+        .xiroro-slider::-webkit-scrollbar { height: 6px; }
+        .xiroro-slider::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 10px; }
+        .xiroro-slider::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; } /* Warna Kuning */
+        .xiroro-slider::-webkit-scrollbar-thumb:hover { background: #fef08a; } /* Kuning lebih terang saat disentuh */
+        .xiroro-slider { scrollbar-width: thin; scrollbar-color: #facc15 rgba(15, 23, 42, 0.5); }
     </style>
 </head>
 <body class="text-white relative">
@@ -323,7 +330,7 @@
                         </div>
                         
                         <div class="relative mb-3 group flex-shrink-0">
-                            <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-40 md:h-44 snap-x" style="scrollbar-width: none; -ms-overflow-style: none;">
+                            <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-40 md:h-44 snap-x pb-2">
                                 <img src="${imgUrl}" class="min-w-full h-full object-cover rounded-xl snap-center border border-slate-700/50" loading="lazy" onerror="this.src='https://dummyimage.com/400x200/1e293b/ef4444.png&text=Gambar+Error'">
                                 ${vidId ? `
                                 <div class="min-w-full h-full rounded-xl snap-center relative cursor-pointer" onclick="putarVideoToko('${vidId}')">
