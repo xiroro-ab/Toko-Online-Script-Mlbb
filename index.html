@@ -58,6 +58,13 @@
         
         @keyframes float-wa { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         .floating-wa { animation: float-wa 3s ease-in-out infinite; }
+
+        /* Tampilan Scrollbar Gambar (Horizontal) Menjadi Kuning Terang */
+        .xiroro-slider::-webkit-scrollbar { height: 6px; }
+        .xiroro-slider::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 10px; }
+        .xiroro-slider::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; } /* Warna Kuning */
+        .xiroro-slider::-webkit-scrollbar-thumb:hover { background: #fef08a; } /* Kuning lebih terang saat disentuh */
+        .xiroro-slider { scrollbar-width: thin; scrollbar-color: #facc15 rgba(15, 23, 42, 0.5); }
     </style>
 </head>
 <body class="text-white relative">
