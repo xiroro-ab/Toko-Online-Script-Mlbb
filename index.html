@@ -148,9 +148,22 @@
         </div>
     </footer>
 
-    <a href="https://wa.me/62895420471010" target="_blank" class="fixed bottom-6 right-6 bg-[#25D366] hover:bg-[#128C7E] text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(37,211,102,0.5)] z-50 transition-all hover:scale-110 floating-wa" title="Hubungi Kami via WhatsApp">
+
+    <a href="https://wa.me/62895420471010" target="_blank" class="fixed bottom-[88px] right-6 bg-[#25D366] hover:bg-[#128C7E] text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(37,211,102,0.5)] z-50 transition-all hover:scale-110 floating-wa group">
         <i class="fa-brands fa-whatsapp"></i>
+        
+        <span class="absolute right-16 bg-slate-800 text-cyan-400 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
+            Hubungi via WA
+        </span>
     </a>
+
+    <button onclick="bukaTutorial()" class="fixed bottom-6 right-6 bg-cyan-600 hover:bg-cyan-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(6,182,212,0.5)] z-50 transition-all hover:scale-110 floating-wa group">
+        <i class="fa-solid fa-wrench"></i>
+        
+        <span class="absolute right-16 bg-slate-800 text-cyan-400 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
+            Cara Pasang Script
+        </span>
+    </button>
 
     <script>
         const firebaseConfig = {
