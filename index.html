@@ -244,15 +244,13 @@
         function renderProduk() {
             const container = document.getElementById('katalog-produk');
             const targetId = new URLSearchParams(window.location.search).get('id');
-            const targetKategori = new URLSearchParams(window.location.search).get('kategori'); // Tangkap klik "Show All"
+            const targetKategori = new URLSearchParams(window.location.search).get('kategori');
             const inputCari = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
             const inputSort = document.getElementById('sortInput') ? document.getElementById('sortInput').value : 'terbaru';
             const favList = JSON.parse(localStorage.getItem('xiroro_wishlist')) || [];
 
-            // 1. MENGEMBALIKAN BACKGROUND YANG HILANG
             terapkanTemaAdmin(targetId || targetKategori ? true : false);
 
-            // 2. KATEGORI PENDETEKSI PINTAR (UPDATE BARU)
             function deteksiKategori(namaScript) {
                 let nama = namaScript.toLowerCase();
                 if (nama.includes("naruto") || nama.includes("boruto")) return "Anime Naruto";
@@ -271,7 +269,6 @@
                 const nama = f.nama.stringValue.toLowerCase();
                 const kategoriOtomatis = deteksiKategori(f.nama.stringValue);
 
-                // FILTER: SEMBUNYIKAN PRODUK GRATIS (Harga 0)
                 if (parseInt(f.harga.stringValue) <= 0) return false;
 
                 if (targetId && id !== targetId) return false;
@@ -281,7 +278,6 @@
                 return true;
             });
 
-            // LOGIKA SORTING ASLI MILIK ANDA
             dataTampil.sort((a, b) => {
                 if (inputSort === 'terbaru' || inputSort === 'favorit') {
                     let timeA = a.fields.createTime ? new Date(a.fields.createTime.stringValue).getTime() : 0;
@@ -319,7 +315,6 @@
                 return;
             }
 
-            // 3. FUNGSI PENCETAK KARTU (MENGGUNAKAN KODE HTML ASLI ANDA YANG SEMPURNA)
             const cetakKartu = (doc, isSlider = false) => {
                 const f = doc.fields;
                 const id = doc.name.split('/').pop();
@@ -345,11 +340,22 @@
                 let linkRedirect = f.fileLink ? f.fileLink.stringValue : "#";
                 let textDeskripsi = f.deskripsi.stringValue.replace(/\n/g, '<br>'); 
 
-                // Perbedaan utama: Lebar kartu disesuaikan dengan mode
-                const lebarClass = isSlider ? "w-[300px] min-w-[300px] snap-start flex-shrink-0" : "w-full animate__animated animate__zoomIn";
+                // --- PENGATURAN UKURAN DINAMIS ---
+                let lebarClass = "w-full animate__animated animate__zoomIn"; // Default Grid (Show All)
+                let tinggiKartu = "h-[500px]";
+                let tinggiGambar = "h-40 md:h-44";
+
+                if (isSlider) {
+                    lebarClass = "w-[300px] min-w-[300px] snap-start flex-shrink-0";
+                } else if (targetId) {
+                    // TAMPILAN SINGLE PRODUCT KHUSUS: Diperbesar dan ada di tengah
+                    lebarClass = "w-full max-w-md animate__animated animate__zoomIn mx-auto";
+                    tinggiKartu = "h-[550px]"; // Kartu lebih tinggi
+                    tinggiGambar = "h-52 md:h-56"; // Area gambar membesar
+                }
 
                 return `
-                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} h-[500px] ${targetId ? 'border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : ''}" data-nama="${f.nama.stringValue.toLowerCase()}">
+                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} ${tinggiKartu} ${targetId ? 'border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : ''}" data-nama="${f.nama.stringValue.toLowerCase()}">
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
                             <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-cart-arrow-down text-orange-400 mr-1"></i> Dicheckout ${terjualCount}</span>
@@ -357,7 +363,7 @@
                         </div>
                         
                         <div class="relative mb-3 group flex-shrink-0">
-                            <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-40 md:h-44 snap-x pb-2">
+                            <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 ${tinggiGambar} snap-x pb-2">
                                 <img src="${imgUrl}" class="min-w-full h-full object-cover rounded-xl snap-center border border-slate-700/50" loading="lazy" onerror="this.src='https://dummyimage.com/400x200/1e293b/ef4444.png&text=Gambar+Error'">
                                 ${vidId ? `
                                 <div class="min-w-full h-full rounded-xl snap-center relative cursor-pointer" onclick="putarVideoToko('${vidId}')">
@@ -398,13 +404,20 @@
                 `;
             };
 
-            // ================= MODE SHOW ALL / PENCARIAN =================
+            // ================= MODE PENCARIAN / SHOW ALL / SINGLE ID =================
             if (targetKategori || targetId || inputCari || inputSort === 'favorit') {
-                container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full";
+                
+                if (targetId) {
+                    // KHUSUS SINGLE PRODUCT: Panggung difokuskan ke tengah layar
+                    container.className = "flex flex-col items-center justify-center w-full pb-10";
+                } else {
+                    // Mode Show All: Tetap Grid Penuh
+                    container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full";
+                }
                 
                 if (targetKategori || targetId) {
                     container.innerHTML += `
-                        <div class="col-span-full mb-4 animate__animated animate__fadeInDown w-full text-center">
+                        <div class="col-span-full mb-6 animate__animated animate__fadeInDown w-full text-center">
                             <a href="?" class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
                                 <i class="fa-solid fa-arrow-left mr-2"></i> ${targetKategori ? 'Kembali ke Etalase Utama' : 'Lihat Semua Produk'}
                             </a>
@@ -418,7 +431,7 @@
             }
 
             // ================= MODE SPOTIFY / HALAMAN UTAMA =================
-            container.className = "flex flex-col w-full gap-10"; // Ubah container jadi kolom bersusun
+            container.className = "flex flex-col w-full gap-10"; 
             
             const grupKategori = {};
             dataTampil.forEach(doc => {
@@ -430,9 +443,9 @@
             for (const [namaKategori, isiProduk] of Object.entries(grupKategori)) {
                 if (isiProduk.length === 0) continue;
 
-                const produkTerbatas = isiProduk.slice(0, 5); // Maksimal 5 produk saja
+                const produkTerbatas = isiProduk.slice(0, 5); 
                 let barisHtml = "";
-                produkTerbatas.forEach(doc => { barisHtml += cetakKartu(doc, true); }); // true = mode slider
+                produkTerbatas.forEach(doc => { barisHtml += cetakKartu(doc, true); }); 
 
                 container.innerHTML += `
                     <div class="w-full animate__animated animate__fadeInUp">
