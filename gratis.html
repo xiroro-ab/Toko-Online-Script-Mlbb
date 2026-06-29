@@ -613,26 +613,34 @@
 
         function klikBeli(id, linkCheckout) {
             if (!linkCheckout || linkCheckout === "#" || linkCheckout === "Tidak_Ada_Link") {
-                Swal.fire({ icon: 'error', title: 'Oops!', text: 'Link download untuk produk ini belum tersedia.', background: '#0f172a' });
+                Swal.fire({ icon: 'error', title: 'Oops!', text: 'Link pembayaran/download belum tersedia.', background: '#0f172a' });
                 return;
             }
 
-            // PENCATATAN STATISTIK: Menambah jumlah download di 'Tas Kecil'
+            // 1. KIRIM DATA KE FIREBASE SECARA RAHASIA
             try { 
                 db.collection("global").doc("katalog_stats").set({
                     [id]: { terjual: firebase.firestore.FieldValue.increment(1) }
                 }, { merge: true });
-            } catch(e) { console.log("Gagal update statistik unduhan:", e); }
+                
+                // 2. TRIK VISUAL INSTAN: Tambah angka di layar secara paksa tanpa refresh Firebase
+                let index = window.dataToko.findIndex(p => p.id === id);
+                if(index !== -1) {
+                    window.dataToko[index].terjual = (window.dataToko[index].terjual || 0) + 1;
+                    localStorage.setItem('xiroro_cache_produk', JSON.stringify(window.dataToko));
+                    renderProduk(); // Cetak ulang layarnya langsung
+                }
+            } catch(e) { console.log("Gagal update terjual:", e); }
 
             window.open(linkCheckout, '_blank');
 
             Swal.fire({
                 icon: 'success',
-                title: 'Mengambil File...',
-                text: 'Halaman download telah dibuka di tab baru.',
-                background: '#064e3b',
+                title: 'Kasir Terbuka!',
+                text: 'Halaman pembayaran/download telah dibuka di tab baru.',
+                background: '#064e3b', // Ubah jadi #064e3b untuk gratis.html
                 color: '#fff',
-                confirmButtonColor: '#10b981',
+                confirmButtonColor: '#10b981', // Ubah jadi #10b981 untuk gratis.html
                 confirmButtonText: 'Oke, Mengerti'
             });
         }
