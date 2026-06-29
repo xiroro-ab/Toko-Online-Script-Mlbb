@@ -61,7 +61,7 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm mb-1 text-slate-400">Harga (Rp)</label>
-                                <input type="number" id="harga" placeholder="Angka saja" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500" required>
+                                <input type="number" id="harga" placeholder="Ketik 0 jika Gratis" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500" required>
                             </div>
                             <div>
                                 <label class="block text-sm mb-1 text-slate-400">YouTube ID (Opsional)</label>
@@ -94,7 +94,8 @@
                             <button onclick="loadProduk()" class="text-cyan-400 hover:text-cyan-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
                         </div>
                         <div id="list-produk" class="space-y-4 max-h-[600px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #22d3ee #1e293b;">
-                            </div>
+                            <!-- List Produk Muncul Disini -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -140,7 +141,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // !!! WAJIB ISI DENGAN URL APPS SCRIPT ANDA YANG TERBARU !!!
+        // URL Apps Script untuk Upload Gambar
         const appsScriptUrl = "https://script.google.com/macros/s/AKfycbyfBzWmShFfm00QdleoSpxhgwPeRmwhu-OSte6JZcuza1G9sIfmlXgdeSjV1BLgsqoj/exec";
 
         function loginAdmin() {
@@ -172,57 +173,64 @@
             document.getElementById('btn-tampilan').className = tab === 'tampilan' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
         }
 
-        // --- FUNGSI BARU: SALIN LINK CERDAS ---
         function salinLinkCerdas(id, harga, namaScript) {
-            // MENGGUNAKAN LINK ABSOLUT: Pastikan link selalu mengarah ke halaman depan
             let baseUrl = "https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/";
-            
-            // Konversi harga ke angka, deteksi jika Gratis (<= 0)
             let hargaNum = parseInt(harga) || 0;
-            let linkTujuan = (hargaNum <= 0) 
-                ? baseUrl + "gratis.html?id=" + id 
-                : baseUrl + "?id=" + id;
+            let linkTujuan = (hargaNum <= 0) ? baseUrl + "gratis.html?id=" + id : baseUrl + "?id=" + id;
 
             if (navigator.clipboard && window.isSecureContext) {
-                // Proses salin otomatis untuk browser yang mendukung
                 navigator.clipboard.writeText(linkTujuan).then(() => {
-                    Swal.fire({ 
-                        icon: 'success', 
-                        title: 'Link Siap Dibagikan!', 
-                        html: `<b>${namaScript}</b><br><br><code class="text-cyan-400 text-xs break-all">${linkTujuan}</code><br><br><span class="text-xs text-slate-400">(Sistem otomatis memilih jalur ${hargaNum <= 0 ? 'Gratis' : 'Premium'})</span>`, 
-                        background: '#1e293b', 
-                        color: '#fff' 
-                    });
+                    Swal.fire({ icon: 'success', title: 'Link Siap Dibagikan!', html: `<b>${namaScript}</b><br><br><code class="text-cyan-400 text-xs break-all">${linkTujuan}</code><br><br><span class="text-xs text-slate-400">(Sistem otomatis memilih jalur ${hargaNum <= 0 ? 'Gratis' : 'Premium'})</span>`, background: '#1e293b', color: '#fff' });
                 }).catch(err => {
-                    // Jika diblokir oleh laptop/browser, munculkan popup salin manual
                     Swal.fire({ icon: 'info', title: 'Salin Manual', text: 'Browser memblokir salin otomatis. Silakan salin link di bawah ini:', input: 'text', inputValue: linkTujuan, background: '#1e293b', color: '#fff' });
                 });
             } else {
-                 // Fallback darurat jika fitur clipboard tidak tersedia sama sekali
                  Swal.fire({ icon: 'info', title: 'Salin Manual', text: 'Silakan salin link di bawah ini:', input: 'text', inputValue: linkTujuan, background: '#1e293b', color: '#fff' });
             }
         }
 
+        // ==============================================================
+        // SISTEM BARU "SATU KOPER" & ROBOT AUTO-MIGRASI
+        // ==============================================================
         async function loadProduk() {
             const list = document.getElementById('list-produk');
-            list.innerHTML = '<div class="text-center text-cyan-400 py-4"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
+            list.innerHTML = '<div class="text-center text-cyan-400 py-4"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p class="mt-2 text-sm text-slate-400">Menyinkronkan Koper Database...</p></div>';
+            
             try {
-                const snapshot = await db.collection("script").get();
-                list.innerHTML = "";
-                if(snapshot.empty) { list.innerHTML = "<p class='text-center text-slate-500'>Belum ada produk.</p>"; return; }
-
+                let docRef = db.collection("global").doc("katalog");
+                let docSnap = await docRef.get();
                 let docsArray = [];
-                snapshot.forEach(doc => docsArray.push({id: doc.id, data: doc.data()}));
+
+                // ROBOT MIGRASI: Jika "Satu Koper" belum ada, ambil dari kotak-kotak lama!
+                if (!docSnap.exists) {
+                    console.log("Robot Migrasi Aktif: Memindahkan data lama...");
+                    const oldSnapshot = await db.collection("script").get();
+                    
+                    oldSnapshot.forEach(doc => {
+                        let data = doc.data();
+                        data.id = doc.id; // Label ID unik lama diselamatkan!
+                        docsArray.push(data);
+                    });
+                    
+                    // Simpan semua ke dalam Satu Koper
+                    await docRef.set({ produk: docsArray });
+                    Swal.fire('Migrasi Berhasil!', 'Database Anda telah sukses dipadatkan menjadi Sistem Satu Koper. Kapasitas server kini maksimal!', 'success');
+                } else {
+                    docsArray = docSnap.data().produk || [];
+                }
+
+                list.innerHTML = "";
+                if(docsArray.length === 0) { list.innerHTML = "<p class='text-center text-slate-500'>Belum ada produk.</p>"; return; }
                 
+                // Urutkan dari yang paling baru diupload
                 docsArray.sort((a, b) => {
-                    let timeA = a.data.createTime ? new Date(a.data.createTime).getTime() : 0;
-                    let timeB = b.data.createTime ? new Date(b.data.createTime).getTime() : 0;
+                    let timeA = a.createTime ? new Date(a.createTime).getTime() : 0;
+                    let timeB = b.createTime ? new Date(b.createTime).getTime() : 0;
                     return timeB - timeA;
                 });
 
-                docsArray.forEach(item => {
-                    const data = item.data;
-                    const id = item.id;
+                docsArray.forEach(data => {
+                    const id = data.id;
                     let imgUrl = data.gambarUrl || "https://dummyimage.com/150x150/1e293b/22d3ee.png&text=Tanpa+Foto";
                     if (imgUrl.includes("GAGAL_UPLOAD")) imgUrl = "https://dummyimage.com/150x150/1e293b/ef4444.png&text=Error";
                     else if (imgUrl.includes("drive.google.com")) {
@@ -234,7 +242,6 @@
 
                     list.innerHTML += `
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-800/80 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition gap-4">
-                            
                             <div class="flex items-start sm:items-center gap-4 w-full overflow-hidden">
                                 <div class="w-16 h-16 sm:w-14 sm:h-14 bg-slate-900 rounded-lg overflow-hidden border border-slate-600 flex-shrink-0">
                                     <img src="${imgUrl}" class="w-full h-full object-cover">
@@ -248,14 +255,11 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="flex gap-2 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-700/50 mt-1 sm:mt-0 flex-shrink-0">
                                 <button onclick="salinLinkCerdas('${id}', '${data.harga}', \`${data.nama}\`)" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-blue-600/80 rounded-lg hover:bg-blue-500 transition text-white flex items-center justify-center" title="Salin Link Bagikan"><i class="fa-solid fa-share-nodes"></i></button>
-                                
                                 <button onclick="prepareEdit('${id}', \`${data.nama}\`, '${data.harga}', \`${data.deskripsi}\`, '${data.videoID || ''}', '${data.fileLink}', '${data.gambarUrl}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-yellow-600/80 rounded-lg hover:bg-yellow-500 transition text-white flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="hapusProduk('${id}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-red-600/80 rounded-lg hover:bg-red-500 transition text-white flex items-center justify-center" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                             </div>
-
                         </div>
                     `;
                 });
@@ -288,23 +292,42 @@
                 }
 
                 btn.innerHTML = '<i class="fa-solid fa-database fa-flip"></i> Menyimpan...';
+                
+                // Ambil Koper Utama
+                let docRef = db.collection("global").doc("katalog");
+                let docSnap = await docRef.get();
+                let produkArray = docSnap.exists ? (docSnap.data().produk || []) : [];
+
                 const dataToSave = {
                     nama: document.getElementById('nama').value,
                     harga: document.getElementById('harga').value.toString(),
                     deskripsi: document.getElementById('deskripsi').value,
                     videoID: document.getElementById('videoID').value,
                     fileLink: document.getElementById('fileLink').value,
-                    gambarUrl: imageUrl,
-                    createTime: new Date().toISOString() 
+                    gambarUrl: imageUrl
                 };
 
                 if (editId) {
-                    await db.collection("script").doc(editId).update(dataToSave);
+                    // Mode Edit
+                    let index = produkArray.findIndex(p => p.id === editId);
+                    if (index !== -1) {
+                        dataToSave.createTime = produkArray[index].createTime; // Pertahankan waktu asli
+                        dataToSave.views = produkArray[index].views || 0;
+                        dataToSave.terjual = produkArray[index].terjual || 0;
+                        dataToSave.id = editId; // Pertahankan ID Asli
+                        produkArray[index] = dataToSave;
+                    }
+                    await docRef.set({ produk: produkArray });
                     Swal.fire('Berhasil!', 'Produk di-update.', 'success');
                 } else {
+                    // Mode Tambah Baru (Buat KTP/ID Unik Firebase-style)
+                    dataToSave.id = Array.from({length: 20}, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 62))).join('');
+                    dataToSave.createTime = new Date().toISOString();
                     dataToSave.views = 0; 
                     dataToSave.terjual = 0;
-                    await db.collection("script").add(dataToSave);
+                    produkArray.push(dataToSave);
+                    
+                    await docRef.set({ produk: produkArray });
                     Swal.fire('Berhasil!', 'Produk baru ditambahkan.', 'success');
                 }
                 resetForm(); loadProduk(); 
@@ -335,8 +358,17 @@
         }
 
         async function hapusProduk(id) {
-            Swal.fire({ title: 'Hapus Produk?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Hapus' }).then(async (result) => {
-                if (result.isConfirmed) { await db.collection("script").doc(id).delete(); loadProduk(); }
+            Swal.fire({ title: 'Hapus Produk?', text: 'Tindakan ini tidak bisa dibatalkan!', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Ya, Hapus' }).then(async (result) => {
+                if (result.isConfirmed) { 
+                    let docRef = db.collection("global").doc("katalog");
+                    let docSnap = await docRef.get();
+                    if (docSnap.exists) {
+                        let produkArray = docSnap.data().produk || [];
+                        produkArray = produkArray.filter(p => p.id !== id);
+                        await docRef.set({ produk: produkArray });
+                        loadProduk(); 
+                    }
+                }
             });
         }
 
@@ -349,8 +381,6 @@
             localStorage.setItem('xiroro_config', JSON.stringify({ video: document.getElementById('cfg-video').value, logo: document.getElementById('cfg-logo').value, kolom: document.getElementById('cfg-kolom').value }));
             Swal.fire('Tersimpan!', 'Silakan Refresh website utama.', 'success');
         }
-
-        
     </script>
 </body>
 </html>
