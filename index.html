@@ -605,15 +605,23 @@
 
         function klikBeli(id, linkCheckout) {
             if (!linkCheckout || linkCheckout === "#" || linkCheckout === "Tidak_Ada_Link") {
-                Swal.fire({ icon: 'error', title: 'Oops!', text: 'Link pembayaran untuk produk ini belum tersedia.', background: '#0f172a' });
+                Swal.fire({ icon: 'error', title: 'Oops!', text: 'Link pembayaran/download belum tersedia.', background: '#0f172a' });
                 return;
             }
 
-            // FITUR BARU: Catat "+1 Terjual" secara aman tanpa menyentuh data utama
+            // 1. KIRIM DATA KE FIREBASE SECARA RAHASIA
             try { 
                 db.collection("global").doc("katalog_stats").set({
                     [id]: { terjual: firebase.firestore.FieldValue.increment(1) }
                 }, { merge: true });
+                
+                // 2. TRIK VISUAL INSTAN: Tambah angka di layar secara paksa tanpa refresh Firebase
+                let index = window.dataToko.findIndex(p => p.id === id);
+                if(index !== -1) {
+                    window.dataToko[index].terjual = (window.dataToko[index].terjual || 0) + 1;
+                    localStorage.setItem('xiroro_cache_produk', JSON.stringify(window.dataToko));
+                    renderProduk(); // Cetak ulang layarnya langsung
+                }
             } catch(e) { console.log("Gagal update terjual:", e); }
 
             window.open(linkCheckout, '_blank');
@@ -621,10 +629,10 @@
             Swal.fire({
                 icon: 'success',
                 title: 'Kasir Terbuka!',
-                text: 'Halaman pembayaran telah dibuka di tab baru. Silakan selesaikan pembayaran Anda di sana.',
-                background: '#0f172a',
+                text: 'Halaman pembayaran/download telah dibuka di tab baru.',
+                background: '#0f172a', // Ubah jadi #064e3b untuk gratis.html
                 color: '#fff',
-                confirmButtonColor: '#0891b2',
+                confirmButtonColor: '#0891b2', // Ubah jadi #10b981 untuk gratis.html
                 confirmButtonText: 'Oke, Mengerti'
             });
         }
