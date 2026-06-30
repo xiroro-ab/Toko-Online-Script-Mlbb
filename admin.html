@@ -330,7 +330,12 @@
                     await docRef.set({ produk: produkArray });
                     Swal.fire('Berhasil!', 'Produk baru ditambahkan.', 'success');
                 }
-                resetForm(); loadProduk(); 
+                
+                // PERINTAH SAPU BERSIH CACHE LOKAL ADMIN
+                localStorage.removeItem('xiroro_cache_produk');
+                localStorage.removeItem('xiroro_cache_waktu');
+                
+                resetForm(); loadProduk();
             } catch (error) {
                 Swal.fire('Gagal!', error.message, 'error');
                 btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Etalase';
