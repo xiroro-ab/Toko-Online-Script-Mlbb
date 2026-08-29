@@ -556,9 +556,11 @@
                 }
 
                 if (targetId) {
-                    container.innerHTML += '<div class="flex flex-col lg:flex-row gap-8 w-full items-start"><div class="flex-1 w-full" id="kolom-produk-single"></div><div class="w-full lg:w-80 lg:sticky lg:top-4" id="kolom-ulasan-single"></div></div>';
+                    container.innerHTML += '<div class="flex flex-col lg:flex-row gap-8 w-full max-w-5xl mx-auto items-start"><div class="w-full lg:w-80" id="kolom-produk-single"></div><div class="w-full lg:w-80 flex-shrink-0" id="kolom-ulasan-single"></div></div>';
                     const kolomProduk = document.getElementById('kolom-produk-single');
                     dataTampil.forEach(doc => { kolomProduk.innerHTML += cetakKartu(doc, false); });
+                } else {
+                    dataTampil.forEach(doc => { container.innerHTML += cetakKartu(doc, false); });
                 } else {
                     dataTampil.forEach(doc => { container.innerHTML += cetakKartu(doc, false); });
                 }
