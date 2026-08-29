@@ -124,10 +124,10 @@
             hasil.className = 'glass p-5 rounded-2xl text-center';
             hasil.innerHTML = '<p class="text-cyan-400"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa...</p>';
 
-            unsub = db.collection('public_orders').doc(kode).onSnapshot(
+            unsub = db.collection('pesanan').where('kode', '==', kode).onSnapshot(
                 snap => {
-                    if (!snap.exists) { tampilTidakAda(); return; }
-                    tampil(snap.data());
+                    if (snap.empty) { tampilTidakAda(); return; }
+                    tampil(snap.docs[0].data());
                 },
                 err => { tampilTidakAda(); }
             );
