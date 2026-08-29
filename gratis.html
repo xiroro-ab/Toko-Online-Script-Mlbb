@@ -302,7 +302,7 @@
             url.searchParams.delete('id');
             window.location.href = url.pathname;
         }
-        function buildChips() {
+        function buildChips(activeCat = null) {
             const el = document.getElementById('chips');
             if (!el) return;
             const set = new Set();
@@ -315,8 +315,11 @@
             const urutan = ["One Piece", "Naruto", "Fairy Tail", "Bleach", "Jujutsu Kaisen", "Demon Slayer", "League of Legends", "AOV / HOK", "Koleksi Lainnya"];
             const cats = Array.from(set).sort((a, b) => urutan.indexOf(a) - urutan.indexOf(b));
             el.style.display = 'flex';
-            el.innerHTML = `<button type="button" onclick="setChip('')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${window.chipFilter ? 'bg-slate-800/70 border-emerald-500/40 text-emerald-200' : 'bg-emerald-600 text-white'}">Semua</button>` +
-                cats.map(c => `<button type="button" onclick="setChip('${c}')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${window.chipFilter === c ? 'bg-emerald-600 text-white' : 'bg-slate-800/70 border-emerald-500/40 text-emerald-200'}">${esc(c)}</button>`).join('');
+            
+            const currentCat = activeCat !== null ? activeCat : window.chipFilter;
+
+            el.innerHTML = `<button type="button" onclick="setChip('')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${currentCat ? 'bg-slate-800/70 border-emerald-500/40 text-emerald-200' : 'bg-emerald-600 text-white'}">Semua</button>` +
+                cats.map(c => `<button type="button" onclick="setChip('${c}')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${currentCat === c ? 'bg-emerald-600 text-white' : 'bg-slate-800/70 border-emerald-500/40 text-emerald-200'}">${esc(c)}</button>`).join('');
         }
 
         fetch("https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/produk.json?v=" + Date.now())
@@ -424,6 +427,13 @@
                 if (inputSort === 'favorit' && !favList.includes(id)) return false;
                 return true;
             });
+
+            let activeCatToHighlight = targetKategori;
+            if (targetId && dataTampil.length === 1) {
+                const fAwal = dataTampil[0].fields;
+                activeCatToHighlight = deteksiKategori(fAwal.nama.stringValue.toLowerCase());
+            }
+            buildChips(activeCatToHighlight);
 
             dataTampil.sort((a, b) => {
                 if (inputSort === 'terbaru' || inputSort === 'favorit') {

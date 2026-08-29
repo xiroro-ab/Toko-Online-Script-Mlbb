@@ -280,7 +280,7 @@
             renderProduk();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        function buildChips() {
+        function buildChips(activeCat = null) {
             const el = document.getElementById('chips');
             if (!el) return;
             const set = new Set();
@@ -293,8 +293,11 @@
             const urutan = ["One Piece", "Naruto", "Fairy Tail", "Bleach", "Jujutsu Kaisen", "Demon Slayer", "League of Legends", "AOV / HOK", "Koleksi Lainnya"];
             const cats = Array.from(set).sort((a, b) => urutan.indexOf(a) - urutan.indexOf(b));
             el.style.display = 'flex';
-            el.innerHTML = `<button type="button" onclick="setChip('')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${window.chipFilter ? 'bg-slate-800/70 border-cyan-500/40 text-cyan-200' : 'bg-cyan-600 text-white'}">Semua</button>` +
-                cats.map(c => `<button type="button" onclick="setChip('${c}')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${window.chipFilter === c ? 'bg-cyan-600 text-white' : 'bg-slate-800/70 border-cyan-500/40 text-cyan-200'}">${esc(c)}</button>`).join('');
+            
+            const currentCat = activeCat !== null ? activeCat : window.chipFilter;
+            
+            el.innerHTML = `<button type="button" onclick="setChip('')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${currentCat ? 'bg-slate-800/70 border-cyan-500/40 text-cyan-200' : 'bg-cyan-600 text-white'}">Semua</button>` +
+                cats.map(c => `<button type="button" onclick="setChip('${c}')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${currentCat === c ? 'bg-cyan-600 text-white' : 'bg-slate-800/70 border-cyan-500/40 text-cyan-200'}">${esc(c)}</button>`).join('');
         }
 
         fetch(PRODUK_URL)
@@ -404,6 +407,13 @@
                 return true;
             });
 
+            let activeCatToHighlight = targetKategori;
+            if (targetId && dataTampil.length === 1) {
+                const fAwal = dataTampil[0].fields;
+                activeCatToHighlight = deteksiKategori(fAwal.nama.stringValue.toLowerCase());
+            }
+            buildChips(activeCatToHighlight);
+
             dataTampil.sort((a, b) => {
                 if (inputSort === 'terbaru' || inputSort === 'favorit') {
                     let timeA = a.fields.createTime ? new Date(a.fields.createTime.stringValue).getTime() : 0;
@@ -452,11 +462,11 @@
                 let textDeskripsi = esc(f.deskripsi ? f.deskripsi.stringValue : '').replace(/\n/g, '<br>');
                 let hargaTampil = "Rp " + (parseInt(f.harga.stringValue) || 0).toLocaleString('id-ID');
 
-                let lebarClass = isSlider ? "w-[300px] min-w-[300px] snap-start flex-shrink-0" : (targetId ? "w-full max-w-md mx-auto" : "w-full");
+                let lebarClass = isSlider ? "w-[300px] min-w-[300px] snap-start flex-shrink-0" : (targetId ? "w-full h-full min-h-[500px]" : "w-full h-[500px]");
                 let extraClass = targetId ? 'animate__animated animate__zoomIn border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : '';
 
                 return `
-                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} h-[500px] ${extraClass}" ${!targetId ? `onclick="location.href='index.html?id=${id}'" style="cursor:pointer;"` : ''}>
+                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} ${extraClass}" ${!targetId ? `onclick="location.href='index.html?id=${id}'" style="cursor:pointer;"` : ''}>
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
                             <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-cart-arrow-down text-orange-400 mr-1"></i> Dicheckout ${terjualCount}</span>
@@ -516,12 +526,12 @@
 
             // ================= MODE KATEGORI / CARI / FAVORIT / SINGLE ID =================
             if (targetKategori || targetId || inputCari || inputSort === 'favorit') {
-                container.className = targetId ? "flex flex-col items-center justify-center w-full pb-10 gap-8" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full";
+                container.className = targetId ? "grid grid-cols-1 lg:grid-cols-3 items-stretch w-full pb-10 gap-6" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full";
 
                 if (targetKategori || targetId) {
                     container.innerHTML += `
                         <div class="col-span-full mb-2 animate__animated animate__fadeInDown w-full text-center">
-                            <a href="${targetId ? '?' : '#'}" ${targetId ? '' : 'onclick="setChip(null);return false;"'} class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
+                            <a href="${targetId ? 'index.html' : '#'}" ${targetId ? '' : 'onclick="setChip(null);return false;"'} class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
                                 <i class="fa-solid fa-arrow-left mr-2"></i> ${targetId ? 'Kembali ke Etalase Utama' : 'Lihat Semua Produk'}
                             </a>
                             ${targetKategori ? `<h2 class="text-2xl font-extrabold text-white mt-4"><span class="text-cyan-400 border-b-2 border-cyan-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
