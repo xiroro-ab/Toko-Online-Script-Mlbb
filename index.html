@@ -60,11 +60,10 @@
         @keyframes float-wa { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         .floating-wa { animation: float-wa 3s ease-in-out infinite; }
 
-        /* Tampilan Scrollbar Gambar (Horizontal) Menjadi Kuning Terang */
         .xiroro-slider::-webkit-scrollbar { height: 6px; }
         .xiroro-slider::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 10px; }
-        .xiroro-slider::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; } /* Warna Kuning */
-        .xiroro-slider::-webkit-scrollbar-thumb:hover { background: #fef08a; } /* Kuning lebih terang saat disentuh */
+        .xiroro-slider::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }
+        .xiroro-slider::-webkit-scrollbar-thumb:hover { background: #fef08a; }
         .xiroro-slider { scrollbar-width: thin; scrollbar-color: #facc15 rgba(15, 23, 42, 0.5); }
     </style>
 </head>
@@ -156,7 +155,6 @@
 
     <a href="https://wa.me/6285181217627" target="_blank" class="fixed bottom-[88px] right-6 bg-[#25D366] hover:bg-[#128C7E] text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(37,211,102,0.5)] z-50 transition-all hover:scale-110 floating-wa group">
         <i class="fa-brands fa-whatsapp"></i>
-        
         <span class="absolute right-16 bg-slate-800 text-cyan-400 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
             Hubungi via WA
         </span>
@@ -164,7 +162,6 @@
 
     <button onclick="bukaTutorial()" class="fixed bottom-6 right-6 bg-cyan-600 hover:bg-cyan-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(6,182,212,0.5)] z-50 transition-all hover:scale-110 floating-wa group">
         <i class="fa-solid fa-wrench"></i>
-        
         <span class="absolute right-16 bg-slate-800 text-cyan-400 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
             Cara Pasang Script
         </span>
@@ -276,21 +273,9 @@
         window.chipFilter = null;
         function setChip(c) {
             window.chipFilter = c || null;
-            const url = new URL(window.location);
-            if (window.chipFilter) url.searchParams.set('kategori', window.chipFilter);
-            else url.searchParams.delete('kategori');
-            window.history.pushState({}, '', url);
             buildChips();
             renderProduk();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        function kembaliKeEtalase(e) {
-            if (e) e.preventDefault();
-            window.chipFilter = null;
-            const url = new URL(window.location);
-            url.searchParams.delete('kategori');
-            url.searchParams.delete('id');
-            window.location.href = url.pathname;
         }
         function buildChips() {
             const el = document.getElementById('chips');
@@ -346,39 +331,9 @@
                 ambilStats.then(() => db.collection("config").doc("site").get()
                     .then(cfgSnap => { if (cfgSnap.exists) localStorage.setItem('xiroro_config', JSON.stringify(cfgSnap.data())); })
                     .catch(function(){})
-                    .finally(() => { 
-                        renderProduk(); 
-                        if (targetId) muatUlasan(targetId);
-                        muatSemuaRating();
-                    }));
+                    .finally(() => { renderProduk(); if (targetId) muatUlasan(targetId); }));
             })
             .catch(err => document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal terhubung ke Database. <br><span class="text-sm">(${err.message})</span></p>`);
-
-        async function muatSemuaRating() {
-            try {
-                const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=1000`);
-                const j = await r.json();
-                const ratings = {};
-                (j.documents || []).forEach(d => {
-                    const f = d.fields || {};
-                    const pid = (f.produkId && f.produkId.stringValue) || '';
-                    const rate = parseInt((f.rating && f.rating.integerValue) || 0, 10);
-                    if (pid) {
-                        if (!ratings[pid]) ratings[pid] = [];
-                        ratings[pid].push(rate);
-                    }
-                });
-                document.querySelectorAll('.rating-val').forEach(el => {
-                    const pid = el.dataset.pid;
-                    if (ratings[pid]) {
-                        const avg = ratings[pid].reduce((s, x) => s + x, 0) / ratings[pid].length;
-                        el.innerText = avg.toFixed(1);
-                    } else {
-                        el.innerText = '5.0';
-                    }
-                });
-            } catch (e) { }
-        }
 
         function renderProduk() {
             const container = document.getElementById('katalog-produk');
@@ -409,7 +364,6 @@
                 if (!fAwal.nama || !fAwal.harga || !fAwal.deskripsi) return false;
                 const nama = fAwal.nama.stringValue.toLowerCase();
 
-                // FILTER: SEMBUNYIKAN PRODUK GRATIS (Harga 0) DARI HALAMAN INI
                 if (parseInt(fAwal.harga.stringValue) <= 0) return false;
 
                 if (targetId && id !== targetId) return false;
@@ -471,14 +425,11 @@
                 let extraClass = targetId ? 'animate__animated animate__zoomIn border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : '';
 
                 return `
-                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} h-[520px] ${extraClass}" ${!targetId ? `onclick="location.href='?id=${id}'" style="cursor:pointer;"` : ''}>
+                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} h-[500px] ${extraClass}" ${!targetId ? `onclick="location.href='?id=${id}'" style="cursor:pointer;"` : ''}>
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
                             <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-cart-arrow-down text-orange-400 mr-1"></i> Dicheckout ${terjualCount}</span>
-                            <div class="text-[10px] text-yellow-400 flex items-center bg-slate-700/50 px-2 py-1 rounded-full">
-                                <i class="fa-solid fa-star mr-1"></i>
-                                <span class="rating-val" data-pid="${id}">...</span>
-                            </div>
+                            <span class="text-[10px] text-cyan-400"><i class="fa-solid fa-eye mr-1"></i> ${viewCount} Dilihat</span>
                         </div>
                         
                         <span class="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full w-fit mb-2 flex-shrink-0"><i class="fa-solid fa-tag mr-1"></i> ${esc(kategori)}</span>
@@ -527,14 +478,13 @@
 
             container.innerHTML = "";
 
-            // ================= MODE KATEGORI / CARI / FAVORIT / SINGLE ID =================
             if (targetKategori || targetId || inputCari || inputSort === 'favorit') {
-                container.className = targetId ? "flex flex-col w-full pb-10" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full";
+                container.className = targetId ? "flex flex-col items-center justify-center w-full pb-10 gap-8" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full";
 
                 if (targetKategori || targetId) {
                     container.innerHTML += `
-                        <div class="col-span-full mb-6 animate__animated animate__fadeInDown w-full text-center">
-                            <a href="#" onclick="kembaliKeEtalase(event);return false;" class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
+                        <div class="col-span-full mb-2 animate__animated animate__fadeInDown w-full text-center">
+                            <a href="#" onclick="setChip(null);return false;" class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
                                 <i class="fa-solid fa-arrow-left mr-2"></i> ${targetKategori ? 'Kembali ke Etalase Utama' : 'Lihat Semua Produk'}
                             </a>
                             ${targetKategori ? `<h2 class="text-2xl font-extrabold text-white mt-4"><span class="text-cyan-400 border-b-2 border-cyan-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
@@ -555,16 +505,11 @@
                     return;
                 }
 
-                if (targetId) {
-                    container.innerHTML += '<div class="flex flex-col lg:flex-row gap-8 w-full max-w-5xl mx-auto items-start"><div class="w-full lg:w-80" id="kolom-produk-single"></div><div class="w-full lg:w-80 flex-shrink-0" id="kolom-ulasan-single"></div></div>';
-                    const kolomProduk = document.getElementById('kolom-produk-single');
-                    dataTampil.forEach(doc => { kolomProduk.innerHTML += cetakKartu(doc, false); });
-                } else {
-                    dataTampil.forEach(doc => { container.innerHTML += cetakKartu(doc, false); });
-                }
-                muatSemuaRating();
+                dataTampil.forEach(doc => { container.innerHTML += cetakKartu(doc, false); });
                 return;
             }
+
+            container.className = "flex flex-col w-full gap-10";
 
             if (dataTampil.length === 0) {
                 container.innerHTML += `
@@ -613,7 +558,6 @@
                         </div>
                     `;
                 });
-            muatSemuaRating();
         }
 
         function slideMedia(sliderId, arah) {
@@ -629,7 +573,6 @@
         }
 
         function bagikanScript(id) {
-            // Link mengarah ke halaman utama (Premium)
             const docBag = window.dataToko.find(d => d.name.split('/').pop() === id);
             const namaScript = docBag ? docBag.fields.nama.stringValue : 'Script';
             let directLink = "https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/?id=" + id;
@@ -652,7 +595,6 @@
                     text: 'Cek Mod/Script Premium ini di Xiroro: ' + namaScript, 
                     url: directLink 
                 }).catch(err => {
-                    // Jika di-cancel/diblokir oleh PC, otomatis jalankan Copy Link
                     salinKeClipboard();
                 });
             } else {
@@ -670,7 +612,7 @@
                 html: `
                     <div class="text-left text-sm text-slate-300 space-y-4 h-64 overflow-y-auto pr-3 desc-scroll">
                         <h4 class="text-white font-bold mt-2">Q: Apakah script ini aman dari ban?</h4>
-                        <p>A: Kami selalu berusaha membuat script seaman mungkin. Namun, modifikasi sistem game selalu memiliki resiko. Gunakan sewajarnya dan resiko ditanggung pengguna.</p>
+                        <p>A: Kami selalu berusaha membuat script seaman mungkin. Namun, modifikasi sistem game selalu memiliki riesgo. Gunakan sewajarnya dan riesgo ditanggung pengguna.</p>
                         
                         <h4 class="text-white font-bold mt-4">Q: Bagaimana cara mendapatkan update jika ada patch baru?</h4>
                         <p>A: Pantau terus channel YouTube kami. Jika ada perubahan sistem besar-besaran dari developer resmi, kami akan menginfokan update terbaru di sana.</p>
@@ -689,9 +631,6 @@
         const DANA_NUMBER = "085269862748";
         const QR_DANA_URL = "https://raw.githubusercontent.com/xiroro-ab/Toko-Online-Script-Mlbb/refs/heads/main/QR.png";
         const WA_ADMIN = "6285181217627";
-
-        // URL Web App Apps Script Anda (sama dengan yang dipakai upload foto di admin).
-        // Reedits Script di sana: tambahkan parser action=notif (lihat tutorial).
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfBzWmShFfm00QdleoSpxhgwPeRmwhu-OSte6JZcuza1G9sIfmlXgdeSjV1BLgsqoj/exec";
 
         function notifTelegram(pesananId, kode, namaProduk, nominal, namaDana) {
@@ -740,8 +679,6 @@
                         </div>
                         <input type="text" id="namaDanaInput" placeholder="Nama akun DANA Anda (untuk verifikasi)" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-cyan-500 mb-2 text-white">
                         <p class="text-[11px] text-slate-400 mb-3">Bayar lewat warung/titip? Nama di aplikasi Anda bisa berbeda. Siapkan <b class="text-cyan-400">screenshot dari aplikasi DANA Anda</b> sebagai bukti.</p>
-                        <input type="text" id="waNomorInput" placeholder="Nomor WhatsApp Anda (opsional, format 08xx)" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-cyan-500 mb-2 text-white">
-                        <p class="text-[11px] text-slate-400 mb-3">Opsional: diisi agar admin bisa kirim info pesanan langsung ke WhatsApp Anda.</p>
                         <button onclick="kirimVerifikasi('${id}','${kode}','${esc(nama)}','${harga}')" class="block w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl font-bold mb-2">
                             <i class="fa-brands fa-whatsapp mr-2"></i> Saya Sudah Bayar (Kirim Bukti)
                         </button>
@@ -761,7 +698,7 @@
             const KEY_SPAM = 'xiroro_last_klaim';
             const last = parseInt(localStorage.getItem(KEY_SPAM) || '0');
             if (Date.now() - last < 120000) {
-                Swal.fire({ icon: 'warning', title: 'Terlalu Cepat', text: 'Anda baru saja mengirim klaim. Tunggu 2 menit untuk kirim klaim berikutnya dari perangkat ini.', background: '#0f172a' });
+                Swal.fire({ icon: 'warning', title: 'Terlalu Cepat', text: 'Anda baru saja mengirim klaim. Tunggu 2 menit.', background: '#0f172a' });
                 return;
             }
             localStorage.setItem(KEY_SPAM, String(Date.now()));
@@ -794,8 +731,7 @@
                     waktu: new Date().toISOString(),
                     status: 'MENUNGGU',
                     noRef: '',
-                    fileLink: fileLink,
-                    waNomor: (document.getElementById('waNomorInput') ? document.getElementById('waNomorInput').value.trim() : '')
+                    fileLink: fileLink
                 }).then(ref => {
                     window.__gagalKirim = false;
                     try { notifTelegram(ref.id, kode, namaProduk, nominal, namaDana); } catch (e) { }
@@ -821,13 +757,13 @@
                         `}
                         <p><b class="text-cyan-400">1.</b> Buka aplikasi <b class="text-white">DANA</b> di HP Anda.</p>
                         <p><b class="text-cyan-400">2.</b> Ketuk <b class="text-white">Riwayat</b> (Riwayat Transaksi).</p>
-                        <p><b class="text-cyan-400">3.</b> Pilih transaksi pembayaran tadi, lalu <b class="text-white">screenshot / tangkapan layar</b> halaman detailnya (yang menampilkan nominal, tanggal, dan nama akun).</p>
-                        <p><b class="text-cyan-400">4.</b> Klik tombol <b class="text-white">WhatsApp hijau</b> di bawah untuk mengirim bukti beserta kode pesanan Anda.</p>
-                        <p class="text-yellow-400 border-t border-slate-700 pt-2 mt-2"><b>JANGAN kirim screenshot halaman website / chat ini.</b> Yang dibutuhkan admin hanyalah bukti dari aplikasi DANA.</p>
+                        <p><b class="text-cyan-400">3.</b> Pilih transaksi pembayaran tadi, lalu <b class="text-white">screenshot / tangkapan layar</b> halaman detailnya.</p>
+                        <p><b class="text-cyan-400">4.</b> Klik tombol <b class="text-white">WhatsApp hijau</b> di bawah untuk mengirim bukti.</p>
+                        <p class="text-yellow-400 border-t border-slate-700 pt-2 mt-2"><b>JANGAN kirim screenshot halaman website / chat ini.</b></p>
                         <a href="https://wa.me/${WA_ADMIN}?text=${pesan}" target="_blank" class="block w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl font-bold text-center mt-3">
                             <i class="fa-brands fa-whatsapp mr-2"></i> Kirim Bukti ke WhatsApp
                         </a>
-                        <p class="text-xs text-slate-400 mt-2 text-center">Pantau status pesanan: <a href="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html?kode=${kode}" target="_blank" class="text-cyan-400 font-mono break-all">${kode}</a></p>
+                        <p class="text-xs text-slate-400 mt-2 text-center">Pantau status: <a href="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html?kode=${kode}" target="_blank" class="text-cyan-400 font-mono break-all">${kode}</a></p>
                     </div>
                 `,
                 confirmButtonText: 'Oke, Paham',
@@ -843,7 +779,7 @@
                 html: `
                     <div class="text-center">
                         <img id="qr-besar" src="${QR_DANA_URL}" alt="QR Dana" class="w-full max-w-[400px] mx-auto object-contain bg-white rounded-2xl border-4 border-cyan-400 p-2 shadow-[0_0_30px_rgba(6,182,212,0.5)]">
-                        <p class="text-xs text-slate-400 mt-3 mb-2">Scan dengan aplikasi DANA untuk membayar. Tutup (X) untuk kembali ke halaman pembayaran.</p>
+                        <p class="text-xs text-slate-400 mt-3 mb-2">Scan dengan aplikasi DANA. Tutup (X) untuk kembali.</p>
                         <button onclick="downloadQR()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold transition">
                             <i class="fa-solid fa-download mr-2"></i> Download Barcode
                         </button>
@@ -858,7 +794,7 @@
             });
         }
 
-function downloadQR() {
+        function downloadQR() {
             fetch(QR_DANA_URL, { mode: 'cors' })
                 .then(res => res.blob())
                 .then(blob => {
@@ -885,6 +821,7 @@ function downloadQR() {
         }
 
         async function muatUlasan(pid) {
+            const c = document.getElementById('katalog-produk');
             try {
                 const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=500`);
                 const j = await r.json();
@@ -913,47 +850,38 @@ function downloadQR() {
                 });
                 if (!arr.length) listHtml = '<p class="text-xs text-slate-400">Belum ada ulasan. Jadilah yang pertama!</p>';
 
-                const kolomUlasan = document.getElementById('kolom-ulasan-single');
-                if (kolomUlasan) {
-                    kolomUlasan.innerHTML = `
-                        <div class="glass-panel rounded-2xl p-5 animate__animated animate__fadeInUp">
-                            <div class="flex justify-between items-center mb-3">
-                                <div>
-                                    <h3 class="font-bold text-white"><i class="fa-solid fa-star text-yellow-400 mr-1"></i> Ulasan Pembeli</h3>
-                                    <p class="text-xs text-slate-300">${avg ? bintangR(avg) : ''} <span class="text-slate-400">${avg.toFixed(1)} (${arr.length} ulasan)</span></p>
-                                </div>
-                            </div>
-                            <div class="max-h-96 overflow-y-auto desc-scroll pr-1 space-y-2 mb-3">${listHtml}</div>
-                            <button onclick="bukaFormUlasan('${pid}')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-2 rounded-lg font-bold border border-cyan-400/50"><i class="fa-solid fa-pen mr-1"></i> Tulis Ulasan</button>
-                        </div>
-                    `;
+                let containerUlasan = document.getElementById('area-ulasan-' + pid);
+                if (!containerUlasan) {
+                    c.insertAdjacentHTML('beforeend', `<div id="area-ulasan-${pid}" class="w-full max-w-2xl mx-auto glass-panel rounded-2xl p-5 mt-6 animate__animated animate__fadeInUp"></div>`);
+                    containerUlasan = document.getElementById('area-ulasan-' + pid);
                 }
+                containerUlasan.innerHTML = `
+                    <div class="flex flex-col lg:flex-row gap-6 items-start">
+                        <div class="w-full">
+                            <h3 class="font-bold text-white mb-2"><i class="fa-solid fa-star text-yellow-400 mr-1"></i> Ulasan Pembeli</h3>
+                            <p class="text-sm text-slate-300 mb-3">${avg ? bintangR(avg) : ''} <span class="text-slate-400">${avg.toFixed(1)} (${arr.length} ulasan)</span></p>
+                            <div class="max-h-64 overflow-y-auto desc-scroll pr-1 space-y-2 mb-4">${listHtml}</div>
+                            <button onclick="bukaFormUlasan('${pid}')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white text-sm py-2 rounded-lg font-bold border border-cyan-400/50 transition"><i class="fa-solid fa-pen mr-1"></i> Tulis Ulasan</button>
+                        </div>
+                    </div>
+                `;
             } catch (e) { }
         }
 
         function bukaFormUlasan(pid) {
             Swal.fire({
-                title: 'Tulis Ulasan Produk',
+                title: 'Tulis Ulasan',
                 html: `
                     <div class="text-left space-y-3">
-                        <div>
-                            <label class="block text-xs text-slate-300 mb-1">Nama Anda</label>
-                            <input id="swal-u-nama" placeholder="Nama Anda" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-white focus:outline-cyan-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-300 mb-1">Rating Bintang</label>
-                            <select id="swal-u-rating" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-white focus:outline-cyan-500">
-                                <option value="5">⭐⭐⭐⭐⭐ (5 - Sangat Puas)</option>
-                                <option value="4">⭐⭐⭐⭐ (4 - Puas)</option>
-                                <option value="3">⭐⭐⭐ (3 - Cukup)</option>
-                                <option value="2">⭐⭐ (2 - Kurang)</option>
-                                <option value="1">⭐ (1 - Kecewa)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-300 mb-1">Ulasan Anda</label>
-                            <textarea id="swal-u-teks" placeholder="Tulis ulasan pengalaman Anda..." class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg h-20 text-sm text-white focus:outline-cyan-500"></textarea>
-                        </div>
+                        <input id="swal-u-nama" placeholder="Nama Anda" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-white focus:outline-cyan-500">
+                        <select id="swal-u-rating" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-sm text-white focus:outline-cyan-500">
+                            <option value="5">5 - Sangat Puas</option>
+                            <option value="4">4 - Puas</option>
+                            <option value="3">3 - Cukup</option>
+                            <option value="2">2 - Kurang</option>
+                            <option value="1">1 - Kecewa</option>
+                        </select>
+                        <textarea id="swal-u-teks" placeholder="Tulis pengalaman Anda..." class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg h-20 text-sm text-white focus:outline-cyan-500"></textarea>
                     </div>
                 `,
                 showCancelButton: true,
@@ -977,10 +905,10 @@ function downloadQR() {
                     const { nama, teks, rating } = result.value;
                     try {
                         await db.collection('ulasan').add({ produkId: pid, nama: nama, rating: rating, teks: teks, waktu: new Date().toISOString() });
-                        Swal.fire({ toast: true, icon: 'success', title: 'Ulasan berhasil dikirim!', timer: 1500, showConfirmButton: false, background: '#1e293b', color: '#fff' });
+                        Swal.fire({ toast: true, icon: 'success', title: 'Ulasan terkirim!', timer: 1500, showConfirmButton: false, background: '#1e293b', color: '#fff' });
                         muatUlasan(pid);
                     } catch (e) {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mengirim ulasan.', background: '#0f172a' });
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Coba lagi.', background: '#0f172a' });
                     }
                 }
             });
