@@ -351,12 +351,39 @@
                             if (s.views) d.fields.views.integerValue += s.views;
                             if (s.terjual) d.fields.terjual.integerValue += s.terjual;
                         });
-                    })
-                    .catch(() => {});
-                ambilStats.then(() => db.collection("config").doc("site").get()
+                    }).catch(() => {});
+                
+                const ambilUlasanData = fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=1000`)
+                    .then(res => res.json())
+                    .then(sj => {
+                        const mapUlasan = {};
+                        (sj.documents || []).forEach(d => {
+                            const f = d.fields || {};
+                            const pId = f.produkId && f.produkId.stringValue;
+                            const r = f.rating && f.rating.integerValue ? parseInt(f.rating.integerValue) : 0;
+                            if (pId && r) {
+                                if (!mapUlasan[pId]) mapUlasan[pId] = { total: 0, count: 0 };
+                                mapUlasan[pId].total += r;
+                                mapUlasan[pId].count += 1;
+                            }
+                        });
+                        window.dataToko.forEach(d => {
+                            const pId = d.name.split('/').pop();
+                            const u = mapUlasan[pId];
+                            if (u) {
+                                d.fields.ratingAvg = u.total / u.count;
+                                d.fields.ratingCount = u.count;
+                            } else {
+                                d.fields.ratingAvg = 0;
+                                d.fields.ratingCount = 0;
+                            }
+                        });
+                    }).catch(() => {});
+
+                Promise.all([ambilStats, ambilUlasanData]).then(() => db.collection("config").doc("site").get()
                     .then(cfgSnap => { if (cfgSnap.exists) localStorage.setItem('xiroro_config', JSON.stringify(cfgSnap.data())); })
                     .catch(function(){})
-                    .finally(() => renderProduk()));
+                    .finally(() => { renderProduk(); if (targetId) muatUlasan(targetId); }));
             })
             .catch(err => document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal muat etalase. <br><span class="text-sm">(${err.message})</span></p>`);
 
@@ -455,7 +482,12 @@
                             <span class="text-[10px] text-emerald-400"><i class="fa-solid fa-eye mr-1"></i> ${viewCount} Dilihat</span>
                         </div>
                         
-                        <span class="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full w-fit mb-2 flex-shrink-0"><i class="fa-solid fa-tag mr-1"></i> ${esc(kategori)}</span>
+                        <div class="flex justify-between items-center mb-2 flex-shrink-0">
+                            <span class="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full"><i class="fa-solid fa-tag mr-1"></i> ${esc(kategori)}</span>
+                            <div class="text-[10px] flex items-center text-yellow-400 bg-slate-800/60 px-2 py-0.5 rounded-full border border-slate-700/50">
+                                ${bintangR(f.ratingAvg || 0)} <span class="text-slate-300 ml-1">(${f.ratingCount || 0})</span>
+                            </div>
+                        </div>
                         
                         <div class="relative mb-3 group flex-shrink-0" onclick="event.stopPropagation()">
                             <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-40 md:h-44 snap-x pb-2">
@@ -692,6 +724,81 @@
                 width: '500px', 
                 background: '#0f172a' 
             }); 
+        }
+
+        function bintangR(r) {
+            let s = '';
+            for (let i = 1; i <= 5; i++) {
+                s += `<i class="${i <= Math.round(r) ? 'fa-solid text-yellow-400' : 'fa-solid text-slate-600'} fa-star"></i>`;
+            }
+            return s;
+        }
+
+        async function muatUlasan(pid) {
+            const c = document.getElementById('katalog-produk');
+            try {
+                const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=500`);
+                const j = await r.json();
+                const arr = (j.documents || []).map(d => {
+                    const f = d.fields || {};
+                    return {
+                        produkId: (f.produkId && f.produkId.stringValue) || '',
+                        nama: (f.nama && f.nama.stringValue) || 'Anonim',
+                        rating: parseInt((f.rating && f.rating.integerValue) || 0, 10) || 1,
+                        teks: (f.teks && f.teks.stringValue) || '',
+                        waktu: (f.waktu && f.waktu.stringValue) || ''
+                    };
+                }).filter(x => x.produkId === pid);
+                const avg = arr.length ? (arr.reduce((s, x) => s + x.rating, 0) / arr.length) : 0;
+
+                let listHtml = '';
+                arr.sort((a, b) => (b.waktu || '').localeCompare(a.waktu || '')).slice(0, 10).forEach(x => {
+                    listHtml += `
+                        <div class="border-b border-slate-700/60 pb-2 mb-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-bold text-white">${esc(x.nama)}</span>
+                                <span class="text-xs text-yellow-400">${bintangR(x.rating)}</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1">${esc(x.teks)}</p>
+                        </div>`;
+                });
+                if (!arr.length) listHtml = '<p class="text-xs text-slate-400">Belum ada ulasan. Jadilah yang pertama!</p>';
+
+                c.insertAdjacentHTML('beforeend', `
+                    <div class="w-full max-w-md mx-auto glass-panel rounded-2xl p-5 mt-6 animate__animated animate__fadeInUp border border-emerald-500/30">
+                        <h3 class="font-bold text-white mb-1"><i class="fa-solid fa-star text-yellow-400 mr-1"></i> Ulasan</h3>
+                        <p class="text-sm text-slate-300 mb-3">${avg ? bintangR(avg) : ''} <span class="text-slate-400">${avg.toFixed(1)} (${arr.length} ulasan)</span></p>
+                        <div class="max-h-64 overflow-y-auto mb-4">${listHtml}</div>
+                        <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-2 text-sm">
+                            <input id="u-nama" required placeholder="Nama Anda" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-white focus:outline-emerald-500">
+                            <select id="u-rating" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-white">
+                                <option value="5">5 - Luar Biasa</option>
+                                <option value="4">4 - Bagus</option>
+                                <option value="3">3 - Cukup</option>
+                                <option value="2">2 - Kurang</option>
+                                <option value="1">1 - Buruk</option>
+                            </select>
+                            <textarea id="u-teks" required placeholder="Tulis ulasan Anda..." class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg h-16 text-white focus:outline-emerald-500"></textarea>
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2 rounded-lg font-bold">Kirim Ulasan</button>
+                        </form>
+                    </div>
+                `);
+            } catch (e) { }
+        }
+
+        async function kirimUlasan(pid, ev) {
+            ev.preventDefault();
+            const nama = document.getElementById('u-nama').value.trim();
+            const teks = document.getElementById('u-teks').value.trim();
+            const rating = parseInt(document.getElementById('u-rating').value, 10) || 5;
+            if (!nama || !teks) return;
+            try {
+                await db.collection('ulasan').add({ produkId: pid, nama: nama, rating: rating, teks: teks, waktu: new Date().toISOString() });
+                Swal.fire({ toast: true, icon: 'success', title: 'Ulasan terkirim!', timer: 1500, showConfirmButton: false, background: '#064e3b', color: '#fff' });
+                muatUlasan(pid);
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Coba lagi.', background: '#0f172a' });
+            }
         }
     </script>
 </body>

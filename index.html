@@ -329,9 +329,36 @@
                             if (s.views) d.fields.views.integerValue += s.views;
                             if (s.terjual) d.fields.terjual.integerValue += s.terjual;
                         });
-                    })
-                    .catch(() => {});
-                ambilStats.then(() => db.collection("config").doc("site").get()
+                    }).catch(() => {});
+                
+                const ambilUlasanData = fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=1000`)
+                    .then(res => res.json())
+                    .then(sj => {
+                        const mapUlasan = {};
+                        (sj.documents || []).forEach(d => {
+                            const f = d.fields || {};
+                            const pId = f.produkId && f.produkId.stringValue;
+                            const r = f.rating && f.rating.integerValue ? parseInt(f.rating.integerValue) : 0;
+                            if (pId && r) {
+                                if (!mapUlasan[pId]) mapUlasan[pId] = { total: 0, count: 0 };
+                                mapUlasan[pId].total += r;
+                                mapUlasan[pId].count += 1;
+                            }
+                        });
+                        window.dataToko.forEach(d => {
+                            const pId = d.name.split('/').pop();
+                            const u = mapUlasan[pId];
+                            if (u) {
+                                d.fields.ratingAvg = u.total / u.count;
+                                d.fields.ratingCount = u.count;
+                            } else {
+                                d.fields.ratingAvg = 0;
+                                d.fields.ratingCount = 0;
+                            }
+                        });
+                    }).catch(() => {});
+
+                Promise.all([ambilStats, ambilUlasanData]).then(() => db.collection("config").doc("site").get()
                     .then(cfgSnap => { if (cfgSnap.exists) localStorage.setItem('xiroro_config', JSON.stringify(cfgSnap.data())); })
                     .catch(function(){})
                     .finally(() => { renderProduk(); if (targetId) muatUlasan(targetId); }));
@@ -429,16 +456,21 @@
                 let extraClass = targetId ? 'animate__animated animate__zoomIn border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : '';
 
                 return `
-                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} h-[500px] ${extraClass}">
+                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} h-[500px] ${extraClass}" ${!targetId ? `onclick="location.href='index.html?id=${id}'" style="cursor:pointer;"` : ''}>
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
                             <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-cart-arrow-down text-orange-400 mr-1"></i> Dicheckout ${terjualCount}</span>
                             <span class="text-[10px] text-cyan-400"><i class="fa-solid fa-eye mr-1"></i> ${viewCount} Dilihat</span>
                         </div>
                         
-                        <span class="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full w-fit mb-2 flex-shrink-0"><i class="fa-solid fa-tag mr-1"></i> ${esc(kategori)}</span>
+                        <div class="flex justify-between items-center mb-2 flex-shrink-0">
+                            <span class="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full"><i class="fa-solid fa-tag mr-1"></i> ${esc(kategori)}</span>
+                            <div class="text-[10px] flex items-center text-yellow-400 bg-slate-800/60 px-2 py-0.5 rounded-full border border-slate-700/50">
+                                ${bintangR(f.ratingAvg || 0)} <span class="text-slate-300 ml-1">(${f.ratingCount || 0})</span>
+                            </div>
+                        </div>
                         
-                        <div class="relative mb-3 group flex-shrink-0">
+                        <div class="relative mb-3 group flex-shrink-0" onclick="event.stopPropagation()">
                             <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-40 md:h-44 snap-x pb-2">
                                 <img src="${esc(imgUrl)}" class="min-w-full h-full object-cover rounded-xl snap-center border border-slate-700/50" loading="lazy" onerror="this.src='https://dummyimage.com/400x200/1e293b/ef4444.png&text=Gambar+Error'">
                                 ${vidId ? `
