@@ -276,9 +276,21 @@
         window.chipFilter = null;
         function setChip(c) {
             window.chipFilter = c || null;
+            const url = new URL(window.location);
+            if (window.chipFilter) url.searchParams.set('kategori', window.chipFilter);
+            else url.searchParams.delete('kategori');
+            window.history.pushState({}, '', url);
             buildChips();
             renderProduk();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function kembaliKeEtalase(e) {
+            if (e) e.preventDefault();
+            window.chipFilter = null;
+            const url = new URL(window.location);
+            url.searchParams.delete('kategori');
+            url.searchParams.delete('id');
+            window.location.href = url.pathname;
         }
         function buildChips() {
             const el = document.getElementById('chips');
@@ -521,11 +533,11 @@
 
                 if (targetKategori || targetId) {
                     container.innerHTML += `
-                        <div class="col-span-full mb-6 animate__animated animate__fadeInDown w-full flex justify-between items-center">
-                            <a href="index.html" class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
-                                <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+                        <div class="col-span-full mb-6 animate__animated animate__fadeInDown w-full text-center">
+                            <a href="#" onclick="kembaliKeEtalase(event);return false;" class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
+                                <i class="fa-solid fa-arrow-left mr-2"></i> ${targetKategori ? 'Kembali ke Etalase Utama' : 'Lihat Semua Produk'}
                             </a>
-                            ${targetKategori ? `<h2 class="text-xl font-extrabold text-white"><span class="text-cyan-400 border-b-2 border-cyan-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
+                            ${targetKategori ? `<h2 class="text-2xl font-extrabold text-white mt-4"><span class="text-cyan-400 border-b-2 border-cyan-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
                         </div>
                     `;
                 }
