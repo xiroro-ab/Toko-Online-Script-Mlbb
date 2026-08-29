@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == '2QZ5EdT8wTbMKKeENTLu5MhM4Lb2';
+    }
+
+    // Produk & konfigurasi etalase: boleh dibaca publik, ditulis hanya admin
+    match /script/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /config/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Log pesanan: siapa saja boleh MENAMBAH (klaim pembeli), baca/ubah hanya admin
+    match /pesanan/{document} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // Statistik produk: publik boleh baca + menambah views/terjual, tidak bisa hapus/ubah data lain
+    match /stats/{document} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(["views", "terjual"]);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(["views", "terjual"]);
+    }
+
+    // Status pesanan untuk pembeli (aman: hanya kode+status+produk, tanpa data pribadi)
+    match /public_orders/{kode} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Ulasan/Review: publik boleh baca & tulis, admin boleh hapus/edit (moderasi)
+    match /ulasan/{document} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(["produkId", "nama", "rating", "teks", "waktu"]);
+      allow update, delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin Xiroro Script</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .tab-active { border-bottom: 2px solid #22d3ee; color: #22d3ee; }
+        .desc-scroll::-webkit-scrollbar { width: 4px; }
+        .desc-scroll::-webkit-scrollbar-track { background: transparent; }
+        .desc-scroll::-webkit-scrollbar-thumb { background: #22d3ee; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="areaLogin" class="max-w-md mx-auto mt-20 glass p-8 rounded-2xl shadow-2xl border-t-4 border-t-cyan-500">
+        <div class="text-center mb-8">
+            <i class="fa-solid fa-user-shield text-5xl text-cyan-400 mb-4"></i>
+            <h2 class="text-2xl font-bold">Admin Login</h2>
+            <p class="text-slate-400 text-sm mt-2">Masuk untuk mengelola toko Xiroro</p>
+        </div>
+        <div class="space-y-4">
+            <input type="email" id="email" placeholder="Email Admin" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-cyan-500">
+            <input type="password" id="password" placeholder="Password" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-cyan-500">
+            <button onclick="loginAdmin()" class="w-full bg-cyan-600 hover:bg-cyan-500 py-3 rounded-lg font-bold transition mt-4"><i class="fa-solid fa-right-to-bracket"></i> Masuk</button>
+        </div>
+    </div>
+
+    <div id="areaAdmin" class="max-w-6xl mx-auto" style="display: none;">
+        <header class="flex justify-between items-center mb-10">
+            <h1 class="text-3xl font-bold text-cyan-400"><i class="fa-solid fa-gauge-high"></i> Xiroro <span class="text-white">Control</span></h1>
+            <button onclick="logoutAdmin()" class="text-red-400 hover:text-red-300 font-medium"><i class="fa-solid fa-power-off"></i> Keluar</button>
+        </header>
+
+        <div class="flex gap-8 border-b border-slate-700 mb-8">
+            <button onclick="switchTab('produk')" id="btn-produk" class="pb-4 tab-active font-medium">Manajemen Produk</button>
+            <button onclick="switchTab('pesanan')" id="btn-pesanan" class="pb-4 text-slate-400 font-medium">Log Pesanan</button>
+            <button onclick="switchTab('ulasan')" id="btn-ulasan" class="pb-4 text-slate-400 font-medium">Kelola Ulasan</button>
+            <button onclick="switchTab('tampilan')" id="btn-tampilan" class="pb-4 text-slate-400 font-medium">Pengaturan Etalase</button>
+        </div>
+
+        <section id="section-produk" class="block">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="glass p-6 rounded-2xl h-fit">
+                    <h2 id="form-title" class="text-xl font-bold mb-6 text-cyan-400"><i class="fa-solid fa-plus"></i> Tambah Produk Baru</h2>
+                    <form id="form-produk" onsubmit="simpanProduk(event)" class="space-y-4">
+                        <input type="hidden" id="edit-id"> <input type="hidden" id="gambarUrlLama"> 
+                        <div>
+                            <label class="block text-sm mb-1 text-slate-400">Nama Produk</label>
+                            <input type="text" id="nama" placeholder="Misal: Script Skin Chou" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm mb-1 text-slate-400">Harga (Rp)</label>
+                                <input type="number" id="harga" placeholder="Angka saja" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1 text-slate-400">YouTube ID (Opsional)</label>
+                                <input type="text" id="videoID" placeholder="Contoh: dQw4w9WgXcQ" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1 text-slate-400">Deskripsi Singkat</label>
+                            <textarea id="deskripsi" placeholder="Deskripsi mod..." class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg h-20 focus:outline-cyan-500" required></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1 text-slate-400">Link File / Checkout</label>
+                            <input type="text" id="fileLink" placeholder="Link download/pembayaran" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1 text-slate-400">Foto Produk</label>
+                            <input type="file" id="foto" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-700 file:text-cyan-400 hover:file:bg-slate-600">
+                            <p id="info-foto" class="text-xs text-yellow-500 mt-1 hidden">Kosongkan jika tidak ingin mengganti foto lama.</p>
+                        </div>
+                        
+                        <button type="submit" id="btn-submit" class="w-full bg-cyan-600 hover:bg-cyan-500 py-3 rounded-lg font-bold transition mt-4"><i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Etalase</button>
+                        <button type="button" id="btn-cancel" onclick="resetForm()" class="w-full text-slate-400 hover:text-white mt-2 hidden">Batal Edit</button>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="glass p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold">Etalase Saat Ini</h2>
+                            <div class="flex gap-3">
+                                <button onclick="publishEtalase()" class="text-emerald-400 hover:text-emerald-300 text-sm"><i class="fa-solid fa-cloud-arrow-up"></i> Publikasi</button>
+                                <button onclick="backupProduk()" class="text-amber-400 hover:text-amber-300 text-sm"><i class="fa-solid fa-download"></i> Backup JSON</button>
+                                <button onclick="loadProduk()" class="text-cyan-400 hover:text-cyan-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                            </div>
+                        </div>
+                        <input type="text" id="cariProduk" oninput="renderProdukAdmin()" placeholder="Cari nama produk..." class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-cyan-500 mb-4">
+                        <div id="list-produk" class="space-y-4 max-h-[600px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #22d3ee #1e293b;">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-pesanan" class="hidden">
+            <div class="glass p-8 rounded-2xl border-t-4 border-t-green-500">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-green-400"><i class="fa-solid fa-clipboard-list"></i> Log Pesanan</h2>
+                    <button onclick="loadPesanan()" class="text-green-400 hover:text-green-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                    <select id="bulanPesanan" onchange="renderPesananAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-green-500 text-white cursor-pointer">
+                        <option value="">Semua Bulan</option>
+                    </select>
+                    <input type="text" id="cariPesanan" oninput="renderPesananAdmin()" placeholder="Cari kode / produk / nama DANA..." class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-green-500">
+                    <div class="flex gap-2">
+                        <button onclick="exportPesananPDF()" class="flex-1 bg-red-600/80 hover:bg-red-500 text-white px-4 py-3 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
+                        <button onclick="exportPesananCSV()" class="flex-1 bg-blue-600/80 hover:bg-blue-500 text-white px-4 py-3 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-file-csv mr-1"></i> CSV</button>
+                        <button onclick="hapusBulan()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-trash-can mr-1"></i> Hapus Bulan</button>
+                    </div>
+                </div>
+                <div id="list-pesanan" class="space-y-3 max-h-[600px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #22c55e #1e293b;">
+                    <p class="text-center text-slate-500">Belum ada pesanan.</p>
+                </div>
+                <div class="w-full mt-6 glass rounded-xl p-4">
+                    <h3 class="text-sm font-bold text-green-400 mb-3"><i class="fa-solid fa-chart-pie mr-1"></i> Pendapatan 6 Bulan Terakhir</h3>
+                    <canvas id="chartPesanan" height="80"></canvas>
+                </div>
+                <div id="statAdmin" class="w-full mt-6"></div>
+            </div>
+        </section>
+
+        <section id="section-tampilan" class="hidden">
+            <div class="glass p-8 rounded-2xl max-w-2xl border-t-4 border-t-purple-500">
+                <h2 class="text-xl font-bold mb-6 text-purple-400"><i class="fa-solid fa-wand-magic-sparkles"></i> Pengaturan Website Pembeli</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block mb-2 text-slate-300">URL Video Background (MP4 GitHub/Lokal)</label>
+                        <input type="text" id="cfg-video" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-purple-500" placeholder="https://raw.githubusercontent.com/...">
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-slate-300">URL Logo Toko (PNG/JPG)</label>
+                        <input type="text" id="cfg-logo" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-purple-500">
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-slate-300">Susunan Kolom Produk (Tampilan Komputer)</label>
+                        <select id="cfg-kolom" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-purple-500">
+                            <option value="grid-cols-2">2 Kolom (Besar)</option>
+                            <option value="grid-cols-3">3 Kolom (Sedang)</option>
+                            <option value="grid-cols-4">4 Kolom (Kecil/Padat)</option>
+                        </select>
+                    </div>
+                    <button onclick="simpanConfig()" class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-lg font-bold transition mt-4"><i class="fa-solid fa-floppy-disk"></i> Terapkan Tema ke Website</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-ulasan" class="hidden">
+            <div class="glass p-8 rounded-2xl border-t-4 border-t-amber-500">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-amber-400"><i class="fa-solid fa-star"></i> Kelola Ulasan Produk</h2>
+                    <button onclick="loadUlasan()" class="text-amber-400 hover:text-amber-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                    <select id="filterProdukUlasan" onchange="renderUlasanAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-amber-500 text-white cursor-pointer">
+                        <option value="">Semua Produk</option>
+                    </select>
+                    <select id="filterRatingUlasan" onchange="renderUlasanAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-amber-500 text-white cursor-pointer">
+                        <option value="">Semua Rating</option>
+                        <option value="5">5 Bintang</option>
+                        <option value="4">4 Bintang</option>
+                        <option value="3">3 Bintang</option>
+                        <option value="2">2 Bintang</option>
+                        <option value="1">1 Bintang</option>
+                    </select>
+                    <input type="text" id="cariUlasan" oninput="renderUlasanAdmin()" placeholder="Cari nama / isi ulasan..." class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-amber-500">
+                </div>
+                <div id="list-ulasan" class="space-y-3 max-h-[600px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #fbbf24 #1e293b;">
+                    <p class="text-center text-slate-500">Memuat ulasan...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAXfLH19B6nQkEwUwnDoA2C-Nh5DQhwEIo",
+            authDomain: "toko-mod-mlbb.firebaseapp.com",
+            projectId: "toko-mod-mlbb",
+            storageBucket: "toko-mod-mlbb.firebasestorage.app",
+            messagingSenderId: "814354818916",
+            appId: "1:814354818916:web:452a04732f528abdec7c71",
+            measurementId: "G-20KBWYYJXE"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // !!! WAJIB ISI DENGAN URL APPS SCRIPT ANDA YANG TERBARU !!!
+        const appsScriptUrl = "https://script.google.com/macros/s/AKfycbyfBzWmShFfm00QdleoSpxhgwPeRmwhu-OSte6JZcuza1G9sIfmlXgdeSjV1BLgsqoj/exec";
+
+        // GANTI ANGKA INI DENGAN TOKEN RAHASIA ANDA SENDIRI, lalu samakan di Apps Script
+        const UPLOAD_TOKEN = "xiroro_upload_2026_ganti123";
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('areaLogin').style.display = 'none';
+                document.getElementById('areaAdmin').style.display = 'block';
+                loadProduk(); loadConfig();
+            } else {
+                document.getElementById('areaLogin').style.display = 'block';
+                document.getElementById('areaAdmin').style.display = 'none';
+            }
+        });
+
+        function loginAdmin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            Swal.fire({ title: 'Memeriksa...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    Swal.close(); Swal.fire({ icon: 'success', title: 'Selamat Datang!', timer: 1500, showConfirmButton: false });
+                })
+                .catch((error) => { Swal.fire({ icon: 'error', title: 'Gagal Login', text: error.message }); });
+        }
+
+        function logoutAdmin() {
+            auth.signOut().then(() => {
+                document.getElementById('areaLogin').style.display = 'block';
+                document.getElementById('areaAdmin').style.display = 'none';
+                document.getElementById('email').value = ''; document.getElementById('password').value = '';
+            });
+        }
+
+        function switchTab(tab) {
+            document.getElementById('section-produk').classList.toggle('hidden', tab !== 'produk');
+            document.getElementById('section-pesanan').classList.toggle('hidden', tab !== 'pesanan');
+            document.getElementById('section-ulasan').classList.toggle('hidden', tab !== 'ulasan');
+            document.getElementById('section-tampilan').classList.toggle('hidden', tab !== 'tampilan');
+            document.getElementById('btn-produk').className = tab === 'produk' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
+            document.getElementById('btn-pesanan').className = tab === 'pesanan' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
+            document.getElementById('btn-ulasan').className = tab === 'ulasan' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
+            document.getElementById('btn-tampilan').className = tab === 'tampilan' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
+            if (tab === 'pesanan') loadPesanan();
+            if (tab === 'ulasan') loadUlasan();
+        }
+
+        let semuaPesanan = [];
+        let arrTampil = [];
+        let mapHarga = {};
+        function badgeStatus(s) {
+            const map = { MENUNGGU: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40', TERVERIFIKASI: 'bg-blue-500/20 text-blue-300 border-blue-500/40', SELESAI: 'bg-green-500/20 text-green-400 border-green-500/40', DITOLAK: 'bg-red-500/20 text-red-400 border-red-500/40' };
+            return `<span class="text-[10px] px-2 py-1 rounded-full border ${map[s] || 'bg-slate-700 text-slate-300 border-slate-600'}">${s}</span>`;
+        }
+        function escP(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+        async function loadPesanan() {
+            const list = document.getElementById('list-pesanan');
+            list.innerHTML = '<div class="text-center text-green-400 py-4"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
+            try {
+                const snapshot = await db.collection("pesanan").orderBy("waktu", "desc").get();
+                semuaPesanan = [];
+                snapshot.forEach(doc => semuaPesanan.push({ id: doc.id, data: doc.data() }));
+                mapHarga = {};
+                try {
+                    const snapCat = await db.collection("script").get();
+                    snapCat.forEach(d => { mapHarga[d.id] = parseInt(d.data().harga) || 0; });
+                } catch (e) { }
+                isiBulan();
+                renderPesananAdmin();
+                grafikPesanan();
+                renderStatistik();
+            } catch (e) { list.innerHTML = `<p class='text-red-500'>Error: ${e.message}</p>`; }
+        }
+
+        function renderPesananAdmin() {
+            const list = document.getElementById('list-pesanan');
+            const q = document.getElementById('cariPesanan') ? document.getElementById('cariPesanan').value.toLowerCase() : '';
+            const bln = document.getElementById('bulanPesanan') ? document.getElementById('bulanPesanan').value : '';
+            arrTampil = semuaPesanan.filter(o => {
+                const cocokCari = (o.data.kode || '').toLowerCase().includes(q) || (o.data.namaProduk || '').toLowerCase().includes(q) || (o.data.namaDana || '').toLowerCase().includes(q);
+                const cocokBulan = !bln || (o.data.waktu || '').slice(0, 7) === bln;
+                return cocokCari && cocokBulan;
+            });
+            let arr = arrTampil;
+
+            const tunggu = semuaPesanan.filter(o => o.data.status === 'MENUNGGU');
+            const totalSemua = semuaPesanan.reduce((s, o) => s + (parseInt(o.data.nominal) || 0), 0);
+            const totalTunggu = tunggu.reduce((s, o) => s + (parseInt(o.data.nominal) || 0), 0);
+            const totalVerified = semuaPesanan.filter(o => o.data.status === 'TERVERIFIKASI' || o.data.status === 'SELESAI').reduce((s, o) => s + (parseInt(o.data.nominal) || 0), 0);
+
+            list.innerHTML = `
+                <div class="w-full p-4 bg-slate-900/60 rounded-xl border border-slate-700 mb-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                    <div>
+                        <div class="text-2xl font-black text-white">${semuaPesanan.length}</div>
+                        <div class="text-[11px] text-slate-400">Total Pesanan DB</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-black text-yellow-400">${tunggu.length}</div>
+                        <div class="text-[11px] text-slate-400">Menunggu</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-black text-green-400">${totalSemua.toLocaleString('id-ID')}</div>
+                        <div class="text-[11px] text-slate-400">Total Nilai DB (Rp)</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-black text-cyan-400">${totalVerified.toLocaleString('id-ID')}</div>
+                        <div class="text-[11px] text-slate-400">Nilai Terverifikasi (Rp)</div>
+                    </div>
+                </div>
+                <div class="w-full bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 mb-4 text-[12px] text-blue-200 leading-relaxed">
+                    <b>Rekonsiliasi (panduan sekali lihat):</b> bandingkan angka di atas dengan aplikasi DANA Anda. Transaksi masuk di DANA harus = jumlah & total nominal pesanan MENUNGGU. Jika <b class="text-white">jumlah DANA masuk &lt; jumlah MENUNGGU</b> atau <b class="text-white">total nominal berbeda</b> → ada yang memanipulasi (klaim tanpa bayar / nominal diubah). Cocokkan per baris: nama DANA + nominal + waktu di baris = nama pengirim + nominal + waktu entri DANA.
+                </div>
+            `;
+            if (!arr.length) { list.innerHTML += "<p class='text-center text-slate-500'>Tidak ada pesanan yang cocok.</p>"; return; }
+            arr.forEach(o => {
+                const d = o.data;
+                const waktu = d.waktu ? new Date(d.waktu).toLocaleString('id-ID') : '-';
+                list.innerHTML += `
+                    <div class="p-4 bg-slate-800/80 rounded-xl border ${d.status === 'DITOLAK' ? 'border-red-500/40' : d.status === 'TERVERIFIKASI' ? 'border-blue-500/40' : d.status === 'SELESAI' ? 'border-green-500/50' : 'border-yellow-500/40'}">
+                        <div class="flex flex-wrap justify-between items-start gap-2 mb-2">
+                            <div>
+                                <span class="font-mono text-xs bg-slate-900 px-2 py-1 rounded border border-slate-700 text-yellow-400">${escP(d.kode)}</span>
+                                <h4 class="font-bold text-white mt-2">${escP(d.namaProduk)}</h4>
+                            </div>
+                            ${badgeStatus(d.status)}
+                        </div>
+                        <div class="text-xs text-slate-400 space-y-1 mb-3">
+                            <p><i class="fa-solid fa-money-bill-wave text-green-400 mr-1"></i> Rp ${(d.nominal || 0).toLocaleString('id-ID')}${mapHarga && d.produkId && mapHarga[d.produkId] != null && parseInt(mapHarga[d.produkId]) !== parseInt(d.nominal) ? ` <span class="text-yellow-400 border border-yellow-500/40 rounded px-1.5 py-0.5 text-[10px]">Beda dgn katalog (Rp ${(parseInt(mapHarga[d.produkId])||0).toLocaleString('id-ID')})</span>` : ''}</p>
+                            <p><i class="fa-solid fa-user text-cyan-400 mr-1"></i> DANA: <b class="text-white">${escP(d.namaDana)}</b></p>
+                            <p><i class="fa-solid fa-clock text-purple-400 mr-1"></i> ${waktu}</p>
+                            ${d.noRef ? `<p><i class="fa-solid fa-fingerprint text-blue-400 mr-1"></i> No. Ref: <b class="text-white font-mono">${escP(d.noRef)}</b></p>` : ''}
+                            ${d.catatan ? `<p><i class="fa-solid fa-note-sticky text-amber-400 mr-1"></i> Catatan: <b class="text-white">${escP(d.catatan)}</b></p>` : ''}
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="aturPesanan('${o.id}','MENUNGGU')" class="text-[11px] px-3 py-1.5 rounded-lg bg-yellow-600/80 hover:bg-yellow-500 transition ${d.status !== 'MENUNGGU' ? 'opacity-40 cursor-not-allowed' : ''}" ${d.status !== 'MENUNGGU' ? 'disabled' : ''}>Verifikasi</button>
+                            <button onclick="aturPesanan('${o.id}','SELESAI')" class="text-[11px] px-3 py-1.5 rounded-lg bg-green-600/80 hover:bg-green-500 transition ${d.status !== 'TERVERIFIKASI' ? 'opacity-40 cursor-not-allowed' : ''}" ${d.status !== 'TERVERIFIKASI' ? 'disabled' : ''}>Selesai (Kirim File)</button>
+                            <button onclick="aturPesanan('${o.id}','DITOLAK')" class="text-[11px] px-3 py-1.5 rounded-lg bg-red-600/80 hover:bg-red-500 transition ${d.status === 'DITOLAK' ? 'opacity-40 cursor-not-allowed' : ''}" ${d.status === 'DITOLAK' ? 'disabled' : ''}>Tolak</button>
+                            <button onclick="borPesanan('${o.id}','${escP(d.kode)}')" class="text-[11px] px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-red-600 transition ml-auto" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="setCatatan('${o.id}','${escP(d.kode)}')" class="text-[11px] px-3 py-1.5 rounded-lg bg-amber-600/80 hover:bg-amber-500 transition" title="Catatan"><i class="fa-solid fa-note-sticky"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function syncTelegram(pid) {
+            try { await fetch(appsScriptUrl, { method: 'POST', body: new URLSearchParams({ action: 'syncStatus', pesananId: pid }), mode: 'no-cors' }); } catch (e) { }
+        }
+
+        function aturPesanan(id, statusBaru) {
+            const promptNoRef = () => {
+                Swal.fire({
+                    title: 'Kunci No. Ref DANA',
+                    input: 'text',
+                    inputPlaceholder: 'Nomor transaksi pada aplikasi DANA Anda',
+                    showCancelButton: true,
+                    confirmButtonText: 'Verifikasi & Kunci',
+                    confirmButtonColor: '#0891b2',
+                    background: '#1e293b',
+                    color: '#fff'
+                }).then(async res => {
+                    if (!res.isConfirmed || !res.value.trim()) return;
+                    await db.collection("pesanan").doc(id).update({ status: 'TERVERIFIKASI', noRef: res.value.trim() });
+                    syncTelegram(id);
+                    (function () {
+                        const orP = (semuaPesanan.find(o => o.id === id) || {}).data || {};
+                        const kodeP = orP.kode || '';
+                        Swal.fire({
+                            icon: 'success', title: 'Terverifikasi!',
+                            html: `<div class="text-left text-sm text-slate-300">
+                                <p>No.Ref terkunci: <b class="text-yellow-400">${escP(res.value.trim())}</b> <span class="text-xs text-slate-400">(status pembeli ter-update LIVE)</span></p>
+                                <p class="mt-3 text-xs">Info untuk pembeli — salin & kirim di WhatsApp:</p>
+                                <div class="bg-slate-900 border border-slate-700 rounded p-2 mt-1 text-xs text-cyan-300">Status pembayaran Anda <b>TERVERIFIKASI</b>.${kodeP ? ' Pantau: https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html?kode=' + kodeP : ''}</div>
+                            </div>`,
+                            background: '#1e293b'
+                        });
+                    })();
+                    loadPesanan();
+                });
+            };
+
+            if (statusBaru === 'MENUNGGU') {
+                promptNoRef();
+            } else if (statusBaru === 'SELESAI') {
+                const d = (semuaPesanan.find(o => o.id === id) || {}).data || {};
+                Swal.fire({ title: 'Selesaikan Pesanan?', text: 'File akan dikirim ke pembeli setelah ini.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#22c55e', background: '#1e293b' }).then(async res => {
+                    if (!res.isConfirmed) return;
+                    await db.collection("pesanan").doc(id).update({ status: 'SELESAI' });
+                    syncTelegram(id);
+                    const fl = d.fileLink || '';
+                    if (fl) {
+                        Swal.fire({
+                            title: 'Kirim File Ini',
+                            html: `
+                                <p class="text-sm text-slate-300 mb-3">Kirim link di bawah ini ke pembeli via WhatsApp:</p>
+                                <input id="linkFileOrder" value="${escP(fl)}" readonly class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg text-xs text-cyan-300 mb-3">
+                                <button onclick="navigator.clipboard.writeText(document.getElementById('linkFileOrder').value);Swal.fire({icon:'success',title:'Tersalin',timer:1200,showConfirmButton:false,background:'#1e293b'})" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2 rounded-lg font-bold transition"><i class="fa-solid fa-copy mr-2"></i> Salin Link</button>
+                                <p class="text-[11px] text-slate-400 text-left mt-2">Status di halaman cek pembeli otomatis jadi SELESAI (live), file tampil di sana. Info ke pembeli: sudah dikirim file ${d.kode ? `- pantau https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html?kode=${d.kode}` : ''}.</p>
+                            `,
+                            showConfirmButton: false,
+                            background: '#1e293b'
+                        });
+                    } else {
+                        Swal.fire({ icon: 'warning', title: 'Tidak Ada Link File', text: 'Pesanan ini tidak menyimpan link file. Periksa link di katalog produk.', background: '#1e293b' });
+                    }
+                    loadPesanan();
+                });
+            } else {
+                Swal.fire({ title: 'Tolak Pesanan?', text: 'Pastikan pembayaran tidak masuk sebelum menolak.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', background: '#1e293b' }).then(async res => {
+                    if (res.isConfirmed) { await db.collection("pesanan").doc(id).update({ status: 'DITOLAK' }); syncTelegram(id); loadPesanan(); }
+                });
+            }
+        }
+
+        function isiBulan() {
+            const sel = document.getElementById('bulanPesanan');
+            const cur = sel.value;
+            const bulanSet = new Set();
+            semuaPesanan.forEach(o => { const b = (o.data.waktu || '').slice(0, 7); if (b) bulanSet.add(b); });
+            let opt = '<option value="">Semua Bulan</option>';
+            [...bulanSet].sort().reverse().forEach(b => {
+                const [y, m] = b.split('-');
+                const nama = new Date(y, m - 1, 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+                const jml = semuaPesanan.filter(o => (o.data.waktu || '').slice(0, 7) === b).length;
+                opt += `<option value="${b}">${nama} (${jml})</option>`;
+            });
+            sel.innerHTML = opt;
+            sel.value = cur;
+        }
+
+        function exportPesananPDF() {
+            if (!window.jspdf) { Swal.fire({ icon: 'error', title: 'Gagal Export', text: 'jsPDF tidak termuat. Periksa koneksi internet.', background: '#1e293b' }); return; }
+            if (!arrTampil || !arrTampil.length) { Swal.fire({ icon: 'info', title: 'Tidak Ada Data', text: 'Tidak ada pesanan pada tampilan yang dipilih.', background: '#1e293b' }); return; }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape' });
+            const bln = document.getElementById('bulanPesanan').value;
+            const label = bln ? new Date(bln.slice(0, 4), parseInt(bln.slice(5, 7)) - 1, 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' }) : 'Semua Bulan';
+            doc.setFontSize(16);
+            doc.text('Log Pesanan Xiroro', 14, 14);
+            doc.setFontSize(9);
+            doc.setTextColor(120);
+            doc.text('Periode: ' + label + '  |  Diexport: ' + new Date().toLocaleString('id-ID'), 14, 20);
+            const body = arrTampil.map(o => {
+                const d = o.data;
+                return [d.kode || '', d.namaProduk || '', 'Rp ' + ((d.nominal || 0).toLocaleString('id-ID')), d.namaDana || '', d.status || '', d.noRef || '', d.waktu ? new Date(d.waktu).toLocaleString('id-ID') : ''];
+            });
+            doc.autoTable({ head: [['Kode', 'Produk', 'Nominal', 'Nama DANA', 'Status', 'No. Ref', 'Waktu']], body: body, startY: 24, styles: { fontSize: 7 }, headStyles: { fillColor: [6, 182, 212] } });
+            doc.save('log-pesanan-' + (bln || 'all') + '.pdf');
+        }
+
+        async function hapusBulan() {
+            const bln = document.getElementById('bulanPesanan').value;
+            if (!bln) { Swal.fire({ icon: 'info', title: 'Pilih Bulan', text: 'Pilih bulan pada filter (dropdown "Semua Bulan") lalu klik Hapus Bulan.', background: '#1e293b' }); return; }
+            const [y, m] = bln.split('-');
+            const nama = new Date(y, m - 1, 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+            const jumlah = semuaPesanan.filter(o => (o.data.waktu || '').slice(0, 7) === bln).length;
+            Swal.fire({ title: 'Hapus Pesanan ' + nama + '?', text: jumlah + ' baris akan DIHAPUS PERMANEN. Export PDF dulu jika masih ingin menyimpan arsip.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Hapus Sekali', confirmButtonColor: '#ef4444', background: '#1e293b' }).then(async res => {
+                if (!res.isConfirmed) return;
+                const batch = [];
+                semuaPesanan.forEach(o => { if ((o.data.waktu || '').slice(0, 7) === bln) batch.push(db.collection("pesanan").doc(o.id).delete()); });
+                await Promise.all(batch);
+                Swal.fire({ icon: 'success', title: 'Terhapus', text: jumlah + ' baris dihapus.', background: '#1e293b' });
+                loadPesanan();
+            });
+        }
+
+        async function borPesanan(id, kode) {
+            Swal.fire({ title: 'Hapus Pesanan ' + kode + '?', text: 'Baris ini dan notif Telegram-nya akan dihapus permanen.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Hapus', confirmButtonColor: '#ef4444', background: '#1e293b' }).then(async res => {
+                if (!res.isConfirmed) return;
+                try { await fetch(appsScriptUrl, { method: 'POST', body: new URLSearchParams({ action: 'hapusNotif', pesananId: id }), mode: 'no-cors' }); } catch (e) { }
+                try { await db.collection("pesanan").doc(id).delete(); } catch (e) { }
+                loadPesanan();
+            });
+        }
+
+        function exportPesananCSV() {
+            if (!arrTampil || !arrTampil.length) { Swal.fire({ icon: 'info', title: 'Tidak Ada Data', text: 'Tidak ada pesanan pada tampilan yang dipilih.', background: '#1e293b' }); return; }
+            const bln = document.getElementById('bulanPesanan').value;
+            const sep = ';';
+            const baris = arrTampil.map(o => {
+                const d = o.data;
+                return ['"' + (d.kode || '') + '"', '"' + (d.namaProduk || '').replace(/"/g, '""') + '"', d.nominal || 0, '"' + (d.namaDana || '').replace(/"/g, '""') + '"', d.status || '', '"' + (d.noRef || '') + '"', '"' + (d.catatan || '').replace(/"/g, '""') + '"', d.waktu ? new Date(d.waktu).toLocaleString('id-ID') : ''].join(sep);
+            });
+            const csv = 'Kode' + sep + 'Produk' + sep + 'Nominal' + sep + 'NamaDANA' + sep + 'Status' + sep + 'NoRef' + sep + 'Catatan' + sep + 'Waktu\n' + baris.join('\n');
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'log-pesanan-' + (bln || 'all') + '.csv';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        function backupProduk() {
+            if (!semuaProduk || !semuaProduk.length) { Swal.fire({ icon: 'info', title: 'Kosong', text: 'Belum ada produk untuk di-backup.', background: '#1e293b' }); return; }
+            const blob = new Blob([JSON.stringify(semuaProduk, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'backup-produk-' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        async function publishEtalase() {
+            Swal.fire({ toast: true, icon: 'info', title: 'Menyinkronkan etalase ke GitHub...', timer: 2500, showConfirmButton: false, background: '#1e293b', color: '#fff' });
+            try {
+                const snap = await db.collection("script").get();
+                const arr = [];
+                snap.forEach(doc => arr.push({ id: doc.id, data: doc.data() }));
+                const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(arr))));
+                const params = new URLSearchParams({ action: 'publish', content: b64 });
+                await fetch(appsScriptUrl, { method: 'POST', body: params, mode: 'no-cors' });
+                setTimeout(() => { Swal.fire({ toast: true, icon: 'success', title: 'Etalase tersinkron otomatis', timer: 2000, showConfirmButton: false, position: 'bottom-end', background: '#1e293b', color: '#fff' }); }, 1500);
+            } catch (e) { console.error('publish gagal:', e); }
+        }
+
+        function setCatatan(id, kode) {
+            const cur = (semuaPesanan.find(o => o.id === id) || {}).data.catatan || '';
+            Swal.fire({
+                title: 'Catatan Pesanan ' + kode,
+                input: 'text',
+                inputValue: cur,
+                inputPlaceholder: 'Misal: bayar lewat warung, verifikasi via SS, dsb.',
+                showCancelButton: true,
+                confirmButtonText: 'Simpan',
+                background: '#1e293b',
+                color: '#fff'
+            }).then(async res => {
+                if (!res.isConfirmed) return;
+                await db.collection("pesanan").doc(id).update({ catatan: res.value.trim() });
+                loadPesanan();
+            });
+        }
+
+        let chartObj = null;
+
+        function renderStatistik() {
+            const el = document.getElementById('statAdmin');
+            if (!el) return;
+            if (!semuaPesanan.length) { el.innerHTML = ''; return; }
+            const now = new Date();
+            const mm = now.getFullYear() + '-' + (now.getMonth() + 1);
+            const ter = o => o.data.status === 'TERVERIFIKASI' || o.data.status === 'SELESAI';
+            const cur = semuaPesanan.filter(o => ter(o) && (o.data.waktu || '').slice(0, 7) === mm);
+            const per = {};
+            cur.forEach(o => {
+                const n = o.data.namaProduk || '-';
+                per[n] = (per[n] || 0) + (parseInt(o.data.nominal) || 0);
+            });
+            const top = Object.keys(per).sort((a, b) => per[b] - per[a]).slice(0, 5);
+
+            const totalMinggu = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+                const pref = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                totalMinggu.push(semuaPesanan.filter(o => {
+                    if (!ter(o)) return false;
+                    const w = o.data.waktu ? new Date(o.data.waktu) : null;
+                    if (!w) return false;
+                    return (w.getFullYear() + '-' + (w.getMonth() + 1) + '-' + w.getDate()) === pref;
+                }).reduce((s, o) => s + (parseInt(o.data.nominal) || 0), 0));
+            }
+            const maxHari = Math.max.apply(null, totalMinggu.concat([1]));
+            const namaHari = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+            el.innerHTML = `
+                <div class="glass rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-green-400 mb-3"><i class="fa-solid fa-trophy mr-1"></i> Top 5 Produk (Bulan Ini)</h3>
+                        ${top.length ? top.map((p, i) => `<div class="flex justify-between text-xs text-slate-300 border-b border-slate-700/50 pb-1 mb-1"><span class="truncate pr-2">${i + 1}. ${escP(p)}</span><span class="text-cyan-400 font-bold whitespace-nowrap">Rp ${(per[p] || 0).toLocaleString('id-ID')}</span></div>`).join('') : '<p class="text-xs text-slate-500">Belum ada penjualan bulan ini.</p>'}
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-green-400 mb-3"><i class="fa-solid fa-bars-progress mr-1"></i> Pendapatan 7 Hari Terakhir</h3>
+                        ${totalMinggu.map((v, i) => {
+                            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (6 - i));
+                            return `<div class="flex items-center gap-2 text-[11px] text-slate-300 mb-1">
+                                <span class="w-8">${namaHari[d.getDay()]} ${d.getDate()}</span>
+                                <div class="flex-1 bg-slate-800 rounded h-3 overflow-hidden"><div class="bg-green-500 h-3 rounded" style="width:${(v / maxHari * 100).toFixed(0)}%"></div></div>
+                                <span class="text-xs text-cyan-400 font-bold w-20 text-right">Rp ${v.toLocaleString('id-ID')}</span>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        function grafikPesanan() {
+            const canvas = document.getElementById('chartPesanan');
+            if (!canvas || !window.Chart) return;
+            const labels = [];
+            const values = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const t = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                labels.push(t.toLocaleString('id-ID', { month: 'short', year: '2-digit' }));
+                const pref = t.toISOString().slice(0, 7);
+                const tot = semuaPesanan.filter(o => (o.data.status === 'TERVERIFIKASI' || o.data.status === 'SELESAI') && (o.data.waktu || '').slice(0, 7) === pref).reduce((s, o) => s + (parseInt(o.data.nominal) || 0), 0);
+                values.push(tot);
+            }
+            if (chartObj) chartObj.destroy();
+            chartObj = new Chart(canvas, {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ label: 'Pendapatan (Rp)', data: values, backgroundColor: 'rgba(34,197,94,0.6)', borderColor: '#22c55e', borderWidth: 1 }] },
+                options: { plugins: { legend: { labels: { color: '#cbd5e1' } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } }
+            });
+        }
+
+        // --- FUNGSI BARU: SALIN LINK CERDAS ---
+        async function salinLinkCerdas(id) {
+            // MENGGUNAKAN LINK ABSOLUT: Pastikan link selalu mengarah ke halaman depan
+            let baseUrl = "https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/";
+            
+            // Ambil harga & nama langsung dari database (anti error karakter aneh)
+            let hargaNum = 0, namaScript = "Script";
+            try {
+                const snap = await db.collection("script").doc(id).get();
+                if (snap.exists) {
+                    hargaNum = parseInt(snap.data().harga) || 0;
+                    namaScript = snap.data().nama || "Script";
+                }
+            } catch (e) { }
+
+            // Konversi harga ke angka, deteksi jika Gratis (<= 0)
+            let linkTujuan = (hargaNum <= 0) 
+                ? baseUrl + "gratis.html?id=" + id 
+                : baseUrl + "?id=" + id;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                // Proses salin otomatis untuk browser yang mendukung
+                navigator.clipboard.writeText(linkTujuan).then(() => {
+                    Swal.fire({ 
+                        icon: 'success', 
+                        title: 'Link Siap Dibagikan!', 
+                        html: `<b>${namaScript}</b><br><br><code class="text-cyan-400 text-xs break-all">${linkTujuan}</code><br><br><span class="text-xs text-slate-400">(Sistem otomatis memilih jalur ${hargaNum <= 0 ? 'Gratis' : 'Premium'})</span>`, 
+                        background: '#1e293b', 
+                        color: '#fff' 
+                    });
+                }).catch(err => {
+                    // Jika diblokir oleh laptop/browser, munculkan popup salin manual
+                    Swal.fire({ icon: 'info', title: 'Salin Manual', text: 'Browser memblokir salin otomatis. Silakan salin link di bawah ini:', input: 'text', inputValue: linkTujuan, background: '#1e293b', color: '#fff' });
+                });
+            } else {
+                 // Fallback darurat jika fitur clipboard tidak tersedia sama sekali
+                 Swal.fire({ icon: 'info', title: 'Salin Manual', text: 'Silakan salin link di bawah ini:', input: 'text', inputValue: linkTujuan, background: '#1e293b', color: '#fff' });
+            }
+        }
+
+        let semuaProduk = [];
+
+        async function loadProduk() {
+            const list = document.getElementById('list-produk');
+            list.innerHTML = '<div class="text-center text-cyan-400 py-4"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
+            try {
+                const snapshot = await db.collection("script").get();
+                list.innerHTML = "";
+                if(snapshot.empty) { list.innerHTML = "<p class='text-center text-slate-500'>Belum ada produk.</p>"; return; }
+
+                semuaProduk = [];
+                snapshot.forEach(doc => semuaProduk.push({id: doc.id, data: doc.data()}));
+                
+                semuaProduk.sort((a, b) => {
+                    let timeA = a.data.createTime ? new Date(a.data.createTime).getTime() : 0;
+                    let timeB = b.data.createTime ? new Date(b.data.createTime).getTime() : 0;
+                    return timeB - timeA;
+                });
+
+                renderProdukAdmin();
+            } catch (error) { list.innerHTML = `<p class='text-red-500'>Error: ${error.message}</p>`; }
+        }
+
+        function renderProdukAdmin() {
+            const list = document.getElementById('list-produk');
+            const query = document.getElementById('cariProduk') ? document.getElementById('cariProduk').value.toLowerCase() : '';
+            let docsArray = semuaProduk.filter(item => (item.data.nama || '').toLowerCase().includes(query));
+            list.innerHTML = "";
+            if (docsArray.length === 0) { list.innerHTML = "<p class='text-center text-slate-500'>Tidak ada produk yang cocok dengan pencarian.</p>"; return; }
+            docsArray.forEach(item => {
+                    const data = item.data;
+                    const id = item.id;
+                    let imgUrl = data.gambarUrl || "https://dummyimage.com/150x150/1e293b/22d3ee.png&text=Tanpa+Foto";
+                    if (imgUrl.includes("GAGAL_UPLOAD")) imgUrl = "https://dummyimage.com/150x150/1e293b/ef4444.png&text=Error";
+                    else if (imgUrl.includes("drive.google.com")) {
+                        let fileId = "";
+                        if (imgUrl.includes("/d/")) fileId = imgUrl.split("/d/")[1].split("/")[0];
+                        else if (imgUrl.includes("id=")) fileId = imgUrl.split("id=")[1].split("&")[0];
+                        if (fileId) imgUrl = "https://lh3.googleusercontent.com/d/" + fileId;
+                    }
+
+                    list.innerHTML += `
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-800/80 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition gap-4">
+                            
+                            <div class="flex items-start sm:items-center gap-4 w-full overflow-hidden">
+                                <div class="w-16 h-16 sm:w-14 sm:h-14 bg-slate-900 rounded-lg overflow-hidden border border-slate-600 flex-shrink-0">
+                                    <img src="${esc(imgUrl)}" class="w-full h-full object-cover">
+                                </div>
+                                <div class="overflow-hidden w-full">
+                                    <h4 class="font-bold text-white max-h-[3.2rem] overflow-y-auto desc-scroll leading-tight pr-1 mb-1">${esc(data.nama)}</h4>
+                                    <p class="text-xs text-cyan-400 font-mono mb-2">Rp ${(parseInt(data.harga) || 0).toLocaleString('id-ID')}</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300"><i class="fa-solid fa-fire text-orange-400 mr-1"></i> Terjual ${data.terjual || 0}</span>
+                                        <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300"><i class="fa-solid fa-eye text-cyan-400 mr-1"></i> Dilihat ${data.views || 0}x</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-700/50 mt-1 sm:mt-0 flex-shrink-0">
+                                <button onclick="salinLinkCerdas('${id}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-blue-600/80 rounded-lg hover:bg-blue-500 transition text-white flex items-center justify-center" title="Salin Link Bagikan"><i class="fa-solid fa-share-nodes"></i></button>
+                                
+                                <button onclick="prepareEdit('${id}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-yellow-600/80 rounded-lg hover:bg-yellow-500 transition text-white flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="hapusProduk('${id}')" class="flex-1 sm:flex-none w-auto sm:w-10 h-10 bg-red-600/80 rounded-lg hover:bg-red-500 transition text-white flex items-center justify-center" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+
+                        </div>
+                    `;
+                });
+        }
+
+        async function simpanProduk(e) {
+            e.preventDefault(); 
+            const btn = document.getElementById('btn-submit');
+            const file = document.getElementById('foto').files[0];
+            const editId = document.getElementById('edit-id').value;
+            let imageUrl = document.getElementById('gambarUrlLama').value; 
+
+            if (!editId && !file) { Swal.fire('Perhatian', 'Produk baru wajib menyertakan foto!', 'warning'); return; }
+
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+
+            try {
+                if (file) {
+                    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce"></i> Upload Foto...';
+                    const base64Data = await new Promise((resolve) => {
+                        const reader = new FileReader(); reader.onload = (e) => resolve(e.target.result.split(',')[1]); reader.readAsDataURL(file);
+                    });
+                    const response = await fetch(appsScriptUrl, { method: "POST", body: new URLSearchParams({ action: "upload", token: UPLOAD_TOKEN, filename: file.name, mimetype: file.type, data: base64Data }) });
+                    imageUrl = await response.text(); 
+                    if (imageUrl.includes("GAGAL_UPLOAD")) {
+                        Swal.fire({ icon: 'error', title: 'Upload Ditolak', text: imageUrl });
+                        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Etalase'; return; 
+                    }
+                }
+
+                btn.innerHTML = '<i class="fa-solid fa-database fa-flip"></i> Menyimpan...';
+                const dataToSave = {
+                    nama: document.getElementById('nama').value,
+                    harga: document.getElementById('harga').value.toString(),
+                    deskripsi: document.getElementById('deskripsi').value,
+                    videoID: document.getElementById('videoID').value,
+                    fileLink: document.getElementById('fileLink').value,
+                    gambarUrl: imageUrl,
+                    createTime: new Date().toISOString() 
+                };
+
+                if (editId) {
+                    await db.collection("script").doc(editId).update(dataToSave);
+                    Swal.fire('Berhasil!', 'Produk di-update.', 'success');
+                } else {
+                    dataToSave.views = 0; 
+                    dataToSave.terjual = 0;
+                    await db.collection("script").add(dataToSave);
+                    Swal.fire('Berhasil!', 'Produk baru ditambahkan.', 'success');
+                }
+                resetForm(); loadProduk(); publishEtalase(); 
+            } catch (error) {
+                Swal.fire('Gagal!', error.message, 'error');
+                btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Etalase';
+            }
+        }
+
+        async function prepareEdit(id) {
+            document.getElementById('form-title').innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Edit Produk";
+            try {
+                const snap = await db.collection("script").doc(id).get();
+                if (!snap.exists) { Swal.fire('Error', 'Data produk tidak ditemukan.', 'error'); return; }
+                const data = snap.data();
+                document.getElementById('edit-id').value = id;
+                document.getElementById('gambarUrlLama').value = data.gambarUrl || '';
+                document.getElementById('nama').value = data.nama || '';
+                document.getElementById('harga').value = data.harga || '';
+                document.getElementById('deskripsi').value = data.deskripsi || '';
+                document.getElementById('videoID').value = data.videoID || '';
+                document.getElementById('fileLink').value = data.fileLink || '';
+                document.getElementById('foto').value = '';
+                document.getElementById('info-foto').classList.remove('hidden'); 
+
+                const btn = document.getElementById('btn-submit'); btn.innerHTML = "<i class='fa-solid fa-check'></i> Update Produk";
+                btn.classList.replace('bg-cyan-600', 'bg-yellow-600'); btn.classList.replace('hover:bg-cyan-500', 'hover:bg-yellow-500');
+                document.getElementById('btn-cancel').classList.remove('hidden');
+            } catch (err) { Swal.fire('Error', err.message, 'error'); }
+        }
+
+        function resetForm() {
+            document.getElementById('form-produk').reset(); document.getElementById('edit-id').value = ""; document.getElementById('gambarUrlLama').value = "";
+            document.getElementById('form-title').innerHTML = "<i class='fa-solid fa-plus'></i> Tambah Produk Baru"; document.getElementById('info-foto').classList.add('hidden');
+            const btn = document.getElementById('btn-submit'); btn.disabled = false; btn.innerHTML = "<i class='fa-solid fa-cloud-arrow-up'></i> Simpan ke Etalase";
+            btn.classList.replace('bg-yellow-600', 'bg-cyan-600'); btn.classList.replace('hover:bg-yellow-500', 'hover:bg-cyan-500');
+            document.getElementById('btn-cancel').classList.add('hidden');
+        }
+
+        async function hapusProduk(id) {
+            Swal.fire({ title: 'Hapus Produk?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Hapus' }).then(async (result) => {
+                if (result.isConfirmed) { await db.collection("script").doc(id).delete(); loadProduk(); publishEtalase(); }
+            });
+        }
+
+        function loadConfig() {
+            const config = JSON.parse(localStorage.getItem('xiroro_config')) || { video: "", logo: "", kolom: "grid-cols-4" };
+            document.getElementById('cfg-video').value = config.video; document.getElementById('cfg-logo').value = config.logo; document.getElementById('cfg-kolom').value = config.kolom;
+        }
+
+function simpanConfig() {
+            const cfg = { video: document.getElementById('cfg-video').value, logo: document.getElementById('cfg-logo').value, kolom: document.getElementById('cfg-kolom').value };
+            localStorage.setItem('xiroro_config', JSON.stringify(cfg));
+            db.collection("config").doc("site").set(cfg)
+                .then(() => Swal.fire('Tersimpan!', 'Tema tersimpan ke server. Semua pembeli akan otomatis melihatnya.', 'success'))
+                .catch(err => Swal.fire('Tersimpan Lokal', 'Gagal simpan ke server: ' + err.message + '. Tema hanya berlaku di browser ini.', 'warning'));
+        }
+
+        // ============ ULASAN MANAGEMENT ============
+        let semuaUlasan = [];
+        let mapProdukNama = {};
+
+        async function loadUlasan() {
+            const list = document.getElementById('list-ulasan');
+            list.innerHTML = '<div class="text-center text-amber-400 py-4"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
+            try {
+                const [snapUlasan, snapProduk] = await Promise.all([
+                    db.collection("ulasan").orderBy("waktu", "desc").limit(500).get(),
+                    db.collection("script").get()
+                ]);
+                mapProdukNama = {};
+                snapProduk.forEach(d => { mapProdukNama[d.id] = d.data().nama || '-'; });
+                semuaUlasan = [];
+                snapUlasan.forEach(doc => {
+                    const d = doc.data();
+                    semuaUlasan.push({ id: doc.id, data: d });
+                });
+                isiFilterProduk();
+                renderUlasanAdmin();
+            } catch (e) {
+                list.innerHTML = `<p class='text-red-500 text-center'>Error: ${e.message}</p>`;
+            }
+        }
+
+        function isiFilterProduk() {
+            const sel = document.getElementById('filterProdukUlasan');
+            const cur = sel.value;
+            const produkIds = [...new Set(semuaUlasan.map(u => u.data.produkId).filter(Boolean))];
+            let opt = '<option value="">Semua Produk</option>';
+            produkIds.forEach(pid => {
+                const nama = mapProdukNama[pid] || pid;
+                opt += `<option value="${esc(pid)}">${esc(nama)}</option>`;
+            });
+            sel.innerHTML = opt;
+            sel.value = cur;
+        }
+
+        function bintangRating(r) {
+            let s = '';
+            for (let i = 1; i <= 5; i++) {
+                s += `<i class="${i <= r ? 'fa-solid text-amber-400' : 'fa-regular text-slate-500'} fa-star"></i>`;
+            }
+            return s;
+        }
+
+        function renderUlasanAdmin() {
+            const list = document.getElementById('list-ulasan');
+            const q = document.getElementById('cariUlasan') ? document.getElementById('cariUlasan').value.toLowerCase() : '';
+            const filterProduk = document.getElementById('filterProdukUlasan') ? document.getElementById('filterProdukUlasan').value : '';
+            const filterRating = document.getElementById('filterRatingUlasan') ? document.getElementById('filterRatingUlasan').value : '';
+
+            const filtered = semuaUlasan.filter(u => {
+                const d = u.data;
+                const cocokCari = (d.nama || '').toLowerCase().includes(q) || (d.teks || '').toLowerCase().includes(q);
+                const cocokProduk = !filterProduk || d.produkId === filterProduk;
+                const cocokRating = !filterRating || String(d.rating) === filterRating;
+                return cocokCari && cocokProduk && cocokRating;
+            });
+
+            if (!filtered.length) {
+                list.innerHTML = "<p class='text-center text-slate-500'>Tidak ada ulasan yang cocok.</p>";
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(u => {
+                const d = u.data;
+                const produkNama = mapProdukNama[d.produkId] || d.produkId || '-';
+                const waktu = d.waktu ? new Date(d.waktu).toLocaleString('id-ID') : '-';
+                html += `
+                    <div class="p-4 bg-slate-800/80 rounded-xl border border-slate-700 hover:border-amber-500/40 transition">
+                        <div class="flex flex-wrap justify-between items-start gap-2 mb-2">
+                            <div>
+                                <span class="font-mono text-xs bg-slate-900 px-2 py-1 rounded border border-slate-700 text-amber-400">${esc(u.id.slice(0, 12))}...</span>
+                                <h4 class="font-bold text-white mt-2">${esc(produkNama)}</h4>
+                            </div>
+                            <span class="text-amber-400 text-lg">${bintangRating(d.rating || 0)}</span>
+                        </div>
+                        <div class="text-xs text-slate-400 space-y-1 mb-3">
+                            <p><i class="fa-solid fa-user text-cyan-400 mr-1"></i> <b class="text-white">${esc(d.nama || 'Anonim')}</b></p>
+                            <p><i class="fa-solid fa-clock text-purple-400 mr-1"></i> ${waktu}</p>
+                        </div>
+                        <p class="text-slate-300 text-sm mb-3 italic">"${esc(d.teks || '')}"</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="editUlasan('${u.id}')" class="text-[11px] px-3 py-1.5 rounded-lg bg-amber-600/80 hover:bg-amber-500 transition text-white"><i class="fa-solid fa-pen mr-1"></i> Edit</button>
+                            <button onclick="hapusUlasan('${u.id}','${esc(u.id.slice(0, 12))}')" class="text-[11px] px-3 py-1.5 rounded-lg bg-red-600/80 hover:bg-red-500 transition text-white ml-auto"><i class="fa-solid fa-trash mr-1"></i> Hapus</button>
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function editUlasan(id) {
+            const u = semuaUlasan.find(x => x.id === id);
+            if (!u) return;
+            const d = u.data;
+            Swal.fire({
+                title: 'Edit Ulasan',
+                html: `
+                    <div class="text-left space-y-3">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Nama</label>
+                            <input id="edit-nama" value="${esc(d.nama || '')}" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-white focus:outline-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Rating (1-5)</label>
+                            <select id="edit-rating" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-white focus:outline-amber-500">
+                                <option value="5" ${d.rating === 5 ? 'selected' : ''}>5 - Luar Biasa</option>
+                                <option value="4" ${d.rating === 4 ? 'selected' : ''}>4 - Bagus</option>
+                                <option value="3" ${d.rating === 3 ? 'selected' : ''}>3 - Cukup</option>
+                                <option value="2" ${d.rating === 2 ? 'selected' : ''}>2 - Kurang</option>
+                                <option value="1" ${d.rating === 1 ? 'selected' : ''}>1 - Buruk</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1">Isi Ulasan</label>
+                            <textarea id="edit-teks" rows="3" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-white focus:outline-amber-500">${esc(d.teks || '')}</textarea>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Simpan Perubahan',
+                confirmButtonColor: '#f59e0b',
+                cancelButtonText: 'Batal',
+                background: '#1e293b',
+                color: '#fff'
+            }).then(async res => {
+                if (!res.isConfirmed) return;
+                const nama = document.getElementById('edit-nama').value.trim();
+                const rating = parseInt(document.getElementById('edit-rating').value, 10);
+                const teks = document.getElementById('edit-teks').value.trim();
+                if (!nama || !teks) { Swal.fire('Error', 'Nama dan isi ulasan wajib diisi.', 'error'); return; }
+                try {
+                    await db.collection("ulasan").doc(id).update({ nama, rating, teks });
+                    Swal.fire('Tersimpan!', 'Ulasan diperbarui.', 'success');
+                    loadUlasan();
+                } catch (e) { Swal.fire('Gagal', e.message, 'error'); }
+            });
+        }
+
+        function hapusUlasan(id, label) {
+            Swal.fire({
+                title: 'Hapus Ulasan?',
+                text: `Ulasan ${label}... akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Hapus',
+                confirmButtonColor: '#ef4444',
+                cancelButtonText: 'Batal',
+                background: '#1e293b',
+                color: '#fff'
+            }).then(async res => {
+                if (!res.isConfirmed) return;
+                try {
+                    await db.collection("ulasan").doc(id).delete();
+                    Swal.fire('Terhapus!', 'Ulasan dihapus.', 'success');
+                    loadUlasan();
+                } catch (e) { Swal.fire('Gagal', e.message, 'error'); }
+            });
+        }
+    </script>
+</body>
+</html>

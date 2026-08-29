@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Status Pesanan - Xiroro Script</title>
+    <meta name="theme-color" content="#0f172a">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <style>
+        body { background: #0f172a; color: #fff; font-family: 'Poppins', sans-serif; }
+        .glass { background: rgba(30,41,59,.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6">
+    <div class="max-w-md w-full mt-10">
+        <div class="text-center mb-6">
+            <img src="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/logo-tab.png" class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-cyan-500 object-cover">
+            <h1 class="text-2xl font-bold text-cyan-400">Cek Status Pesanan</h1>
+            <p class="text-slate-400 text-sm mt-1">Xiroro Script</p>
+            <p class="text-[11px] text-emerald-400 mt-2"><i class="fa-solid fa-circle-dot mr-1 animate-pulse"></i> LIVE - berubah otomatis saat admin memperbarui</p>
+        </div>
+
+        <form onsubmit="cekStatus(event)" class="glass p-5 rounded-2xl mb-5">
+            <input id="kode" type="text" required placeholder="Kode pesanan (contoh: XR-ABC123-XYZ)" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg text-sm mb-3 focus:outline-cyan-500">
+            <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 py-3 rounded-xl font-bold"><i class="fa-solid fa-magnifying-glass mr-2"></i> Cek Sekarang</button>
+        </form>
+
+        <div id="hasil" class="hidden glass p-5 rounded-2xl text-center"></div>
+
+        <a href="https://wa.me/6285181217627" target="_blank" class="block text-center text-sm text-slate-400 hover:text-emerald-400 mt-4">
+            <i class="fa-brands fa-whatsapp mr-1 text-green-400"></i> Butuh bantuan? Chat admin
+        </a>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAXfLH19B6nQkEwUwnDoA2C-Nh5DQhwEIo",
+            authDomain: "toko-mod-mlbb.firebaseapp.com",
+            projectId: "toko-mod-mlbb",
+            storageBucket: "toko-mod-mlbb.firebasestorage.app",
+            messagingSenderId: "814354818916",
+            appId: "1:814354818916:web:452a04732f528abdec7c71",
+            measurementId: "G-20KBWYYJXE"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const WA_ADMIN = "6285181217627";
+        const STATUS_META = {
+            MENUNGGU: { label: 'Menunggu Verifikasi', warna: 'text-yellow-400', ikon: 'fa-hourglass-half' },
+            TERVERIFIKASI: { label: 'Pembayaran Diverifikasi', warna: 'text-blue-400', ikon: 'fa-circle-check' },
+            SELESAI: { label: 'File Terkirim (SELESAI)', warna: 'text-green-400', ikon: 'fa-check-double' },
+            DITOLAK: { label: 'Ditolak - Hubungi Admin', warna: 'text-red-400', ikon: 'fa-circle-xmark' }
+        };
+
+        let unsub = null;
+        let kodeAktif = '';
+
+        function cekStatus(e) {
+            if (e) e.preventDefault();
+            const kode = document.getElementById('kode').value.trim().toUpperCase();
+            if (!kode) return;
+            mulaiPantau(kode);
+        }
+
+        function fmtWaktu(iso) {
+            if (!iso) return '-';
+            try { return new Date(iso).toLocaleString('id-ID'); } catch (e) { return iso; }
+        }
+
+        function tampil(d) {
+            const status = d.status || 'MENUNGGU';
+            const meta = STATUS_META[status] || STATUS_META.MENUNGGU;
+            const isSelesai = status === 'SELESAI';
+            const fileLink = d.fileLink || '';
+            const hasil = document.getElementById('hasil');
+            hasil.className = 'glass p-5 rounded-2xl text-center animate__animated';
+            hasil.innerHTML = `
+                <p class="text-xs text-slate-400">Kode</p>
+                <p class="font-mono text-yellow-400 font-bold mb-3">${kodeAktif}</p>
+                <p class="text-sm text-slate-300 mb-1">${d.produk || '-'}</p>
+                <p class="text-xs text-slate-400 mb-3">Nominal: Rp ${(Number(d.nominal) || 0).toLocaleString('id-ID')}</p>
+                <p class="${meta.warna} text-xl font-bold mb-3"><i class="fa-solid ${meta.ikon} mr-2"></i>${meta.label}</p>
+
+                ${isSelesai && fileLink ? `
+                    <a href="${fileLink}" target="_blank" rel="noopener" class="block w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl font-bold mb-3">
+                        <i class="fa-solid fa-download mr-2"></i> Dapatkan File Saya
+                    </a>
+                ` : isSelesai ? `
+                    <p class="text-xs text-slate-400 mb-3">File telah terkirim. Jika belum menerima, hubungi admin.</p>
+                ` : `
+                    <p class="text-[10px] text-slate-500 mb-3">Link file akan muncul di sini setelah status SELESAI.</p>
+                `}
+
+                <div class="text-left text-[10px] text-slate-500 border-t border-slate-700 pt-3 mt-1 mb-3">
+                    <p>Pesanan dibuat: ${fmtWaktu(d.waktu)}</p>
+                    <p>Terakhir diperbarui: ${fmtWaktu(d.updatedAt || d.waktu)}</p>
+                    <p>Halaman ini ter-update otomatis, tanpa perlu refresh.</p>
+                </div>
+
+                <a href="https://wa.me/${WA_ADMIN}?text=${encodeURIComponent('Halo admin Xiroro, saya mau tanya status pesanan: ' + kodeAktif)}" target="_blank" class="inline-block bg-green-600 hover:bg-green-500 text-white px-5 py-2 rounded-xl font-bold text-sm">
+                    <i class="fa-brands fa-whatsapp mr-2"></i> Hubungi Admin
+                </a>
+            `;
+        }
+
+        function tampilTidakAda() {
+            const hasil = document.getElementById('hasil');
+            hasil.className = 'glass p-5 rounded-2xl text-center';
+            hasil.innerHTML = `
+                <p class="text-red-400 text-xl font-bold mb-2"><i class="fa-solid fa-circle-xmark"></i> Tidak Ditemukan</p>
+                <p class="text-sm text-slate-400 mb-3">Kode salah atau pesanan belum tercatat. Periksa kembali atau hubungi admin.</p>
+                
+            `;
+        }
+
+        function mulaiPantau(kode) {
+            kodeAktif = kode;
+            if (unsub) { unsub(); unsub = null; }
+            const hasil = document.getElementById('hasil');
+            hasil.className = 'glass p-5 rounded-2xl text-center';
+            hasil.innerHTML = '<p class="text-cyan-400"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa...</p>';
+
+            unsub = db.collection('public_orders').doc(kode).onSnapshot(
+                snap => {
+                    if (!snap.exists) { tampilTidakAda(); return; }
+                    tampil(snap.data());
+                },
+                err => { tampilTidakAda(); }
+            );
+        }
+
+        (function () {
+            const k = new URLSearchParams(window.location.search).get('kode');
+            if (k) { document.getElementById('kode').value = k.toUpperCase(); mulaiPantau(k.toUpperCase()); }
+        })();
+    </script>
+</body>
+</html>

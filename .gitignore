@@ -1,0 +1,4 @@
+# JANGAN PUSH: Apps Script lokal berisi token rahasia
+App Script (jangan di kirim ke github).gs
+*.gs
+*.env
