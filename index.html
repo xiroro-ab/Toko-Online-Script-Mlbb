@@ -555,7 +555,13 @@
                     return;
                 }
 
-                dataTampil.forEach(doc => { container.innerHTML += cetakKartu(doc, false); });
+                if (targetId) {
+                    container.innerHTML += '<div class="flex flex-col lg:flex-row gap-8 w-full items-start"><div class="flex-1 w-full" id="kolom-produk-single"></div><div class="w-full lg:w-80 lg:sticky lg:top-4" id="kolom-ulasan-single"></div></div>';
+                    const kolomProduk = document.getElementById('kolom-produk-single');
+                    dataTampil.forEach(doc => { kolomProduk.innerHTML += cetakKartu(doc, false); });
+                } else {
+                    dataTampil.forEach(doc => { container.innerHTML += cetakKartu(doc, false); });
+                }
                 muatSemuaRating();
                 return;
             }
@@ -879,7 +885,6 @@ function downloadQR() {
         }
 
         async function muatUlasan(pid) {
-            const c = document.getElementById('katalog-produk');
             try {
                 const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=500`);
                 const j = await r.json();
@@ -908,25 +913,21 @@ function downloadQR() {
                 });
                 if (!arr.length) listHtml = '<p class="text-xs text-slate-400">Belum ada ulasan. Jadilah yang pertama!</p>';
 
-                let containerUlasan = document.getElementById('area-ulasan-' + pid);
-                if (!containerUlasan) {
-                    c.insertAdjacentHTML('beforeend', `<div id="area-ulasan-${pid}" class="w-full max-w-md mx-auto glass-panel rounded-2xl p-5 mt-6 animate__animated animate__fadeInUp"></div>`);
-                    containerUlasan = document.getElementById('area-ulasan-' + pid);
-                }
-                containerUlasan.innerHTML = `
-                    <div class="flex flex-col lg:flex-row gap-6 items-start">
-                        <div class="w-full">
+                const kolomUlasan = document.getElementById('kolom-ulasan-single');
+                if (kolomUlasan) {
+                    kolomUlasan.innerHTML = `
+                        <div class="glass-panel rounded-2xl p-5 animate__animated animate__fadeInUp">
                             <div class="flex justify-between items-center mb-3">
                                 <div>
                                     <h3 class="font-bold text-white"><i class="fa-solid fa-star text-yellow-400 mr-1"></i> Ulasan Pembeli</h3>
                                     <p class="text-xs text-slate-300">${avg ? bintangR(avg) : ''} <span class="text-slate-400">${avg.toFixed(1)} (${arr.length} ulasan)</span></p>
                                 </div>
-                                <button onclick="bukaFormUlasan('${pid}')" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold border border-cyan-400/50 shadow-md transition"><i class="fa-solid fa-pen mr-1"></i> Tulis Ulasan</button>
                             </div>
-                            <div class="max-h-64 overflow-y-auto desc-scroll pr-1 space-y-2">${listHtml}</div>
+                            <div class="max-h-96 overflow-y-auto desc-scroll pr-1 space-y-2 mb-3">${listHtml}</div>
+                            <button onclick="bukaFormUlasan('${pid}')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-2 rounded-lg font-bold border border-cyan-400/50"><i class="fa-solid fa-pen mr-1"></i> Tulis Ulasan</button>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             } catch (e) { }
         }
 
