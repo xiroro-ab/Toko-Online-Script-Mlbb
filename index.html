@@ -865,8 +865,7 @@ function downloadQR() {
 
           async function muatUlasan(pid) {
             const c = document.getElementById('katalog-produk');
-            const existingUlasan = document.getElementById('ulasan-container');
-            if (existingUlasan) existingUlasan.remove();
+            document.querySelectorAll('.ulasan-item').forEach(el => el.remove());
 
             try {
                 const snapshot = await db.collection('ulasan').where('produkId', '==', pid).get();
@@ -888,47 +887,43 @@ function downloadQR() {
                 if (!arr.length) listHtml = '<p class="text-sm text-slate-400 text-center mt-4">Belum ada ulasan. Jadilah yang pertama!</p>';
 
                 c.insertAdjacentHTML('beforeend', `
-                    <div id="ulasan-container" class="w-full max-w-5xl mx-auto mt-8 animate__animated animate__fadeInUp pb-10">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                            <!-- Kolom Daftar Ulasan -->
-                            <div class="glass-panel rounded-2xl p-6 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
-                                <h3 class="font-extrabold text-white text-lg mb-2"><i class="fa-solid fa-star text-yellow-400 mr-2"></i> Ulasan Pembeli</h3>
-                                <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-700/50">
-                                    <div class="text-3xl font-bold text-cyan-400">${avg.toFixed(1)}</div>
-                                    <div class="flex flex-col">
-                                        <div class="text-yellow-400 text-sm">${avg ? bintangR(avg) : bintangR(0)}</div>
-                                        <div class="text-xs text-slate-400 mt-0.5">${arr.length} total ulasan</div>
-                                    </div>
-                                </div>
-                                <div class="max-h-[300px] overflow-y-auto pr-3 desc-scroll">${listHtml}</div>
-                            </div>
-                            
-                            <!-- Kolom Form Ulasan -->
-                            <div class="glass-panel rounded-2xl p-6 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
-                                <h3 class="font-extrabold text-white text-lg mb-4"><i class="fa-solid fa-pen-to-square text-cyan-400 mr-2"></i> Tulis Pengalaman Anda</h3>
-                                <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-4">
-                                    <div>
-                                        <label class="block text-xs text-slate-400 mb-1 ml-1">Nama</label>
-                                        <input id="u-nama" required placeholder="Masukkan nama..." class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs text-slate-400 mb-1 ml-1">Penilaian</label>
-                                        <select id="u-rating" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition text-sm">
-                                            <option value="5">⭐⭐⭐⭐⭐ (5 - Luar Biasa)</option>
-                                            <option value="4">⭐⭐⭐⭐ (4 - Bagus)</option>
-                                            <option value="3">⭐⭐⭐ (3 - Cukup)</option>
-                                            <option value="2">⭐⭐ (2 - Kurang)</option>
-                                            <option value="1">⭐ (1 - Buruk)</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs text-slate-400 mb-1 ml-1">Ulasan</label>
-                                        <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl h-28 text-white focus:outline-none focus:border-cyan-500 transition resize-none text-sm"></textarea>
-                                    </div>
-                                    <button type="submit" class="w-full bg-cyan-600/90 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(6,182,212,0.3)]">Kirim Ulasan Sekarang</button>
-                                </form>
+                    <!-- Kolom Daftar Ulasan -->
+                    <div class="ulasan-item glass-panel rounded-2xl p-6 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.1)] flex flex-col h-full animate__animated animate__fadeInRight">
+                        <h3 class="font-extrabold text-white text-lg mb-2 flex-shrink-0"><i class="fa-solid fa-star text-yellow-400 mr-2"></i> Ulasan Pembeli</h3>
+                        <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-700/50 flex-shrink-0">
+                            <div class="text-3xl font-bold text-cyan-400">${avg.toFixed(1)}</div>
+                            <div class="flex flex-col">
+                                <div class="text-yellow-400 text-sm">${avg ? bintangR(avg) : bintangR(0)}</div>
+                                <div class="text-xs text-slate-400 mt-0.5">${arr.length} total ulasan</div>
                             </div>
                         </div>
+                        <div class="flex-grow overflow-y-auto pr-3 desc-scroll h-0 min-h-[150px]">${listHtml}</div>
+                    </div>
+                    
+                    <!-- Kolom Form Ulasan -->
+                    <div class="ulasan-item glass-panel rounded-2xl p-6 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.1)] flex flex-col h-full animate__animated animate__fadeInRight" style="animation-delay: 0.1s">
+                        <h3 class="font-extrabold text-white text-lg mb-4 flex-shrink-0"><i class="fa-solid fa-pen-to-square text-cyan-400 mr-2"></i> Tulis Pengalaman Anda</h3>
+                        <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-4 flex flex-col flex-grow">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1 ml-1">Nama</label>
+                                <input id="u-nama" required placeholder="Masukkan nama..." class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1 ml-1">Penilaian</label>
+                                <select id="u-rating" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition text-sm">
+                                    <option value="5">⭐⭐⭐⭐⭐ (5 - Luar Biasa)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4 - Bagus)</option>
+                                    <option value="3">⭐⭐⭐ (3 - Cukup)</option>
+                                    <option value="2">⭐⭐ (2 - Kurang)</option>
+                                    <option value="1">⭐ (1 - Buruk)</option>
+                                </select>
+                            </div>
+                            <div class="flex-grow flex flex-col min-h-[100px]">
+                                <label class="block text-xs text-slate-400 mb-1 ml-1">Ulasan</label>
+                                <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl flex-grow text-white focus:outline-none focus:border-cyan-500 transition resize-none text-sm"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-cyan-600/90 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(6,182,212,0.3)] mt-2">Kirim Ulasan Sekarang</button>
+                        </form>
                     </div>
                 `);
             } catch (e) { console.error(e); }

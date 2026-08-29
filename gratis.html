@@ -353,14 +353,13 @@
                         });
                     }).catch(() => {});
                 
-                const ambilUlasanData = fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=1000`)
-                    .then(res => res.json())
-                    .then(sj => {
+                const ambilUlasanData = db.collection('ulasan').get()
+                    .then(snapshot => {
                         const mapUlasan = {};
-                        (sj.documents || []).forEach(d => {
-                            const f = d.fields || {};
-                            const pId = f.produkId && f.produkId.stringValue;
-                            const r = f.rating && f.rating.integerValue ? parseInt(f.rating.integerValue) : 0;
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            const pId = data.produkId;
+                            const r = Number(data.rating) || 0;
                             if (pId && r) {
                                 if (!mapUlasan[pId]) mapUlasan[pId] = { total: 0, count: 0 };
                                 mapUlasan[pId].total += r;
@@ -471,11 +470,11 @@
                 let ytThumb = vidId ? `https://img.youtube.com/vi/${vidId}/hqdefault.jpg` : '';
                 let textDeskripsi = esc(f.deskripsi ? f.deskripsi.stringValue : '').replace(/\n/g, '<br>');
 
-                let lebarClass = isSlider ? "w-[300px] min-w-[300px] snap-start flex-shrink-0" : (targetId ? "w-full max-w-md mx-auto" : "w-full");
+                let lebarClass = isSlider ? "w-[300px] min-w-[300px] snap-start flex-shrink-0" : (targetId ? "w-full h-full min-h-[500px]" : "w-full h-[500px]");
                 let extraClass = targetId ? 'animate__animated animate__zoomIn border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : '';
 
                 return `
-                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} h-[500px] ${extraClass}" ${!targetId ? `onclick="location.href='gratis.html?id=${id}'" style="cursor:pointer;"` : ''}>
+                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} ${extraClass}" ${!targetId ? `onclick="location.href='gratis.html?id=${id}'" style="cursor:pointer;"` : ''}>
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
                             <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-download text-emerald-400 mr-1"></i> Diunduh ${terjualCount}x</span>
@@ -535,12 +534,12 @@
 
             // ================= MODE KATEGORI / CARI / FAVORIT / SINGLE ID =================
             if (targetKategori || targetId || inputCari || inputSort === 'favorit') {
-                container.className = targetId ? "flex flex-col items-center justify-center w-full pb-10 gap-8" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full";
+                container.className = targetId ? "grid grid-cols-1 lg:grid-cols-3 items-stretch w-full pb-10 gap-6" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full";
 
                 if (targetKategori || targetId) {
                     container.innerHTML += `
                         <div class="col-span-full mb-2 animate__animated animate__fadeInDown w-full text-center">
-                            <a href="${targetId ? '?' : '#'}" ${targetId ? '' : 'onclick="kembaliKeEtalase(event);return false;"'} class="inline-block bg-slate-800/80 border border-emerald-600 hover:bg-slate-700 hover:border-emerald-400 text-emerald-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
+                            <a href="${targetId ? 'gratis.html' : '#'}" ${targetId ? '' : 'onclick="kembaliKeEtalase(event);return false;"'} class="inline-block bg-slate-800/80 border border-emerald-600 hover:bg-slate-700 hover:border-emerald-400 text-emerald-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
                                 <i class="fa-solid fa-arrow-left mr-2"></i> ${targetId ? 'Kembali ke Etalase Utama' : 'Lihat Semua Produk Gratis'}
                             </a>
                             ${targetKategori ? `<h2 class="text-2xl font-extrabold text-white mt-4"><span class="text-emerald-400 border-b-2 border-emerald-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
@@ -736,8 +735,7 @@
 
         async function muatUlasan(pid) {
             const c = document.getElementById('katalog-produk');
-            const existingUlasan = document.getElementById('ulasan-container');
-            if (existingUlasan) existingUlasan.remove();
+            document.querySelectorAll('.ulasan-item').forEach(el => el.remove());
 
             try {
                 const snapshot = await db.collection('ulasan').where('produkId', '==', pid).get();
@@ -759,47 +757,43 @@
                 if (!arr.length) listHtml = '<p class="text-sm text-slate-400 text-center mt-4">Belum ada ulasan. Jadilah yang pertama!</p>';
 
                 c.insertAdjacentHTML('beforeend', `
-                    <div id="ulasan-container" class="w-full max-w-5xl mx-auto mt-8 animate__animated animate__fadeInUp pb-10">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                            <!-- Kolom Daftar Ulasan -->
-                            <div class="glass-panel rounded-2xl p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                                <h3 class="font-extrabold text-white text-lg mb-2"><i class="fa-solid fa-star text-yellow-400 mr-2"></i> Ulasan Pembeli</h3>
-                                <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-700/50">
-                                    <div class="text-3xl font-bold text-emerald-400">${avg.toFixed(1)}</div>
-                                    <div class="flex flex-col">
-                                        <div class="text-yellow-400 text-sm">${avg ? bintangR(avg) : bintangR(0)}</div>
-                                        <div class="text-xs text-slate-400 mt-0.5">${arr.length} total ulasan</div>
-                                    </div>
-                                </div>
-                                <div class="max-h-[300px] overflow-y-auto pr-3 desc-scroll">${listHtml}</div>
-                            </div>
-                            
-                            <!-- Kolom Form Ulasan -->
-                            <div class="glass-panel rounded-2xl p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                                <h3 class="font-extrabold text-white text-lg mb-4"><i class="fa-solid fa-pen-to-square text-emerald-400 mr-2"></i> Tulis Pengalaman Anda</h3>
-                                <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-4">
-                                    <div>
-                                        <label class="block text-xs text-slate-400 mb-1 ml-1">Nama</label>
-                                        <input id="u-nama" required placeholder="Masukkan nama..." class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs text-slate-400 mb-1 ml-1">Penilaian</label>
-                                        <select id="u-rating" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
-                                            <option value="5">⭐⭐⭐⭐⭐ (5 - Luar Biasa)</option>
-                                            <option value="4">⭐⭐⭐⭐ (4 - Bagus)</option>
-                                            <option value="3">⭐⭐⭐ (3 - Cukup)</option>
-                                            <option value="2">⭐⭐ (2 - Kurang)</option>
-                                            <option value="1">⭐ (1 - Buruk)</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs text-slate-400 mb-1 ml-1">Ulasan</label>
-                                        <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl h-28 text-white focus:outline-none focus:border-emerald-500 transition resize-none text-sm"></textarea>
-                                    </div>
-                                    <button type="submit" class="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.3)]">Kirim Ulasan Sekarang</button>
-                                </form>
+                    <!-- Kolom Daftar Ulasan -->
+                    <div class="ulasan-item glass-panel rounded-2xl p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col h-full animate__animated animate__fadeInRight">
+                        <h3 class="font-extrabold text-white text-lg mb-2 flex-shrink-0"><i class="fa-solid fa-star text-yellow-400 mr-2"></i> Ulasan Pembeli</h3>
+                        <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-700/50 flex-shrink-0">
+                            <div class="text-3xl font-bold text-emerald-400">${avg.toFixed(1)}</div>
+                            <div class="flex flex-col">
+                                <div class="text-yellow-400 text-sm">${avg ? bintangR(avg) : bintangR(0)}</div>
+                                <div class="text-xs text-slate-400 mt-0.5">${arr.length} total ulasan</div>
                             </div>
                         </div>
+                        <div class="flex-grow overflow-y-auto pr-3 desc-scroll h-0 min-h-[150px]">${listHtml}</div>
+                    </div>
+                    
+                    <!-- Kolom Form Ulasan -->
+                    <div class="ulasan-item glass-panel rounded-2xl p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col h-full animate__animated animate__fadeInRight" style="animation-delay: 0.1s">
+                        <h3 class="font-extrabold text-white text-lg mb-4 flex-shrink-0"><i class="fa-solid fa-pen-to-square text-emerald-400 mr-2"></i> Tulis Pengalaman Anda</h3>
+                        <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-4 flex flex-col flex-grow">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1 ml-1">Nama</label>
+                                <input id="u-nama" required placeholder="Masukkan nama..." class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1 ml-1">Penilaian</label>
+                                <select id="u-rating" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
+                                    <option value="5">⭐⭐⭐⭐⭐ (5 - Luar Biasa)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4 - Bagus)</option>
+                                    <option value="3">⭐⭐⭐ (3 - Cukup)</option>
+                                    <option value="2">⭐⭐ (2 - Kurang)</option>
+                                    <option value="1">⭐ (1 - Buruk)</option>
+                                </select>
+                            </div>
+                            <div class="flex-grow flex flex-col min-h-[100px]">
+                                <label class="block text-xs text-slate-400 mb-1 ml-1">Ulasan</label>
+                                <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl flex-grow text-white focus:outline-none focus:border-emerald-500 transition resize-none text-sm"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.3)] mt-2">Kirim Ulasan Sekarang</button>
+                        </form>
                     </div>
                 `);
             } catch (e) { console.error(e); }
