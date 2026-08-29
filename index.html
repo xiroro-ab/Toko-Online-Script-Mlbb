@@ -517,15 +517,15 @@
 
             // ================= MODE KATEGORI / CARI / FAVORIT / SINGLE ID =================
             if (targetKategori || targetId || inputCari || inputSort === 'favorit') {
-                container.className = targetId ? "flex flex-col items-center justify-center w-full pb-10 gap-8" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full";
+                container.className = targetId ? "flex flex-col w-full pb-10" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full";
 
                 if (targetKategori || targetId) {
                     container.innerHTML += `
-                        <div class="col-span-full mb-2 animate__animated animate__fadeInDown w-full text-center">
-                            <a href="#" onclick="setChip(null);return false;" class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
-                                <i class="fa-solid fa-arrow-left mr-2"></i> ${targetKategori ? 'Kembali ke Etalase Utama' : 'Lihat Semua Produk'}
+                        <div class="col-span-full mb-6 animate__animated animate__fadeInDown w-full flex justify-between items-center">
+                            <a href="index.html" class="inline-block bg-slate-800/80 border border-slate-600 hover:bg-slate-700 hover:border-cyan-400 text-cyan-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
+                                <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
                             </a>
-                            ${targetKategori ? `<h2 class="text-2xl font-extrabold text-white mt-4"><span class="text-cyan-400 border-b-2 border-cyan-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
+                            ${targetKategori ? `<h2 class="text-xl font-extrabold text-white"><span class="text-cyan-400 border-b-2 border-cyan-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
                         </div>
                     `;
                 }
@@ -902,17 +902,16 @@ function downloadQR() {
                     containerUlasan = document.getElementById('area-ulasan-' + pid);
                 }
                 containerUlasan.innerHTML = `
-                    <div class="flex flex-col lg:flex-row gap-6">
-                        <div class="flex-1">
+                    <div class="flex flex-col lg:flex-row gap-6 items-start">
+                        <div class="w-full">
                             <div class="flex justify-between items-center mb-3">
                                 <div>
                                     <h3 class="font-bold text-white"><i class="fa-solid fa-star text-yellow-400 mr-1"></i> Ulasan Pembeli</h3>
                                     <p class="text-xs text-slate-300">${avg ? bintangR(avg) : ''} <span class="text-slate-400">${avg.toFixed(1)} (${arr.length} ulasan)</span></p>
                                 </div>
-                                <button onclick="bukaFormUlasan('${pid}')" class="hidden lg:block bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold border border-cyan-400/50 shadow-md transition"><i class="fa-solid fa-pen mr-1"></i> Tulis Ulasan</button>
+                                <button onclick="bukaFormUlasan('${pid}')" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold border border-cyan-400/50 shadow-md transition"><i class="fa-solid fa-pen mr-1"></i> Tulis Ulasan</button>
                             </div>
                             <div class="max-h-64 overflow-y-auto desc-scroll pr-1 space-y-2">${listHtml}</div>
-                            <button onclick="bukaFormUlasan('${pid}')" class="lg:hidden w-full bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-2 rounded-lg font-bold border border-cyan-400/50 mt-4"><i class="fa-solid fa-pen mr-1"></i> Tulis Ulasan</button>
                         </div>
                     </div>
                 `;
