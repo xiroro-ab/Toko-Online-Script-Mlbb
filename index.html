@@ -229,7 +229,7 @@
             
             const katalog = document.getElementById('katalog-produk');
             if (isSingle) {
-                katalog.className = `flex flex-col items-center justify-center max-w-md mx-auto w-full gap-8`;
+                katalog.className = `flex flex-col items-center justify-center max-w-2xl mx-auto w-full gap-8`;
             } else {
                 katalog.className = `grid grid-cols-1 sm:grid-cols-2 lg:${cfg.kolom} gap-8 w-full`;
                 document.getElementById('search-container').style.display = 'flex'; 
@@ -331,9 +331,39 @@
                 ambilStats.then(() => db.collection("config").doc("site").get()
                     .then(cfgSnap => { if (cfgSnap.exists) localStorage.setItem('xiroro_config', JSON.stringify(cfgSnap.data())); })
                     .catch(function(){})
-                    .finally(() => { renderProduk(); if (targetId) muatUlasan(targetId); }));
+                    .finally(() => { 
+                        renderProduk(); 
+                        if (targetId) muatUlasan(targetId);
+                        muatSemuaRating();
+                    }));
             })
             .catch(err => document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal terhubung ke Database. <br><span class="text-sm">(${err.message})</span></p>`);
+
+        async function muatSemuaRating() {
+            try {
+                const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=1000`);
+                const j = await r.json();
+                const ratings = {};
+                (j.documents || []).forEach(d => {
+                    const f = d.fields || {};
+                    const pid = (f.produkId && f.produkId.stringValue) || '';
+                    const rate = parseInt((f.rating && f.rating.integerValue) || 0, 10);
+                    if (pid) {
+                        if (!ratings[pid]) ratings[pid] = [];
+                        ratings[pid].push(rate);
+                    }
+                });
+                document.querySelectorAll('.rating-val').forEach(el => {
+                    const pid = el.dataset.pid;
+                    if (ratings[pid]) {
+                        const avg = ratings[pid].reduce((s, x) => s + x, 0) / ratings[pid].length;
+                        el.innerText = avg.toFixed(1);
+                    } else {
+                        el.innerText = '5.0';
+                    }
+                });
+            } catch (e) { }
+        }
 
         function renderProduk() {
             const container = document.getElementById('katalog-produk');
@@ -425,11 +455,14 @@
                 let extraClass = targetId ? 'animate__animated animate__zoomIn border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : '';
 
                 return `
-                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} h-[500px] ${extraClass}" ${!targetId ? `onclick="location.href='?id=${id}'" style="cursor:pointer;"` : ''}>
+                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} h-[520px] ${extraClass}" ${!targetId ? `onclick="location.href='?id=${id}'" style="cursor:pointer;"` : ''}>
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
                             <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-cart-arrow-down text-orange-400 mr-1"></i> Dicheckout ${terjualCount}</span>
-                            <span class="text-[10px] text-cyan-400"><i class="fa-solid fa-eye mr-1"></i> ${viewCount} Dilihat</span>
+                            <div class="text-[10px] text-yellow-400 flex items-center bg-slate-700/50 px-2 py-1 rounded-full">
+                                <i class="fa-solid fa-star mr-1"></i>
+                                <span class="rating-val" data-pid="${id}">...</span>
+                            </div>
                         </div>
                         
                         <span class="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full w-fit mb-2 flex-shrink-0"><i class="fa-solid fa-tag mr-1"></i> ${esc(kategori)}</span>
@@ -558,6 +591,7 @@
                         </div>
                     `;
                 });
+            muatSemuaRating();
         }
 
         function slideMedia(sliderId, arah) {
@@ -612,7 +646,7 @@
                 html: `
                     <div class="text-left text-sm text-slate-300 space-y-4 h-64 overflow-y-auto pr-3 desc-scroll">
                         <h4 class="text-white font-bold mt-2">Q: Apakah script ini aman dari ban?</h4>
-                        <p>A: Kami selalu berusaha membuat script seaman mungkin. Namun, modifikasi sistem game selalu memiliki riesgo. Gunakan sewajarnya dan riesgo ditanggung pengguna.</p>
+                        <p>A: Kami selalu berusaha membuat script seaman mungkin. Namun, modifikasi sistem game selalu memiliki risiko. Gunakan sewajarnya dan risiko ditanggung pengguna.</p>
                         
                         <h4 class="text-white font-bold mt-4">Q: Bagaimana cara mendapatkan update jika ada patch baru?</h4>
                         <p>A: Pantau terus channel YouTube kami. Jika ada perubahan sistem besar-besaran dari developer resmi, kami akan menginfokan update terbaru di sana.</p>
