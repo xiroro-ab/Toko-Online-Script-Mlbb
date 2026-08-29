@@ -289,6 +289,7 @@
             const url = new URL(window.location);
             if (window.chipFilter) url.searchParams.set('kategori', window.chipFilter);
             else url.searchParams.delete('kategori');
+            url.searchParams.delete('id');
             window.history.pushState({}, '', url);
             buildChips();
             renderProduk();

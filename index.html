@@ -276,6 +276,11 @@
         window.chipFilter = null;
         function setChip(c) {
             window.chipFilter = c || null;
+            const url = new URL(window.location);
+            if (window.chipFilter) url.searchParams.set('kategori', window.chipFilter);
+            else url.searchParams.delete('kategori');
+            url.searchParams.delete('id');
+            window.history.pushState({}, '', url);
             buildChips();
             renderProduk();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -351,11 +356,11 @@
                             const pId = d.name.split('/').pop();
                             const u = mapUlasan[pId];
                             if (u) {
-                                d.fields.ratingAvg = { doubleValue: u.total / u.count };
-                                d.fields.ratingCount = { integerValue: u.count };
+                                d.fields.ratingAvg = u.total / u.count;
+                                d.fields.ratingCount = u.count;
                             } else {
-                                d.fields.ratingAvg = { doubleValue: 0 };
-                                d.fields.ratingCount = { integerValue: 0 };
+                                d.fields.ratingAvg = 0;
+                                d.fields.ratingCount = 0;
                             }
                         });
                     }).catch(() => {});
