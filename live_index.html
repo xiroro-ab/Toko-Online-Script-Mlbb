@@ -334,13 +334,14 @@
                         });
                     }).catch(() => {});
                 
-                const ambilUlasanData = db.collection('ulasan').get()
-                    .then(snapshot => {
+                const ambilUlasanData = fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=1000`)
+                    .then(res => res.json())
+                    .then(sj => {
                         const mapUlasan = {};
-                        snapshot.forEach(doc => {
-                            const data = doc.data();
-                            const pId = data.produkId;
-                            const r = Number(data.rating) || 0;
+                        (sj.documents || []).forEach(d => {
+                            const f = d.fields || {};
+                            const pId = f.produkId && f.produkId.stringValue;
+                            const r = f.rating && f.rating.integerValue ? parseInt(f.rating.integerValue) : 0;
                             if (pId && r) {
                                 if (!mapUlasan[pId]) mapUlasan[pId] = { total: 0, count: 0 };
                                 mapUlasan[pId].total += r;
@@ -351,11 +352,11 @@
                             const pId = d.name.split('/').pop();
                             const u = mapUlasan[pId];
                             if (u) {
-                                d.fields.ratingAvg = { doubleValue: u.total / u.count };
-                                d.fields.ratingCount = { integerValue: u.count };
+                                d.fields.ratingAvg = u.total / u.count;
+                                d.fields.ratingCount = u.count;
                             } else {
-                                d.fields.ratingAvg = { doubleValue: 0 };
-                                d.fields.ratingCount = { integerValue: 0 };
+                                d.fields.ratingAvg = 0;
+                                d.fields.ratingCount = 0;
                             }
                         });
                     }).catch(() => {});
