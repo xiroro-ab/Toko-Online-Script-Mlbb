@@ -540,8 +540,8 @@
                 if (targetKategori || targetId) {
                     container.innerHTML += `
                         <div class="col-span-full mb-2 animate__animated animate__fadeInDown w-full text-center">
-                            <a href="#" onclick="kembaliKeEtalase(event);return false;" class="inline-block bg-slate-800/80 border border-emerald-600 hover:bg-slate-700 hover:border-emerald-400 text-emerald-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
-                                <i class="fa-solid fa-arrow-left mr-2"></i> ${targetKategori ? 'Kembali ke Etalase Utama' : 'Lihat Semua Produk Gratis'}
+                            <a href="${targetId ? '?' : '#'}" ${targetId ? '' : 'onclick="kembaliKeEtalase(event);return false;"'} class="inline-block bg-slate-800/80 border border-emerald-600 hover:bg-slate-700 hover:border-emerald-400 text-emerald-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
+                                <i class="fa-solid fa-arrow-left mr-2"></i> ${targetId ? 'Kembali ke Etalase Utama' : 'Lihat Semua Produk Gratis'}
                             </a>
                             ${targetKategori ? `<h2 class="text-2xl font-extrabold text-white mt-4"><span class="text-emerald-400 border-b-2 border-emerald-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
                         </div>
@@ -736,68 +736,92 @@
 
         async function muatUlasan(pid) {
             const c = document.getElementById('katalog-produk');
+            const existingUlasan = document.getElementById('ulasan-container');
+            if (existingUlasan) existingUlasan.remove();
+
             try {
-                const r = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/ulasan?pageSize=500`);
-                const j = await r.json();
-                const arr = (j.documents || []).map(d => {
-                    const f = d.fields || {};
-                    return {
-                        produkId: (f.produkId && f.produkId.stringValue) || '',
-                        nama: (f.nama && f.nama.stringValue) || 'Anonim',
-                        rating: parseInt((f.rating && f.rating.integerValue) || 0, 10) || 1,
-                        teks: (f.teks && f.teks.stringValue) || '',
-                        waktu: (f.waktu && f.waktu.stringValue) || ''
-                    };
-                }).filter(x => x.produkId === pid);
-                const avg = arr.length ? (arr.reduce((s, x) => s + x.rating, 0) / arr.length) : 0;
+                const snapshot = await db.collection('ulasan').where('produkId', '==', pid).get();
+                let arr = snapshot.docs.map(doc => doc.data());
+                const avg = arr.length ? (arr.reduce((s, x) => s + (Number(x.rating)||0), 0) / arr.length) : 0;
 
                 let listHtml = '';
                 arr.sort((a, b) => (b.waktu || '').localeCompare(a.waktu || '')).slice(0, 10).forEach(x => {
                     listHtml += `
-                        <div class="border-b border-slate-700/60 pb-2 mb-2">
-                            <div class="flex justify-between items-center">
+                        <div class="border-b border-slate-700/60 pb-3 mb-3">
+                            <div class="flex justify-between items-center mb-1">
                                 <span class="text-sm font-bold text-white">${esc(x.nama)}</span>
-                                <span class="text-xs text-yellow-400">${bintangR(x.rating)}</span>
+                                <span class="text-xs text-yellow-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700/50">${bintangR(x.rating)}</span>
                             </div>
-                            <p class="text-xs text-slate-300 mt-1">${esc(x.teks)}</p>
+                            <p class="text-sm text-slate-300">${esc(x.teks)}</p>
+                            <div class="text-[10px] text-slate-500 mt-1">${x.waktu ? new Date(x.waktu).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : ''}</div>
                         </div>`;
                 });
-                if (!arr.length) listHtml = '<p class="text-xs text-slate-400">Belum ada ulasan. Jadilah yang pertama!</p>';
+                if (!arr.length) listHtml = '<p class="text-sm text-slate-400 text-center mt-4">Belum ada ulasan. Jadilah yang pertama!</p>';
 
                 c.insertAdjacentHTML('beforeend', `
-                    <div class="w-full max-w-md mx-auto glass-panel rounded-2xl p-5 mt-6 animate__animated animate__fadeInUp border border-emerald-500/30">
-                        <h3 class="font-bold text-white mb-1"><i class="fa-solid fa-star text-yellow-400 mr-1"></i> Ulasan</h3>
-                        <p class="text-sm text-slate-300 mb-3">${avg ? bintangR(avg) : ''} <span class="text-slate-400">${avg.toFixed(1)} (${arr.length} ulasan)</span></p>
-                        <div class="max-h-64 overflow-y-auto mb-4">${listHtml}</div>
-                        <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-2 text-sm">
-                            <input id="u-nama" required placeholder="Nama Anda" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-white focus:outline-emerald-500">
-                            <select id="u-rating" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg text-white">
-                                <option value="5">5 - Luar Biasa</option>
-                                <option value="4">4 - Bagus</option>
-                                <option value="3">3 - Cukup</option>
-                                <option value="2">2 - Kurang</option>
-                                <option value="1">1 - Buruk</option>
-                            </select>
-                            <textarea id="u-teks" required placeholder="Tulis ulasan Anda..." class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg h-16 text-white focus:outline-emerald-500"></textarea>
-                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2 rounded-lg font-bold">Kirim Ulasan</button>
-                        </form>
+                    <div id="ulasan-container" class="w-full max-w-5xl mx-auto mt-8 animate__animated animate__fadeInUp pb-10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                            <!-- Kolom Daftar Ulasan -->
+                            <div class="glass-panel rounded-2xl p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                <h3 class="font-extrabold text-white text-lg mb-2"><i class="fa-solid fa-star text-yellow-400 mr-2"></i> Ulasan Pembeli</h3>
+                                <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-700/50">
+                                    <div class="text-3xl font-bold text-emerald-400">${avg.toFixed(1)}</div>
+                                    <div class="flex flex-col">
+                                        <div class="text-yellow-400 text-sm">${avg ? bintangR(avg) : bintangR(0)}</div>
+                                        <div class="text-xs text-slate-400 mt-0.5">${arr.length} total ulasan</div>
+                                    </div>
+                                </div>
+                                <div class="max-h-[300px] overflow-y-auto pr-3 desc-scroll">${listHtml}</div>
+                            </div>
+                            
+                            <!-- Kolom Form Ulasan -->
+                            <div class="glass-panel rounded-2xl p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                <h3 class="font-extrabold text-white text-lg mb-4"><i class="fa-solid fa-pen-to-square text-emerald-400 mr-2"></i> Tulis Pengalaman Anda</h3>
+                                <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1 ml-1">Nama</label>
+                                        <input id="u-nama" required placeholder="Masukkan nama..." class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1 ml-1">Penilaian</label>
+                                        <select id="u-rating" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
+                                            <option value="5">⭐⭐⭐⭐⭐ (5 - Luar Biasa)</option>
+                                            <option value="4">⭐⭐⭐⭐ (4 - Bagus)</option>
+                                            <option value="3">⭐⭐⭐ (3 - Cukup)</option>
+                                            <option value="2">⭐⭐ (2 - Kurang)</option>
+                                            <option value="1">⭐ (1 - Buruk)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1 ml-1">Ulasan</label>
+                                        <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl h-28 text-white focus:outline-none focus:border-emerald-500 transition resize-none text-sm"></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.3)]">Kirim Ulasan Sekarang</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 `);
-            } catch (e) { }
+            } catch (e) { console.error(e); }
         }
 
         async function kirimUlasan(pid, ev) {
             ev.preventDefault();
+            const btn = ev.target.querySelector('button');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
             const nama = document.getElementById('u-nama').value.trim();
             const teks = document.getElementById('u-teks').value.trim();
             const rating = parseInt(document.getElementById('u-rating').value, 10) || 5;
             if (!nama || !teks) return;
             try {
                 await db.collection('ulasan').add({ produkId: pid, nama: nama, rating: rating, teks: teks, waktu: new Date().toISOString() });
-                Swal.fire({ toast: true, icon: 'success', title: 'Ulasan terkirim!', timer: 1500, showConfirmButton: false, background: '#064e3b', color: '#fff' });
+                Swal.fire({ toast: true, icon: 'success', title: 'Ulasan berhasil dikirim!', timer: 2000, showConfirmButton: false, background: '#0f172a', color: '#fff' });
                 muatUlasan(pid);
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Coba lagi.', background: '#0f172a' });
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mengirim ulasan. Coba lagi.', background: '#0f172a' });
+                btn.disabled = false;
+                btn.innerHTML = 'Kirim Ulasan Sekarang';
             }
         }
     </script>
