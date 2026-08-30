@@ -196,6 +196,8 @@
 
         // GANTI ANGKA INI DENGAN TOKEN RAHASIA ANDA SENDIRI, lalu samakan di Apps Script
         const UPLOAD_TOKEN = "xiroro_upload_2026_ganti123";
+        // Kunci akses data pesanan (samakan dengan UPLOAD_KEY di .gs)
+        const DATA_KEY = "xiroro_admin_sec_2026";
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
         function checkLogin() {
@@ -210,7 +212,7 @@
                         const isPesananTab = tabAktif && document.getElementById('section-pesanan') && !document.getElementById('section-pesanan').classList.contains('hidden');
                         if (isPesananTab) {
                             try {
-                                const res = await fetch(appsScriptUrl + "?action=bacaSemuaPesanan");
+                                const res = await fetch(appsScriptUrl + "?action=bacaSemuaPesanan&key=" + DATA_KEY);
                                 const dataArr = await res.json();
                                 const baru = (dataArr || []).map(d => ({
                                     id: (d.fields && d.fields.kode) ? d.fields.kode.stringValue : "",
@@ -419,7 +421,7 @@
             const list = document.getElementById('list-pesanan');
             try {
                 if (!silent) list.innerHTML = `<p class='text-cyan-400 font-bold'><i class='fa-solid fa-spinner fa-spin'></i> Memuat data...</p>`;
-                const res = await fetch(appsScriptUrl + "?action=bacaSemuaPesanan");
+                const res = await fetch(appsScriptUrl + "?action=bacaSemuaPesanan&key=" + DATA_KEY);
                 const dataArr = await res.json();
                 
                 semuaPesanan = (dataArr || []).map(d => ({
