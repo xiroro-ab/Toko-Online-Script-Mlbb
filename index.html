@@ -475,6 +475,44 @@
                 cats.map(c => `<button type="button" onclick="setChip('${c}')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${currentCat === c ? 'bg-cyan-600 text-white' : 'bg-slate-800/70 border-cyan-500/40 text-cyan-200'}">${esc(c)}</button>`).join('');
         }
 
+        function applyUlasanKeToko(ulasanArr) {
+            const mapUlasan = {};
+            (ulasanArr || []).forEach(data => {
+                const pId = data.produkId || (data.data && data.data.produkId);
+                const r = Number(data.rating != null ? data.rating : (data.data && data.data.rating)) || 0;
+                if (pId && r) {
+                    if (!mapUlasan[pId]) mapUlasan[pId] = { total: 0, count: 0 };
+                    mapUlasan[pId].total += r;
+                    mapUlasan[pId].count += 1;
+                }
+            });
+            try {
+                localStorage.setItem('xiroro_ulasan_map_cache', JSON.stringify(mapUlasan));
+                localStorage.setItem('xiroro_ulasan_map_time', String(Date.now()));
+            } catch (e) { }
+            if (!window.dataToko) return;
+            window.dataToko.forEach(d => {
+                const pId = d.name.split('/').pop();
+                const u = mapUlasan[pId];
+                if (u) {
+                    d.fields.ratingAvg = u.total / u.count;
+                    d.fields.ratingCount = u.count;
+                } else {
+                    d.fields.ratingAvg = 0;
+                    d.fields.ratingCount = 0;
+                }
+            });
+        }
+
+        async function refreshUlasanRatings() {
+            try {
+                const res = await fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan');
+                if (!res.ok) return;
+                const ulasanArr = await res.json();
+                applyUlasanKeToko(ulasanArr);
+            } catch (e) { }
+        }
+
         fetch(PRODUK_URL)
             .then(res => res.json())
             .then(items => {
@@ -488,44 +526,21 @@
                 if (targetId && catatKlik(targetId, 'view')) {
                     
                 }
-                
 
-                let ambilUlasanData;
+                const ambilUlasanData = fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
+                    .then(res => res.json())
+                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); })
+                    .catch(() => { });
 
-                // Selalu fetch ulasan terbaru (tanpa cache agar bintang selalu update real-time)
-                if (!ambilUlasanData) {
-                    ambilUlasanData = fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
-                        .then(res => res.json())
-                        .then(ulasanArr => {
-                            const mapUlasan = {};
-                            ulasanArr.forEach(data => {
-                                const pId = data.produkId;
-                                const r = Number(data.rating) || 0;
-                                if (pId && r) {
-                                    if (!mapUlasan[pId]) mapUlasan[pId] = { total: 0, count: 0 };
-                                    mapUlasan[pId].total += r;
-                                    mapUlasan[pId].count += 1;
-                                }
-                            });
-                            try {
-                                localStorage.setItem('xiroro_ulasan_map_cache', JSON.stringify(mapUlasan));
-                                localStorage.setItem('xiroro_ulasan_map_time', String(Date.now()));
-                            } catch (e) { }
-                            window.dataToko.forEach(d => {
-                                const pId = d.name.split('/').pop();
-                                const u = mapUlasan[pId];
-                                if (u) {
-                                    d.fields.ratingAvg = u.total / u.count;
-                                    d.fields.ratingCount = u.count;
-                                } else {
-                                    d.fields.ratingAvg = 0;
-                                    d.fields.ratingCount = 0;
-                                }
-                            });
-                        }).catch(() => { });
-                }
+                const ambilConfigData = fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
+                    .then(res => res.json())
+                    .then(cfg => { if (cfg) localStorage.setItem('xiroro_config', cfg); })
+                    .catch(() => { });
 
-                fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site").then(res => res.json()).then(cfg => { if (cfg) localStorage.setItem('xiroro_config', cfg); }).catch(()=>{ }).finally(() => { renderProduk(); if (targetId) muatUlasan(targetId); });
+                Promise.all([ambilUlasanData, ambilConfigData]).finally(() => {
+                    renderProduk();
+                    if (targetId) muatUlasan(targetId);
+                });
             })
             .catch(err => document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal terhubung ke Database. <br><span class="text-sm">(${err.message})</span></p>`);
 
@@ -1102,7 +1117,11 @@
                 const fd = new URLSearchParams({ action: 'ulasan', produkId: pid, nama: nama, rating: rating, teks: teks });
                 const r = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: fd, mode: 'no-cors' });
                 Swal.fire({ toast: true, icon: 'success', title: 'Ulasan berhasil dikirim!', timer: 2000, showConfirmButton: false, background: '#0f172a', color: '#fff' });
-                setTimeout(() => muatUlasan(pid), 3000);
+                setTimeout(async () => {
+                    await refreshUlasanRatings();
+                    renderProduk();
+                    muatUlasan(pid);
+                }, 2500);
             } catch (e) {
                 Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mengirim ulasan. Coba lagi.', background: '#0f172a' });
                 btn.disabled = false;
