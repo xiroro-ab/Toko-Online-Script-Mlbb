@@ -4,6 +4,9 @@ Panduan ini dibaca AI/developer di awal sesi agar langsung paham arsitektur tanp
 Membaca file ini WAJIB sebelum mengubah kode apa pun. Ini adalah proyek nyata yang sudah
 berjalan (produksi). Berhati-hatilah: jangan merusak alur yang sudah bekerja.
 
+> Dokumen ini = peta cepat. Untuk pemahaman **sampai ke akar** (fungsi per fungsi GAS,
+> skema sheet, alur Telegram, webhook Vercel, troubleshooting) baca **`ARSITEKTUR.md`**.
+
 ---
 
 ## 1. Gambaran sistem (3 layer + bot)
