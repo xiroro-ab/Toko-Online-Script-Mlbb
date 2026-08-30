@@ -123,7 +123,7 @@
         function catatDownload(nama) {
             if (!nama) return;
             try {
-                const k = 'xiroro_dl_' + nama;
+                const k = 'xiroro_dl_v2_' + nama;
                 if (localStorage.getItem(k)) return;
                 localStorage.setItem(k, '1');
                 const body = new URLSearchParams({ action: 'hitKlik', id: nama, tipe: 'download' });

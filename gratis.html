@@ -199,7 +199,7 @@
 
         function catatKlik(id, tipe) {
             try {
-                const key = 'xiroro_hit_' + tipe + '_' + id;
+                const key = 'xiroro_hit_v2_' + tipe + '_' + id;
                 if (localStorage.getItem(key)) return false;
                 localStorage.setItem(key, '1');
                 try {
