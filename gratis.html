@@ -363,20 +363,19 @@
                     
                 }
 
-                const ambilUlasanData = fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
+                // Grid render LANGSUNG (tidak menunggu ulasan/config yang lambat)
+                renderProduk();
+                if (targetId) muatUlasan(targetId);
+
+                fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
                     .then(res => res.json())
                     .then(ulasanArr => { applyUlasanKeToko(ulasanArr); })
                     .catch(() => {});
 
-                const ambilConfigData = fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
+                fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
                     .then(res => res.json())
                     .then(cfg => { if (cfg) localStorage.setItem('xiroro_config', cfg); })
                     .catch(() => {});
-
-                Promise.all([ambilUlasanData, ambilConfigData]).finally(() => {
-                    renderProduk();
-                    if (targetId) muatUlasan(targetId);
-                });
             })
             .catch(err => document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal muat etalase. <br><span class="text-sm">(${err.message})</span></p>`);
 
@@ -821,9 +820,8 @@
                 Swal.fire({ toast: true, icon: 'success', title: 'Ulasan berhasil dikirim!', timer: 2000, showConfirmButton: false, background: '#0f172a', color: '#fff' });
                 setTimeout(async () => {
                     await refreshUlasanRatings();
-                    renderProduk();
                     muatUlasan(pid);
-                }, 2500);
+                }, 1200);
             } catch (e) {
                 Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mengirim ulasan. Coba lagi.', background: '#0f172a' });
                 btn.disabled = false;
