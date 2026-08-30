@@ -381,11 +381,11 @@
                 }
 
                 if (!ambilUlasanData) {
-                    ambilUlasanData = db.collection('ulasan').get()
-                        .then(snapshot => {
+                    ambilUlasanData = fetch('ulasan.json?t=' + Date.now())
+                        .then(res => res.json())
+                        .then(ulasanArr => {
                             const mapUlasan = {};
-                            snapshot.forEach(doc => {
-                                const data = doc.data();
+                            ulasanArr.forEach(data => {
                                 const pId = data.produkId;
                                 const r = Number(data.rating) || 0;
                                 if (pId && r) {
@@ -778,12 +778,16 @@
             document.querySelectorAll('.ulasan-item').forEach(el => el.remove());
 
             try {
-                const snapshot = await db.collection('ulasan').where('produkId', '==', pid).get();
-                let arr = snapshot.docs.map(doc => doc.data());
+                const res = await fetch('ulasan.json?t=' + new Date().getTime());
+                let semuaUlasan = [];
+                if (res.ok) {
+                    semuaUlasan = await res.json();
+                }
+                let arr = semuaUlasan.filter(x => x.produkId === pid);
                 const avg = arr.length ? (arr.reduce((s, x) => s + (Number(x.rating)||0), 0) / arr.length) : 0;
 
                 let listHtml = '';
-                arr.sort((a, b) => (b.waktu || '').localeCompare(a.waktu || '')).slice(0, 10).forEach(x => {
+                arr.slice(0, 10).forEach(x => {
                     listHtml += `
                         <div class="border-b border-slate-700/60 pb-3 mb-3">
                             <div class="flex justify-between items-center mb-1">
@@ -849,9 +853,10 @@
             const rating = parseInt(document.getElementById('u-rating').value, 10) || 5;
             if (!nama || !teks) return;
             try {
-                await db.collection('ulasan').add({ produkId: pid, nama: nama, rating: rating, teks: teks, waktu: new Date().toISOString() });
+                const fd = new URLSearchParams({ action: 'ulasan', produkId: pid, nama: nama, rating: rating, teks: teks });
+                const r = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: fd, mode: 'no-cors' });
                 Swal.fire({ toast: true, icon: 'success', title: 'Ulasan berhasil dikirim!', timer: 2000, showConfirmButton: false, background: '#0f172a', color: '#fff' });
-                muatUlasan(pid);
+                setTimeout(() => muatUlasan(pid), 3000);
             } catch (e) {
                 Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mengirim ulasan. Coba lagi.', background: '#0f172a' });
                 btn.disabled = false;
