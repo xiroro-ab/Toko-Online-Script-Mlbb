@@ -81,7 +81,7 @@
             hasil.innerHTML = `
                 <p class="text-xs text-slate-400">Kode</p>
                 <p class="font-mono text-yellow-400 font-bold mb-3">${kodeAktif}</p>
-                <p class="text-sm text-slate-300 mb-1">${d.produk || '-'}</p>
+                <p class="text-sm text-slate-300 mb-1">${d.produk || d.produkNama || d.namaProduk || '-'}</p>
                 <p class="text-xs text-slate-400 mb-3">Nominal: Rp ${(Number(d.nominal) || 0).toLocaleString('id-ID')}</p>
                 <p class="${meta.warna} text-xl font-bold mb-3"><i class="fa-solid ${meta.ikon} mr-2"></i>${meta.label}</p>
 
