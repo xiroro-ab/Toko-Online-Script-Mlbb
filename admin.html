@@ -758,16 +758,16 @@ function renderProdukAdmin() {
 
         async function simpanProduk(e) {
             e.preventDefault();
-            const btn = document.getElementById('btnSimpanProduk');
+            const btn = document.getElementById('btn-submit');
             const orig = btn.innerHTML;
             btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Menyimpan...";
             btn.disabled = true;
 
-            const editId = document.getElementById('pId').value;
+            const editId = document.getElementById('edit-id').value;
             const action = editId ? 'adminEditProduk' : 'adminTambahProduk';
 
-            let imageUrl = document.getElementById('pGambar').value;
-            const fileInput = document.getElementById('pFileGambar');
+            let imageUrl = document.getElementById('gambarUrlLama').value;
+            const fileInput = document.getElementById('foto');
             
             try {
                 if (fileInput.files.length > 0) {
@@ -787,11 +787,14 @@ function renderProdukAdmin() {
                 const dataToSave = new URLSearchParams({
                     action: action,
                     produkId: editId,
-                    namaProduk: document.getElementById('pNama').value,
-                    harga: document.getElementById('pHarga').value,
-                    kategori: document.getElementById('pKategori').value,
-                    kode: document.getElementById('pKode').value,
-                    status: document.getElementById('pStatus').value,
+                    namaProduk: document.getElementById('nama').value,
+                    harga: document.getElementById('harga').value,
+                    kategori: "",
+                    status: "aktif",
+                    customCode: "",
+                    deskripsi: document.getElementById('deskripsi').value,
+                    videoID: document.getElementById('videoID').value,
+                    fileLink: document.getElementById('fileLink').value,
                     gambarUrl: imageUrl
                 });
 
@@ -800,7 +803,7 @@ function renderProdukAdmin() {
                 if (!json.ok) throw new Error(json.error);
                 
                 Swal.fire('Berhasil!', 'Data produk tersimpan.', 'success');
-                tutupModalProduk();
+                resetForm();
                 loadProduk();
             } catch (err) {
                 Swal.fire('Error', err.message, 'error');
