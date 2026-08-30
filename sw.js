@@ -12,7 +12,7 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
-  if (!req.url.indexOf(self.location.origin) === 0) return;
+  if (req.url.indexOf(self.location.origin) !== 0) return;
 
   // Halaman utama (navigasi): SELALU ambil terbaru dari jaringan, cache hanya cadangan
   if (req.mode === 'navigate') {
