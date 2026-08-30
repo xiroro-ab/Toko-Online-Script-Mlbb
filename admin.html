@@ -112,7 +112,7 @@
             <div class="glass p-8 rounded-2xl border-t-4 border-t-green-500">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold text-green-400"><i class="fa-solid fa-clipboard-list"></i> Log Pesanan</h2>
-                    <button onclick="loadPesanan()" class="text-green-400 hover:text-green-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                    <button onclick="loadPesanan(false)" class="text-green-400 hover:text-green-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                     <select id="bulanPesanan" onchange="renderPesananAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-green-500 text-white cursor-pointer">
@@ -290,7 +290,7 @@
             document.getElementById('btn-pesanan').className = tab === 'pesanan' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
             document.getElementById('btn-ulasan').className = tab === 'ulasan' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
             document.getElementById('btn-tampilan').className = tab === 'tampilan' ? 'pb-4 tab-active font-medium' : 'pb-4 text-slate-400 hover:text-white font-medium';
-            if (tab === 'pesanan') loadPesanan();
+            if (tab === 'pesanan') loadPesanan(false);
             if (tab === 'ulasan') loadUlasan();
         }
 
@@ -415,7 +415,7 @@
             });
         }
 
-        async function loadPesanan(silent = false) {
+        async function loadPesanan(silent = true) {
             const list = document.getElementById('list-pesanan');
             try {
                 if (!silent) list.innerHTML = `<p class='text-cyan-400 font-bold'><i class='fa-solid fa-spinner fa-spin'></i> Memuat data...</p>`;
