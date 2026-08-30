@@ -133,6 +133,8 @@
                 <p class="text-emerald-400 font-medium tracking-widest animate-pulse">MEMUAT DATABASE...</p>
             </div>
         </div>
+
+        <div id="section-ulasan" class="hidden w-full max-w-6xl mx-auto px-4 mt-12"></div>
     </main>
 
     <footer class="glass-panel border-t border-emerald-500/30 pt-12 pb-6 mt-10 relative z-10">
@@ -741,8 +743,10 @@
         }
 
         async function muatUlasan(pid) {
-            const c = document.getElementById('katalog-produk');
-            document.querySelectorAll('.ulasan-item').forEach(el => el.remove());
+            const c = document.getElementById('section-ulasan');
+            if (!c) return;
+            c.classList.remove('hidden');
+            c.innerHTML = '';
 
             try {
                 const res = await fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan');
