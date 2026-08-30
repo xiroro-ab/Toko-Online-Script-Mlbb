@@ -11,8 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    
 
     <style>
         body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
@@ -158,18 +157,7 @@
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAXfLH19B6nQkEwUwnDoA2C-Nh5DQhwEIo",
-            authDomain: "toko-mod-mlbb.firebaseapp.com",
-            projectId: "toko-mod-mlbb",
-            storageBucket: "toko-mod-mlbb.firebasestorage.app",
-            messagingSenderId: "814354818916",
-            appId: "1:814354818916:web:452a04732f528abdec7c71",
-            measurementId: "G-20KBWYYJXE"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        // Firestore removed
+        
 
         // !!! WAJIB ISI DENGAN URL APPS SCRIPT ANDA YANG TERBARU !!!
         const appsScriptUrl = "https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec";
@@ -178,8 +166,8 @@
         const UPLOAD_TOKEN = "xiroro_upload_2026_ganti123";
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
-        auth.onAuthStateChanged((user) => {
-            if (user) {
+        function checkLogin() {
+            if (localStorage.getItem('xiroro_admin_logged_in') === 'true') {
                 document.getElementById('areaLogin').style.display = 'none';
                 document.getElementById('areaAdmin').style.display = 'block';
                 loadProduk(); loadConfig();
@@ -187,25 +175,38 @@
                 document.getElementById('areaLogin').style.display = 'block';
                 document.getElementById('areaAdmin').style.display = 'none';
             }
-        });
+        }
+        
+        checkLogin();
 
-        function loginAdmin() {
+        async function loginAdmin() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             Swal.fire({ title: 'Memeriksa...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    Swal.close(); Swal.fire({ icon: 'success', title: 'Selamat Datang!', timer: 1500, showConfirmButton: false });
-                })
-                .catch((error) => { Swal.fire({ icon: 'error', title: 'Gagal Login', text: error.message }); });
+            
+            try {
+                const body = new URLSearchParams({ action: 'adminLogin', email: email, password: password });
+                const res = await fetch(appsScriptUrl, { method: 'POST', body: body });
+                const json = await res.json();
+                
+                if (json.ok) {
+                    localStorage.setItem('xiroro_admin_logged_in', 'true');
+                    Swal.close(); 
+                    Swal.fire({ icon: 'success', title: 'Selamat Datang!', timer: 1500, showConfirmButton: false });
+                    checkLogin();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal Login', text: json.error || "Email atau password salah" });
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'Gagal Login', text: error.message });
+            }
         }
 
         function logoutAdmin() {
-            auth.signOut().then(() => {
-                document.getElementById('areaLogin').style.display = 'block';
-                document.getElementById('areaAdmin').style.display = 'none';
-                document.getElementById('email').value = ''; document.getElementById('password').value = '';
-            });
+            localStorage.removeItem('xiroro_admin_logged_in');
+            document.getElementById('email').value = ''; 
+            document.getElementById('password').value = '';
+            checkLogin();
         }
 
         function switchTab(tab) {
@@ -353,11 +354,11 @@
                           const kodeP = orP.kode || '';
                           Swal.fire({
                               icon: 'success', title: 'Terverifikasi!',
-                              html: <div class="text-left text-sm text-slate-300">
-                                  <p>No.Ref terkunci: <b class="text-yellow-400"> + escP(res.value.trim()) + </b> <span class="text-xs text-slate-400">(status pembeli ter-update LIVE)</span></p>
-                                  <p class="mt-3 text-xs">Info untuk pembeli � salin & kirim di WhatsApp:</p>
-                                  <div class="bg-slate-900 border border-slate-700 rounded p-2 mt-1 text-xs text-cyan-300">Status pembayaran Anda <b>TERVERIFIKASI</b>. + (kodeP ? ' Pantau: https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html?kode=' + kodeP : '') + </div>
-                              </div>,
+                              html: `<div class="text-left text-sm text-slate-300">
+                                  <p>No.Ref terkunci: <b class="text-yellow-400">${escP(res.value.trim())}</b> <span class="text-xs text-slate-400">(status pembeli ter-update LIVE)</span></p>
+                                  <p class="mt-3 text-xs">Info untuk pembeli - salin & kirim di WhatsApp:</p>
+                                  <div class="bg-slate-900 border border-slate-700 rounded p-2 mt-1 text-xs text-cyan-300">Status pembayaran Anda <b>TERVERIFIKASI</b>. ${kodeP ? ' Pantau: https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html?kode=' + kodeP : ''}</div>
+                              </div>`,
                               background: '#1e293b'
                           });
                       })();
@@ -378,11 +379,10 @@
                           Swal.fire({
                               title: 'Kirim File Ini',
                               html: 
-                                  <p class="text-sm text-slate-300 mb-3">Kirim link di bawah ini ke pembeli via WhatsApp:</p>
-                                  <input id="linkFileOrder" value=" + escP(fl) + " readonly class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg text-xs text-cyan-300 mb-3">
+                                  `<p class="text-sm text-slate-300 mb-3">Kirim link di bawah ini ke pembeli via WhatsApp:</p>
+                                  <input id="linkFileOrder" value="${escP(fl)}" readonly class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg text-xs text-cyan-300 mb-3">
                                   <button onclick="navigator.clipboard.writeText(document.getElementById('linkFileOrder').value);Swal.fire({icon:'success',title:'Tersalin',timer:1200,showConfirmButton:false,background:'#1e293b'})" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2 rounded-lg font-bold transition"><i class="fa-solid fa-copy mr-2"></i> Salin Link</button>
-                                  <p class="text-[11px] text-slate-400 text-left mt-2">Status di halaman cek pembeli otomatis jadi SELESAI (live), file tampil di sana. Info ke pembeli: sudah dikirim file  + (d.kode ? - pantau https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html?kode= + d.kode : '') + .</p>
-                              ,
+                                  <p class="text-[11px] text-slate-400 text-left mt-2">Status di halaman cek pembeli otomatis jadi SELESAI (live), file tampil di sana. Info ke pembeli: sudah dikirim file ${d.kode ? '- pantau https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html?kode=' + d.kode : ''}.</p>`,
                               background: '#1e293b'
                           });
                       } else {
@@ -400,9 +400,6 @@
                   });
               }
           }
-);
-            }
-        }
 
         function isiBulan() {
             const sel = document.getElementById('bulanPesanan');
@@ -440,7 +437,7 @@
             doc.save('log-pesanan-' + (bln || 'all') + '.pdf');
         }
 
-                async function hapusBulan() {
+        async function hapusBulan() {
             const bln = document.getElementById('bulanPesanan').value;
             if (!bln) { Swal.fire({ icon: 'info', title: 'Pilih Bulan', text: 'Pilih bulan pada filter (dropdown "Semua Bulan") lalu klik Hapus Bulan.', background: '#1e293b' }); return; }
             const [y, m] = bln.split('-');
@@ -457,8 +454,6 @@
                 await Promise.all(batch);
                 Swal.fire({ icon: 'success', title: 'Terhapus', text: jumlah + ' baris dihapus.', background: '#1e293b' });
                 loadPesanan();
-            });
-        }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } }
             });
         }
 
@@ -504,10 +499,10 @@
 
         let semuaProduk = [];
 
-                async function loadProduk() {
+        async function loadProduk() {
             const list = document.getElementById('list-produk');
             try {
-                list.innerHTML = <p class='text-cyan-400 font-bold'><i class='fa-solid fa-spinner fa-spin'></i> Memuat data produk...</p>;
+                list.innerHTML = `<p class='text-cyan-400 font-bold'><i class='fa-solid fa-spinner fa-spin'></i> Memuat data produk...</p>`;
                 const res = await fetch(appsScriptUrl + "?action=bacaSemuaProduk");
                 const arr = await res.json();
                 list.innerHTML = "";
@@ -516,22 +511,21 @@
                     const data = doc.data;
                     const st = (data.status || 'aktif') === 'aktif' ? '<span class="text-xs bg-green-900/50 text-green-400 border border-green-700 px-2 py-0.5 rounded ml-2">Aktif</span>' : '<span class="text-xs bg-red-900/50 text-red-400 border border-red-700 px-2 py-0.5 rounded ml-2">Mati</span>';
                     list.innerHTML += 
-                        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg flex flex-col justify-between">
+                        `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg flex flex-col justify-between">
                             <div>
-                                <h3 class="font-bold text-white mb-1"> + escP(data.namaProduk) + st + </h3>
-                                <p class="text-sm text-cyan-300 font-mono mb-2">Rp  + fmt(data.harga) + </p>
-                                 + (data.kategori ? <p class="text-xs text-slate-400 mb-1"><i class="fa-solid fa-tag w-4"></i>  + escP(data.kategori) + </p> : '') + 
-                                 + (data.kode ? <p class="text-[10px] text-yellow-500 font-mono"><i class="fa-solid fa-code w-4"></i> Code:  + escP(data.kode) + </p> : '') + 
+                                <h3 class="font-bold text-white mb-1">${escP(data.namaProduk)}${st}</h3>
+                                <p class="text-sm text-cyan-300 font-mono mb-2">Rp ${fmt(data.harga)}</p>
+                                ${data.kategori ? `<p class="text-xs text-slate-400 mb-1"><i class="fa-solid fa-tag w-4"></i> ${escP(data.kategori)}</p>` : ''}
+                                ${data.kode ? `<p class="text-[10px] text-yellow-500 font-mono"><i class="fa-solid fa-code w-4"></i> Code: ${escP(data.kode)}</p>` : ''}
                             </div>
                             <div class="mt-4 flex gap-2">
-                                <button onclick="editProduk(' + doc.id + ')" class="flex-1 bg-amber-600/80 hover:bg-amber-500 text-white text-xs py-2 rounded-lg transition"><i class="fa-solid fa-pen mr-1"></i> Edit</button>
-                                <button onclick="borProduk(' + doc.id + ')" class="bg-slate-700 hover:bg-red-600 text-white text-xs px-3 rounded-lg transition" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="editProduk('${doc.id}')" class="flex-1 bg-amber-600/80 hover:bg-amber-500 text-white text-xs py-2 rounded-lg transition"><i class="fa-solid fa-pen mr-1"></i> Edit</button>
+                                <button onclick="borProduk('${doc.id}')" class="bg-slate-700 hover:bg-red-600 text-white text-xs px-3 rounded-lg transition" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                             </div>
-                        </div>
-                    ;
+                        </div>`;
                 });
             } catch (e) {
-                list.innerHTML = <p class='text-red-500'>Error:  + e.message + </p>;
+                list.innerHTML = `<p class='text-red-500'>Error: ${e.message}</p>`;
             }
         }
 
@@ -582,7 +576,7 @@
                 });
         }
 
-                async function simpanProduk(e) {
+        async function simpanProduk(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSimpanProduk');
             const orig = btn.innerHTML;
@@ -636,33 +630,6 @@
             }
         }
 
-                btn.innerHTML = '<i class="fa-solid fa-database fa-flip"></i> Menyimpan...';
-                const dataToSave = {
-                    nama: document.getElementById('nama').value,
-                    harga: document.getElementById('harga').value.toString(),
-                    deskripsi: document.getElementById('deskripsi').value,
-                    videoID: document.getElementById('videoID').value,
-                    fileLink: document.getElementById('fileLink').value,
-                    gambarUrl: imageUrl,
-                    createTime: new Date().toISOString() 
-                };
-
-                if (editId) {
-                    await db.collection("script").doc(editId).update(dataToSave);
-                    Swal.fire('Berhasil!', 'Produk di-update.', 'success');
-                } else {
-                    dataToSave.views = 0; 
-                    dataToSave.terjual = 0;
-                    await db.collection("script").add(dataToSave);
-                    Swal.fire('Berhasil!', 'Produk baru ditambahkan.', 'success');
-                }
-                resetForm(); loadProduk(); publishEtalase(); 
-            } catch (error) {
-                Swal.fire('Gagal!', error.message, 'error');
-                btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Etalase';
-            }
-        }
-
         async function prepareEdit(id) {
             document.getElementById('form-title').innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Edit Produk";
             try {
@@ -704,7 +671,7 @@
             document.getElementById('cfg-video').value = config.video; document.getElementById('cfg-logo').value = config.logo; document.getElementById('cfg-kolom').value = config.kolom;
         }
 
-function simpanConfig() {
+        function simpanConfig() {
             const cfg = { video: document.getElementById('cfg-video').value, logo: document.getElementById('cfg-logo').value, kolom: document.getElementById('cfg-kolom').value };
             localStorage.setItem('xiroro_config', JSON.stringify(cfg));
             db.collection("config").doc("site").set(cfg)
@@ -716,10 +683,10 @@ function simpanConfig() {
         let semuaUlasan = [];
         let mapProdukNama = {};
 
-                async function loadUlasan() {
+        async function loadUlasan() {
             const list = document.getElementById('list-ulasan');
             try {
-                list.innerHTML = <p class='text-cyan-400 font-bold'><i class='fa-solid fa-spinner fa-spin'></i> Memuat ulasan...</p>;
+                list.innerHTML = `<p class='text-cyan-400 font-bold'><i class='fa-solid fa-spinner fa-spin'></i> Memuat ulasan...</p>`;
                 
                 const [resU, resP] = await Promise.all([
                     fetch(appsScriptUrl + "?action=bacaSemuaUlasan").then(r => r.json()),
@@ -737,29 +704,28 @@ function simpanConfig() {
                     const nmPr = mapProdukNama[data.produkId] || "Produk Dihapus";
                     let star = "";
                     for(let i=1; i<=5; i++) {
-                        if(i <= data.rating) star += <i class="fa-solid fa-star text-yellow-500"></i>;
-                        else star += <i class="fa-regular fa-star text-slate-600"></i>;
+                        if(i <= data.rating) star += `<i class="fa-solid fa-star text-yellow-500"></i>`;
+                        else star += `<i class="fa-regular fa-star text-slate-600"></i>`;
                     }
                     list.innerHTML += 
-                        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg relative">
+                        `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg relative">
                             <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <h4 class="font-bold text-white text-sm"> + escP(data.nama) + </h4>
-                                    <p class="text-[10px] text-cyan-400"> + escP(nmPr) + </p>
+                                    <h4 class="font-bold text-white text-sm">${escP(data.nama)}</h4>
+                                    <p class="text-[10px] text-cyan-400">${escP(nmPr)}</p>
                                 </div>
-                                <div class="text-xs"> + star + </div>
+                                <div class="text-xs">${star}</div>
                             </div>
-                            <p class="text-slate-300 text-xs italic">" + escP(data.teks) + "</p>
-                            <p class="text-[9px] text-slate-500 mt-2 text-right"> + new Date(data.waktu).toLocaleString('id-ID') + </p>
+                            <p class="text-slate-300 text-xs italic">"${escP(data.teks)}"</p>
+                            <p class="text-[9px] text-slate-500 mt-2 text-right">${new Date(data.waktu).toLocaleString('id-ID')}</p>
                             <div class="mt-3 flex gap-2">
-                                <button onclick="editUlasan(' + doc.id + ', ' + escP(data.nama) + ',  + data.rating + , ' + escP(data.teks) + ')" class="text-xs bg-amber-600/80 hover:bg-amber-500 text-white px-3 py-1.5 rounded transition">Edit</button>
-                                <button onclick="borUlasan(' + doc.id + ')" class="text-xs bg-slate-700 hover:bg-red-600 text-white px-3 py-1.5 rounded transition"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="editUlasan('${doc.id}', '${escP(data.nama)}', ${data.rating}, '${escP(data.teks)}')" class="text-xs bg-amber-600/80 hover:bg-amber-500 text-white px-3 py-1.5 rounded transition">Edit</button>
+                                <button onclick="borUlasan('${doc.id}')" class="text-xs bg-slate-700 hover:bg-red-600 text-white px-3 py-1.5 rounded transition"><i class="fa-solid fa-trash"></i></button>
                             </div>
-                        </div>
-                    ;
+                        </div>`;
                 });
             } catch (e) {
-                list.innerHTML = <p class='text-red-500'>Error:  + e.message + </p>;
+                list.innerHTML = `<p class='text-red-500'>Error: ${e.message}</p>`;
             }
         }
 
