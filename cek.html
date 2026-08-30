@@ -119,42 +119,44 @@
             `;
         }
 
+        let kodeAktif = '';
+        let intervalId = null;
+
+        function cariPesanan(ev) {
+            ev.preventDefault();
+            const val = document.getElementById('kode').value.trim().toUpperCase();
+            if (!val) return;
+            mulaiPantau(val);
+        }
+
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxq3gpDXDYWj3-H6eAHfG95gHd5eEgaf34rg98Ky1TjpvFvMF2b99_1g1LGbkKlzLGS/exec";
 
-        function mulaiPantau(kode) {
-            kodeAktif = kode;
-            if (unsub) { unsub(); unsub = null; }
-            const hasil = document.getElementById('hasil');
-            hasil.className = 'glass p-5 rounded-2xl text-center';
-            hasil.innerHTML = '<p class="text-cyan-400"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa status pesanan...</p>';
-
-            // 1. Cek via Apps Script dulu (Bebas Kuota Firestore)
+        function fetchStatus(kode) {
             fetch(`${APPS_SCRIPT_URL}?action=cekStatus&kode=${encodeURIComponent(kode)}`)
                 .then(res => res.json())
                 .then(d => {
                     if (d && !d.error && d.status) {
                         tampil(d);
                     } else {
-                        // 2. Fallback ke Firestore
-                        cekFirestore(kode);
+                        tampilTidakAda();
                     }
                 })
                 .catch(() => {
-                    cekFirestore(kode);
+                    tampilTidakAda();
                 });
         }
 
-        function cekFirestore(kode) {
-            unsub = db.collection('pesanan').where('kode', '==', kode).onSnapshot(
-                snap => {
-                    if (snap.empty) { tampilTidakAda(); return; }
-                    tampil(snap.docs[0].data());
-                },
-                err => {
-                    // Jika Quota Exceeded / error
-                    tampilTidakAda();
-                }
-            );
+        function mulaiPantau(kode) {
+            kodeAktif = kode;
+            if (intervalId) { clearInterval(intervalId); intervalId = null; }
+            const hasil = document.getElementById('hasil');
+            hasil.className = 'glass p-5 rounded-2xl text-center';
+            hasil.innerHTML = '<p class="text-cyan-400"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa status pesanan...</p>';
+
+            fetchStatus(kode);
+            intervalId = setInterval(() => {
+                fetchStatus(kode);
+            }, 5000);
         }
 
         (function () {

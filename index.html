@@ -721,7 +721,7 @@
 
         function notifTelegram(pesananId, kode, namaProduk, nominal, namaDana) {
             try {
-                const params = new URLSearchParams({ action: 'notif', pesananId: pesananId, kode: kode, produk: namaProduk, nominal: nominal, namaDana: namaDana, waktu: new Date().toLocaleString('id-ID') });
+                const params = new URLSearchParams({ action: 'notif', pesananId: pesananId, kode: kode, produk: namaProduk, nominal: nominal, namaDana: namaDana, waktu: new Date().toISOString() });
                 fetch(APPS_SCRIPT_URL, { method: 'POST', body: params, mode: 'no-cors' }).catch(() => { });
             } catch (e) { }
         }
@@ -808,25 +808,10 @@
             } catch (e) { }
 
             try {
-                db.collection("pesanan").add({
-                    kode: kode,
-                    produkId: id,
-                    namaProduk: namaProduk,
-                    nominal: parseInt(nominal) || 0,
-                    namaDana: namaDana,
-                    waktu: new Date().toISOString(),
-                    status: 'MENUNGGU',
-                    noRef: '',
-                    fileLink: fileLink
-                }).then(ref => {
-                    window.__gagalKirim = false;
-                    try { notifTelegram(ref.id, kode, namaProduk, nominal, namaDana); } catch (e) { }
-                }).catch(err => {
-                    console.error('Gagal simpan pesanan ke Firestore:', err);
-                    window.__gagalKirim = true;
-                });
+                window.__gagalKirim = false;
+                notifTelegram(kode, kode, namaProduk, nominal, namaDana);
             } catch (e) {
-                console.error('Gagal simpan pesanan ke Firestore:', e);
+                console.error('Gagal simpan pesanan:', e);
                 window.__gagalKirim = true;
             }
 

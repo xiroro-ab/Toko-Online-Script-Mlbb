@@ -111,30 +111,13 @@
         </section>
 
         <section id="section-pesanan" class="hidden">
-            <div class="glass p-8 rounded-2xl border-t-4 border-t-green-500">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold text-green-400"><i class="fa-solid fa-clipboard-list"></i> Log Pesanan</h2>
-                    <button onclick="loadPesanan()" class="text-green-400 hover:text-green-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                    <select id="bulanPesanan" onchange="renderPesananAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-green-500 text-white cursor-pointer">
-                        <option value="">Semua Bulan</option>
-                    </select>
-                    <input type="text" id="cariPesanan" oninput="renderPesananAdmin()" placeholder="Cari kode / produk / nama DANA..." class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-green-500">
-                    <div class="flex gap-2">
-                        <button onclick="exportPesananPDF()" class="flex-1 bg-red-600/80 hover:bg-red-500 text-white px-4 py-3 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
-                        <button onclick="exportPesananCSV()" class="flex-1 bg-blue-600/80 hover:bg-blue-500 text-white px-4 py-3 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-file-csv mr-1"></i> CSV</button>
-                        <button onclick="hapusBulan()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-trash-can mr-1"></i> Hapus Bulan</button>
-                    </div>
-                </div>
-                <div id="list-pesanan" class="space-y-3 max-h-[600px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #22c55e #1e293b;">
-                    <p class="text-center text-slate-500">Belum ada pesanan.</p>
-                </div>
-                <div class="w-full mt-6 glass rounded-xl p-4">
-                    <h3 class="text-sm font-bold text-green-400 mb-3"><i class="fa-solid fa-chart-pie mr-1"></i> Pendapatan 6 Bulan Terakhir</h3>
-                    <canvas id="chartPesanan" height="80"></canvas>
-                </div>
-                <div id="statAdmin" class="w-full mt-6"></div>
+            <div class="glass p-8 rounded-2xl border-t-4 border-t-green-500 text-center">
+                <i class="fa-solid fa-table-list text-6xl text-green-400 mb-4"></i>
+                <h2 class="text-2xl font-bold text-white mb-2">Manajemen Pesanan Pindah ke Google Sheets</h2>
+                <p class="text-slate-400 mb-6">Sistem pesanan kini 100% menggunakan Google Sheets agar terbebas dari limit Firebase. Anda dapat mengelola semua pesanan langsung di Spreadsheet.</p>
+                <a href="https://docs.google.com/spreadsheets/d/1Z0Z0XCB86FrUOzxSnzagHQnoA4-NHaOSJiAaP1dHVlg/edit" target="_blank" class="inline-block bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                    <i class="fa-solid fa-up-right-from-square mr-2"></i> Buka Google Sheets Pesanan
+                </a>
             </div>
         </section>
 
@@ -164,28 +147,13 @@
         </section>
 
         <section id="section-ulasan" class="hidden">
-            <div class="glass p-8 rounded-2xl border-t-4 border-t-amber-500">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold text-amber-400"><i class="fa-solid fa-star"></i> Kelola Ulasan Produk</h2>
-                    <button onclick="loadUlasan()" class="text-amber-400 hover:text-amber-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                    <select id="filterProdukUlasan" onchange="renderUlasanAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-amber-500 text-white cursor-pointer">
-                        <option value="">Semua Produk</option>
-                    </select>
-                    <select id="filterRatingUlasan" onchange="renderUlasanAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-amber-500 text-white cursor-pointer">
-                        <option value="">Semua Rating</option>
-                        <option value="5">5 Bintang</option>
-                        <option value="4">4 Bintang</option>
-                        <option value="3">3 Bintang</option>
-                        <option value="2">2 Bintang</option>
-                        <option value="1">1 Bintang</option>
-                    </select>
-                    <input type="text" id="cariUlasan" oninput="renderUlasanAdmin()" placeholder="Cari nama / isi ulasan..." class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-amber-500">
-                </div>
-                <div id="list-ulasan" class="space-y-3 max-h-[600px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #fbbf24 #1e293b;">
-                    <p class="text-center text-slate-500">Memuat ulasan...</p>
-                </div>
+            <div class="glass p-8 rounded-2xl border-t-4 border-t-amber-500 text-center">
+                <i class="fa-solid fa-star text-6xl text-amber-400 mb-4"></i>
+                <h2 class="text-2xl font-bold text-white mb-2">Manajemen Ulasan Pindah ke Google Sheets</h2>
+                <p class="text-slate-400 mb-6">Ulasan pelanggan kini disimpan langsung di Google Sheets Anda. Anda dapat mengedit, menghapus, atau memfilter ulasan dari Spreadsheet. Ulasan akan otomatis diperbarui di website ketika ada ulasan baru masuk.</p>
+                <a href="https://docs.google.com/spreadsheets/d/1Z0Z0XCB86FrUOzxSnzagHQnoA4-NHaOSJiAaP1dHVlg/edit" target="_blank" class="inline-block bg-amber-600 hover:bg-amber-500 text-white px-8 py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                    <i class="fa-solid fa-up-right-from-square mr-2"></i> Buka Google Sheets Ulasan
+                </a>
             </div>
         </section>
     </div>
@@ -517,9 +485,16 @@
                 const arr = [];
                 snap.forEach(doc => arr.push({ id: doc.id, data: doc.data() }));
                 const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(arr))));
+                
+                // Publish produk.json
                 const params = new URLSearchParams({ action: 'publish', content: b64 });
                 await fetch(appsScriptUrl, { method: 'POST', body: params, mode: 'no-cors' });
-                setTimeout(() => { Swal.fire({ toast: true, icon: 'success', title: 'Etalase tersinkron otomatis', timer: 2000, showConfirmButton: false, position: 'bottom-end', background: '#1e293b', color: '#fff' }); }, 1500);
+
+                // Publish ulasan.json
+                const paramsUlasan = new URLSearchParams({ action: 'publishUlasan' });
+                await fetch(appsScriptUrl, { method: 'POST', body: paramsUlasan, mode: 'no-cors' });
+
+                setTimeout(() => { Swal.fire({ toast: true, icon: 'success', title: 'Etalase & Ulasan tersinkron otomatis', timer: 2000, showConfirmButton: false, position: 'bottom-end', background: '#1e293b', color: '#fff' }); }, 1500);
             } catch (e) { console.error('publish gagal:', e); }
         }
 
