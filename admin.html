@@ -233,16 +233,26 @@
 
         async function loadPesanan() {
             const list = document.getElementById('list-pesanan');
-            list.innerHTML = '<div class="text-center text-green-400 py-4"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>';
             try {
-                const snapshot = await db.collection("pesanan").orderBy("waktu", "desc").get();
-                semuaPesanan = [];
-                snapshot.forEach(doc => semuaPesanan.push({ id: doc.id, data: doc.data() }));
-                mapHarga = {};
-                try {
-                    const snapCat = await db.collection("script").get();
-                    snapCat.forEach(d => { mapHarga[d.id] = parseInt(d.data().harga) || 0; });
-                } catch (e) { }
+                list.innerHTML = `<p class='text-cyan-400 font-bold'><i class='fa-solid fa-spinner fa-spin'></i> Memuat data...</p>`;
+                const res = await fetch(appsScriptUrl + "?action=bacaSemuaPesanan");
+                const dataArr = await res.json();
+                
+                semuaPesanan = (dataArr || []).map(d => ({
+                    id: (d.fields && d.fields.kode) ? d.fields.kode.stringValue : "",
+                    data: {
+                        kode: (d.fields && d.fields.kode) ? d.fields.kode.stringValue : "",
+                        waktu: (d.fields && d.fields.waktu) ? d.fields.waktu.stringValue : "",
+                        namaProduk: (d.fields && d.fields.namaProduk) ? d.fields.namaProduk.stringValue : "",
+                        nominal: (d.fields && d.fields.nominal) ? d.fields.nominal.integerValue : 0,
+                        namaDana: (d.fields && d.fields.namaDana) ? d.fields.namaDana.stringValue : "",
+                        status: (d.fields && d.fields.status) ? d.fields.status.stringValue : "",
+                        noRef: (d.fields && d.fields.noRef) ? d.fields.noRef.stringValue : "",
+                        fileLink: (d.fields && d.fields.fileLink) ? d.fields.fileLink.stringValue : "",
+                        tgChat: (d.fields && d.fields.tgChat) ? d.fields.tgChat.stringValue : "",
+                        tgMsgId: (d.fields && d.fields.tgMsgId) ? d.fields.tgMsgId.stringValue : ""
+                    }
+                }));
                 isiBulan();
                 renderPesananAdmin();
                 grafikPesanan();
