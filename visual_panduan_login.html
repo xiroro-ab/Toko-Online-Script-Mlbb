@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panduan Isi Sheet Config - Xiroro</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Segoe UI',Tahoma,sans-serif; background:#0f172a; color:#e2e8f0; padding:24px; }
+  .wrap { max-width:900px; margin:0 auto; }
+  h1 { text-align:center; color:#22d3ee; margin-top:0; }
+  h2 { color:#a5f3fc; border-bottom:1px solid #334155; padding-bottom:6px; margin-top:30px; }
+  h3 { color:#fbbf24; margin-bottom:6px; }
+  .card { background:#1e293b; border:1px solid #334155; border-radius:14px; padding:20px; margin:16px 0; }
+  .note { background:#332810; border:1px solid #f59e0b; color:#fde68a; border-radius:8px; padding:10px 14px; font-size:13px; margin-top:10px; }
+  .note.blue { background:#082032; border-color:#22d3ee; color:#a5f3fc; }
+  .note.green { background:#052e16; border-color:#4ade80; color:#bbf7d0; }
+  table { width:100%; border-collapse:collapse; margin-top:8px; }
+  th, td { text-align:left; padding:9px 12px; border:1px solid #334155; font-size:14px; vertical-align:top; }
+  th { background:#0f172a; color:#7dd3fc; }
+  td code { background:#0f172a; border:1px solid #475569; padding:1px 5px; border-radius:4px; color:#fbbf24; font-size:12px; }
+  .colA { width:180px; font-weight:600; color:#a7f3d0; }
+  .step { display:flex; gap:12px; align-items:flex-start; margin:8px 0; }
+  .num { background:#0891b2; color:#fff; border-radius:50%; min-width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; }
+  .copy { background:#0f172a; border:1px dashed #475569; padding:10px 12px; border-radius:8px; font-family:monospace; font-size:12px; color:#cbd5e1; white-space:pre-wrap; overflow-x:auto; }
+  .btn { display:inline-block; background:#0891b2; color:#fff; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600; margin-top:8px; }
+  .btn:hover { background:#0e7490; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📋 Panduan Isi Sheet Config — Tinggal Copy</h1>
+
+  <p style="text-align:center; color:#94a3b8;">Anda tinggal salin isi kolom <b>A</b> dan <b>B</b> ke tab <b>Config</b> di Google Spreadsheet.</p>
+
+  <!-- ===== BAGIAN 1: TABEL BARIS ===== -->
+  <h2>🗂️ Tabel Baris Sheet Config (isi kolom A &amp; B)</h2>
+  <div class="card">
+    <table>
+      <tr><th>Key — taruh di kolom A</th><th>Value — taruh di kolom B</th><th>Fungsi</th></tr>
+      <tr>
+        <td class="colA"><code>site</code></td>
+        <td><code>{"video":"https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas9/main/background_2.mp4","logo":"https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/logo-web.png","kolom":"grid-cols-4"}</code></td>
+        <td>Tema website: video background, logo, jumlah kolom</td>
+      </tr>
+      <tr>
+        <td class="colA"><code>admin_user</code></td>
+        <td><code>aris.bermansyah14@gmail.com</code></td>
+        <td>Email login admin (ganti sesuka Anda)</td>
+      </tr>
+      <tr>
+        <td class="colA"><code>admin_pass</code></td>
+        <td><code>GantiPasswordKuat123!</code></td>
+        <td>Password login admin (ganti dengan yang kuat)</td>
+      </tr>
+    </table>
+    <div class="note"><b>Aturan:</b> tulis persis seperti di kolom "<b>Key</b>" di kolom A, dan persis seperti di kolom "<b>Value</b>" di kolom B. Satu baris = satu Key. Tanpa spasi berlebih.</div>
+  </div>
+
+  <!-- ===== BAGIAN 2: CARA ISI ===== -->
+  <h2>✍️ Cara Mengisi (Langkah per langkah)</h2>
+  <div class="card">
+    <div class="step"><div class="num">1</div><div>Buka Google Spreadsheet (ID <code>1Z0Z...HVlg</code>)</div></div>
+    <div class="step"><div class="num">2</div><div>Di bawah, klik tab <b>Config</b></div></div>
+    <div class="step"><div class="num">3</div><div>Kolom A baris 2 = <code>site</code> (biasanya sudah ada, jangan dihapus)</div></div>
+    <div class="step"><div class="num">4</div><div>Baris baru: kolom A <code>admin_user</code> → kolom B <code>email-anda</code></div></div>
+    <div class="step"><div class="num">5</div><div>Baris baru lagi: kolom A <code>admin_pass</code> → kolom B <code>password-baru</code></div></div>
+    <div class="step"><div class="num">6</div><div>Simpan, lalu login admin.html pakai email/password itu</div></div>
+
+    <h3>Contoh tampilan tab Config setelah jadi:</h3>
+    <table>
+      <tr><th>A (Key)</th><th>B (Value)</th></tr>
+      <tr><td class="colA"><code>site</code></td><td><code>{"video":"https://raw.githubusercontent.com/xiroro-ab/bab3-sk-kelas9/main/background_2.mp4","logo":"https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/logo-web.png","kolom":"grid-cols-4"}</code></td></tr>
+      <tr><td class="colA"><code>admin_user</code></td><td><code>aris.bermansyah14@gmail.com</code></td></tr>
+      <tr><td class="colA"><code>admin_pass</code></td><td><code>GantiPasswordKuat123!</code></td></tr>
+    </table>
+  </div>
+
+  <!-- ===== BAGIAN 3: HAL LAIN YANG DISARANKAN ===== -->
+  <h2>🔑 Hal Lain yang Saya Sarankan (samakan di 2 file)</h2>
+  <div class="card">
+    <p>Kunci akses data pesanan. Saat ini nilainya <b>sama</b> di dua file. Harus selalu <b>sama persis</b>, kalau tidak admin gagal baca pesanan.</p>
+    <table>
+      <tr><th>Tempat</th><th>Menyerupai</th><th>Nilai sekarang</th></tr>
+      <tr><td>Di <code>.gs</code> (GAS)</td><td><code>var UPLOAD_KEY = "..."</code></td><td><code>xiroro_admin_sec_2026</code></td></tr>
+      <tr><td>Di <code>admin.html</code></td><td><code>const DATA_KEY = "..."</code></td><td><code>xiroro_admin_sec_2026</code></td></tr>
+    </table>
+    <div class="copy" id="keyBlock">xiroro_admin_sec_2026</div>
+    <button class="btn" onclick='navigator.clipboard.writeText(document.getElementById("keyBlock").innerText)'>📋 Salin nilai kunci</button>
+    <div class="note blue"><b>Jika mau ganti kunci:</b> ubah nilai di <u>kedua file</u> (`.gs` & `admin.html`) dengan nilai baru yang sama, lalu paste ulang `.gs` ke GAS + push `admin.html`.</div>
+  </div>
+
+  <!-- ===== BAGIAN 4: RINGKASAN KERJA ===== -->
+  <h2>✅ Ringkasan — Yang Harus Dilakukan Sekarang</h2>
+  <div class="card">
+    <table>
+      <tr><th>#</th><th>Langkah</th><th>File</th><th>Status</th></tr>
+      <tr><td>1</td><td>Paste ulang file yang sudah diedit</td><td><code>.gs</code> → editor GAS → Deploy</td><td>⬜ WAJIB manual</td></tr>
+      <tr><td>2</td><td>Isi tab Config: <code>admin_user</code> &amp; <code>admin_pass</code></td><td>Spreadsheet</td><td>⬜ WAJIB manual</td></tr>
+      <tr><td>3</td><td>Ubah DATA_KEY/UPLOAD_KEY (opsional, samakan)</td><td><code>.gs</code> + <code>admin.html</code></td><td>🟡 opsional</td></tr>
+      <tr><td>4</td><td>Perbaikan XSS, nama produk, auth, 13 kolom</td><td>web + .gs</td><td>✅ sudah di-push / diedit</td></tr>
+    </table>
+    <div class="note green"><b>Fallback aman:</b> jika tab Config belum diisi <code>admin_user</code>/<code>admin_pass</code>, login lama (di dalam kode) tetap berlaku — Anda tidak akan terkunci.</div>
+  </div>
+</div>
+</body>
+</html>
