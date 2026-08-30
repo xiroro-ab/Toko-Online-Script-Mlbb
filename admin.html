@@ -499,12 +499,12 @@
                             </div>
                             ${badgeStatus(d.status)}
                         </div>
-                        <div class="text-xs text-slate-400 space-y-1 mb-3">
-                            <p><i class="fa-solid fa-money-bill-wave text-green-400 mr-1"></i> Rp ${(d.nominal || 0).toLocaleString('id-ID')}${mapHarga && d.produkId && mapHarga[d.produkId] != null && parseInt(mapHarga[d.produkId]) !== parseInt(d.nominal) ? ` <span class="text-yellow-400 border border-yellow-500/40 rounded px-1.5 py-0.5 text-[10px]">Beda dgn katalog (Rp ${(parseInt(mapHarga[d.produkId])||0).toLocaleString('id-ID')})</span>` : ''}</p>
+                        <div class="text-xs text-slate-400 space-y-2 mb-4">
+                            <p class="pb-1"><i class="fa-solid fa-money-bill-wave text-green-400 mr-1"></i> <span class="text-white font-semibold">Rp ${(d.nominal || 0).toLocaleString('id-ID')}</span>${mapHarga && d.produkId && mapHarga[d.produkId] != null && parseInt(mapHarga[d.produkId]) !== parseInt(d.nominal) ? ` <span class="text-yellow-400 border border-yellow-500/40 rounded px-1.5 py-0.5 text-[10px]">Beda dgn katalog (Rp ${(parseInt(mapHarga[d.produkId])||0).toLocaleString('id-ID')})</span>` : ''}</p>
                             <p><i class="fa-solid fa-user text-cyan-400 mr-1"></i> DANA: <b class="text-white">${escP(d.namaDana)}</b></p>
-                            <p class="mt-2 pt-2 border-t border-slate-700/40 text-[11px] text-purple-300/90"><i class="fa-solid fa-clock text-purple-400 mr-1"></i> ${waktu}</p>
-                            ${d.noRef ? `<p><i class="fa-solid fa-fingerprint text-blue-400 mr-1"></i> No. Ref: <b class="text-white font-mono">${escP(d.noRef)}</b></p>` : ''}
-                            ${d.catatan ? `<p><i class="fa-solid fa-note-sticky text-amber-400 mr-1"></i> Catatan: <b class="text-white">${escP(d.catatan)}</b></p>` : ''}
+                            <p class="mt-1 pt-2 border-t border-slate-700/40 text-[11px] leading-relaxed text-purple-300/90"><i class="fa-solid fa-clock text-purple-400 mr-1"></i> ${waktu}</p>
+                            ${d.noRef ? `<p class="mt-1"><i class="fa-solid fa-fingerprint text-blue-400 mr-1"></i> No. Ref: <b class="text-white font-mono">${escP(d.noRef)}</b></p>` : ''}
+                            ${d.catatan ? `<p class="mt-1"><i class="fa-solid fa-note-sticky text-amber-400 mr-1"></i> Catatan: <b class="text-white">${escP(d.catatan)}</b></p>` : ''}
                         </div>
                         <div class="flex flex-wrap gap-2">
                             <button onclick="aturPesanan('${o.id}','MENUNGGU')" class="text-[11px] px-3 py-1.5 rounded-lg bg-yellow-600/80 hover:bg-yellow-500 transition ${d.status !== 'MENUNGGU' ? 'opacity-40 cursor-not-allowed' : ''}" ${d.status !== 'MENUNGGU' ? 'disabled' : ''}>Verifikasi</button>
