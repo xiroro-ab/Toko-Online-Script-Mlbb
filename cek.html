@@ -117,19 +117,41 @@
             `;
         }
 
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfBzWmShFfm00QdleoSpxhgwPeRmwhu-OSte6JZcuza1G9sIfmlXgdeSjV1BLgsqoj/exec";
+
         function mulaiPantau(kode) {
             kodeAktif = kode;
             if (unsub) { unsub(); unsub = null; }
             const hasil = document.getElementById('hasil');
             hasil.className = 'glass p-5 rounded-2xl text-center';
-            hasil.innerHTML = '<p class="text-cyan-400"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa...</p>';
+            hasil.innerHTML = '<p class="text-cyan-400"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa status pesanan...</p>';
 
+            // 1. Cek via Apps Script dulu (Bebas Kuota Firestore)
+            fetch(`${APPS_SCRIPT_URL}?action=cekStatus&kode=${encodeURIComponent(kode)}`)
+                .then(res => res.json())
+                .then(d => {
+                    if (d && !d.error && d.status) {
+                        tampil(d);
+                    } else {
+                        // 2. Fallback ke Firestore
+                        cekFirestore(kode);
+                    }
+                })
+                .catch(() => {
+                    cekFirestore(kode);
+                });
+        }
+
+        function cekFirestore(kode) {
             unsub = db.collection('pesanan').where('kode', '==', kode).onSnapshot(
                 snap => {
                     if (snap.empty) { tampilTidakAda(); return; }
                     tampil(snap.docs[0].data());
                 },
-                err => { tampilTidakAda(); }
+                err => {
+                    // Jika Quota Exceeded / error
+                    tampilTidakAda();
+                }
             );
         }
 

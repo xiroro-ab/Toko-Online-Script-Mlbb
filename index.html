@@ -339,19 +339,14 @@
                         });
                     }).catch(() => {});
                 
-                const ambilUlasanData = db.collection('ulasan').get()
-                    .then(snapshot => {
-                        const mapUlasan = {};
-                        snapshot.forEach(doc => {
-                            const data = doc.data();
-                            const pId = data.produkId;
-                            const r = Number(data.rating) || 0;
-                            if (pId && r) {
-                                if (!mapUlasan[pId]) mapUlasan[pId] = { total: 0, count: 0 };
-                                mapUlasan[pId].total += r;
-                                mapUlasan[pId].count += 1;
-                            }
-                        });
+                let cacheRaw = localStorage.getItem('xiroro_ulasan_map_cache');
+                let cacheTime = localStorage.getItem('xiroro_ulasan_map_time');
+                let nowTs = Date.now();
+                let ambilUlasanData;
+
+                if (cacheRaw && cacheTime && (nowTs - parseInt(cacheTime)) < 15 * 60 * 1000) {
+                    try {
+                        const mapUlasan = JSON.parse(cacheRaw);
                         window.dataToko.forEach(d => {
                             const pId = d.name.split('/').pop();
                             const u = mapUlasan[pId];
@@ -363,7 +358,41 @@
                                 d.fields.ratingCount = 0;
                             }
                         });
-                    }).catch(() => {});
+                        ambilUlasanData = Promise.resolve();
+                    } catch (e) { cacheRaw = null; }
+                }
+
+                if (!ambilUlasanData) {
+                    ambilUlasanData = db.collection('ulasan').get()
+                        .then(snapshot => {
+                            const mapUlasan = {};
+                            snapshot.forEach(doc => {
+                                const data = doc.data();
+                                const pId = data.produkId;
+                                const r = Number(data.rating) || 0;
+                                if (pId && r) {
+                                    if (!mapUlasan[pId]) mapUlasan[pId] = { total: 0, count: 0 };
+                                    mapUlasan[pId].total += r;
+                                    mapUlasan[pId].count += 1;
+                                }
+                            });
+                            try {
+                                localStorage.setItem('xiroro_ulasan_map_cache', JSON.stringify(mapUlasan));
+                                localStorage.setItem('xiroro_ulasan_map_time', String(Date.now()));
+                            } catch (e) {}
+                            window.dataToko.forEach(d => {
+                                const pId = d.name.split('/').pop();
+                                const u = mapUlasan[pId];
+                                if (u) {
+                                    d.fields.ratingAvg = u.total / u.count;
+                                    d.fields.ratingCount = u.count;
+                                } else {
+                                    d.fields.ratingAvg = 0;
+                                    d.fields.ratingCount = 0;
+                                }
+                            });
+                        }).catch(() => {});
+                }
 
                 Promise.all([ambilStats, ambilUlasanData]).then(() => db.collection("config").doc("site").get()
                     .then(cfgSnap => { if (cfgSnap.exists) localStorage.setItem('xiroro_config', JSON.stringify(cfgSnap.data())); })
