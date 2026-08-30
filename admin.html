@@ -203,9 +203,49 @@
                 document.getElementById('areaLogin').style.display = 'none';
                 document.getElementById('areaAdmin').style.display = 'block';
                 loadProduk(); loadConfig();
+                // Live polling: refresh pesanan di background setiap 30 detik
+                if (!window._adminPollInterval) {
+                    window._adminPollInterval = setInterval(async () => {
+                        const tabAktif = document.querySelector('.tab-active');
+                        const isPesananTab = tabAktif && document.getElementById('section-pesanan') && !document.getElementById('section-pesanan').classList.contains('hidden');
+                        if (isPesananTab) {
+                            try {
+                                const res = await fetch(appsScriptUrl + "?action=bacaSemuaPesanan");
+                                const dataArr = await res.json();
+                                const baru = (dataArr || []).map(d => ({
+                                    id: (d.fields && d.fields.kode) ? d.fields.kode.stringValue : "",
+                                    data: {
+                                        kode: (d.fields && d.fields.kode) ? d.fields.kode.stringValue : "",
+                                        waktu: (d.fields && d.fields.waktu) ? d.fields.waktu.stringValue : "",
+                                        namaProduk: (d.fields && d.fields.namaProduk) ? d.fields.namaProduk.stringValue : "",
+                                        nominal: (d.fields && d.fields.nominal) ? d.fields.nominal.integerValue : 0,
+                                        namaDana: (d.fields && d.fields.namaDana) ? d.fields.namaDana.stringValue : "",
+                                        status: (d.fields && d.fields.status) ? d.fields.status.stringValue : "",
+                                        noRef: (d.fields && d.fields.noRef) ? d.fields.noRef.stringValue : "",
+                                        catatan: (d.fields && d.fields.catatan) ? d.fields.catatan.stringValue : "",
+                                        fileLink: (d.fields && d.fields.fileLink) ? d.fields.fileLink.stringValue : "",
+                                        tgChat: (d.fields && d.fields.tgChat) ? d.fields.tgChat.stringValue : "",
+                                        tgMsgId: (d.fields && d.fields.tgMsgId) ? d.fields.tgMsgId.stringValue : ""
+                                    }
+                                }));
+                                // Hanya render ulang jika ada perubahan data
+                                const hashBaru = JSON.stringify(baru.map(o => o.id + o.data.status));
+                                const hashLama = JSON.stringify(semuaPesanan.map(o => o.id + o.data.status));
+                                if (hashBaru !== hashLama) {
+                                    semuaPesanan = baru;
+                                    isiBulan();
+                                    renderPesananAdmin();
+                                    grafikPesanan();
+                                    renderStatistik();
+                                }
+                            } catch (e) {}
+                        }
+                    }, 30000);
+                }
             } else {
                 document.getElementById('areaLogin').style.display = 'block';
                 document.getElementById('areaAdmin').style.display = 'none';
+                if (window._adminPollInterval) { clearInterval(window._adminPollInterval); window._adminPollInterval = null; }
             }
         }
         
@@ -375,10 +415,10 @@
             });
         }
 
-        async function loadPesanan() {
+        async function loadPesanan(silent = false) {
             const list = document.getElementById('list-pesanan');
             try {
-                list.innerHTML = `<p class='text-cyan-400 font-bold'><i class='fa-solid fa-spinner fa-spin'></i> Memuat data...</p>`;
+                if (!silent) list.innerHTML = `<p class='text-cyan-400 font-bold'><i class='fa-solid fa-spinner fa-spin'></i> Memuat data...</p>`;
                 const res = await fetch(appsScriptUrl + "?action=bacaSemuaPesanan");
                 const dataArr = await res.json();
                 
@@ -394,7 +434,8 @@
                         noRef: (d.fields && d.fields.noRef) ? d.fields.noRef.stringValue : "",
                         fileLink: (d.fields && d.fields.fileLink) ? d.fields.fileLink.stringValue : "",
                         tgChat: (d.fields && d.fields.tgChat) ? d.fields.tgChat.stringValue : "",
-                        tgMsgId: (d.fields && d.fields.tgMsgId) ? d.fields.tgMsgId.stringValue : ""
+                        tgMsgId: (d.fields && d.fields.tgMsgId) ? d.fields.tgMsgId.stringValue : "",
+                        catatan: (d.fields && d.fields.catatan) ? d.fields.catatan.stringValue : ""
                     }
                 }));
                 isiBulan();
@@ -518,7 +559,12 @@
                       if (!res.isConfirmed) return;
                       const body = new URLSearchParams({ action: 'adminSelesaiPesanan', pesananId: id });
                       await fetch(appsScriptUrl, { method: 'POST', body: body });
-                      const fl = d.fileLink || '';
+                      // Cari fileLink dari katalog produk jika tidak ada di pesanan
+                      let fl = d.fileLink || '';
+                      if (!fl && d.namaProduk && semuaProduk && semuaProduk.length) {
+                          const prodDitemukan = semuaProduk.find(p => (p.data.nama || '').toLowerCase() === (d.namaProduk || '').toLowerCase());
+                          if (prodDitemukan) fl = prodDitemukan.data.fileLink || '';
+                      }
                       if (fl) {
                           Swal.fire({
                               title: 'Kirim File Ini',

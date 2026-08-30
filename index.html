@@ -490,29 +490,9 @@
                 }
                 
 
-                let cacheRaw = localStorage.getItem('xiroro_ulasan_map_cache');
-                let cacheTime = localStorage.getItem('xiroro_ulasan_map_time');
-                let nowTs = Date.now();
                 let ambilUlasanData;
 
-                if (cacheRaw && cacheTime && (nowTs - parseInt(cacheTime)) < 15 * 60 * 1000) {
-                    try {
-                        const mapUlasan = JSON.parse(cacheRaw);
-                        window.dataToko.forEach(d => {
-                            const pId = d.name.split('/').pop();
-                            const u = mapUlasan[pId];
-                            if (u) {
-                                d.fields.ratingAvg = u.total / u.count;
-                                d.fields.ratingCount = u.count;
-                            } else {
-                                d.fields.ratingAvg = 0;
-                                d.fields.ratingCount = 0;
-                            }
-                        });
-                        ambilUlasanData = Promise.resolve();
-                    } catch (e) { cacheRaw = null; }
-                }
-
+                // Selalu fetch ulasan terbaru (tanpa cache agar bintang selalu update real-time)
                 if (!ambilUlasanData) {
                     ambilUlasanData = fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
                         .then(res => res.json())
