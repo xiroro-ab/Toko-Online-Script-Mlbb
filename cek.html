@@ -77,7 +77,7 @@
                 <p class="${meta.warna} text-xl font-bold mb-3"><i class="fa-solid ${meta.ikon} mr-2"></i>${meta.label}</p>
 
                 ${isSelesai && fileLink ? `
-                    <a href="${fileLink}" target="_blank" rel="noopener" class="block w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl font-bold mb-3">
+                    <a href="${fileLink}" target="_blank" rel="noopener" onclick="catatDownload('${escAttr(d.produk || d.namaProduk || '')}')" class="block w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl font-bold mb-3">
                         <i class="fa-solid fa-download mr-2"></i> Dapatkan File Saya
                     </a>
                 ` : isSelesai ? `
@@ -118,6 +118,18 @@
         }
 
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec";
+
+        function escAttr(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+        function catatDownload(nama) {
+            if (!nama) return;
+            try {
+                const k = 'xiroro_dl_' + nama;
+                if (localStorage.getItem(k)) return;
+                localStorage.setItem(k, '1');
+                const body = new URLSearchParams({ action: 'hitKlik', id: nama, tipe: 'download' });
+                fetch(APPS_SCRIPT_URL, { method: 'POST', body: body }).catch(() => { });
+            } catch (e) { }
+        }
 
         function fetchStatus(kode) {
             fetch(`${APPS_SCRIPT_URL}?action=cekStatus&kode=${encodeURIComponent(kode)}`)

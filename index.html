@@ -373,6 +373,10 @@
                 const key = 'xiroro_hit_' + tipe + '_' + id;
                 if (localStorage.getItem(key)) return false;
                 localStorage.setItem(key, '1');
+                try {
+                    const body = new URLSearchParams({ action: 'hitKlik', id: id, tipe: tipe });
+                    fetch(APPS_SCRIPT_URL, { method: 'POST', body: body }).catch(() => { });
+                } catch (e) { }
                 return true;
             } catch (e) { return true; }
         }
@@ -511,6 +515,8 @@
                 const ulasanArr = await res.json();
                 applyUlasanKeToko(ulasanArr);
                 renderProduk();
+                const tid = new URLSearchParams(window.location.search).get('id');
+                if (tid) muatUlasan(tid);
             } catch (e) { }
         }
 
@@ -535,7 +541,7 @@
                 // Ulasan & config dimuat asinkron, rating diterapkan setelahnya (grid tak tertunda)
                 fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
                     .then(res => res.json())
-                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); renderProduk(); })
+                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); renderProduk(); if (targetId) muatUlasan(targetId); })
                     .catch(() => { });
 
                 fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
@@ -873,6 +879,7 @@
         let pesananAktif = null;
 
         function klikBeli(id) {
+            catatKlik(id, 'beli');
             const doc = window.dataToko.find(d => d.name.split('/').pop() === id);
             const nama = doc ? doc.fields.nama.stringValue : 'Script';
             const harga = doc ? (parseInt(doc.fields.harga.stringValue) || 0) : 0;
