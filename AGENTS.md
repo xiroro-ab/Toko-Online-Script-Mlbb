@@ -27,10 +27,13 @@ Arsitektur data nyata:
 
 - **Sumber database = Google Spreadsheet** (SATU `SPREADSHEET_ID` untuk semua sheet:
   `Pesanan`, `Produk`, `Ulasan`, `Config`). Semua baca/tulis lewat GAS `SpreadsheetApp`.
-- **`produk.json`** dipublish ke GitHub oleh GAS (`publishSemuaProduk` → `publishToGithub`)
-  untuk etalase publik yang dimuat cepat oleh `index.html` / `gratis.html`.
-- **`ulasan.json`** dipublish oleh `publishUlasanToGithub`. **`public_orders.json`**
-  fungsi publish-nya masih kosong (belum dipakai).
+- **Web membaca produk langsung dari GAS** (`?action=bacaSemuaProduk`) — SPREADSHEET adalah
+  sumber utama web, sehingga produk baru selalu tampil tanpa publish ke file statis.
+- **`produk.json` / `ulasan.json` TIDAK lagi dipakai web** (sudah dipindah ke `_arsip/`).
+  Fungsi publish-nya masih ada di `.gs` tapi tidak wajib untuk menampilkan web.
+- `public_orders.json` juga tidak terpakai (di `_arsip/`).
+
+> Ringkas: sumber data web = GAS + Spreadsheet (bukan file JSON statis).
 
 ## 2. Deployment GAS — INI PENTING (sering jadi sumber bug)
 
@@ -128,7 +131,7 @@ noRef:7, fileLink:8, tgChat:9, tgMsgId:10, catatan:11`.
 
 - **Perubahan di `.gs`** → user harus **paste ulang file ke editor GAS project `AKfycbzB0`**
   lalu **Deploy > Manage deployments > /exec > Edit > Save** (aplikasi). Tidak di-push.
-- **Perubahan file web** (`*.html`, `api/*`, `vercel.json`, `produk.json`, dll) → commit
+- **Perubahan file web** (`*.html`, `api/*`, `vercel.json`, `sw.js`, dll) → commit
   & push ke `origin/main` (GitHub Pages otomatis rebuild). Webhook Telegram tidak berubah.
 - **Set webhook Telegram** (bila perlu reset): pakai Bot API `setWebhook` dengan
   `url = https://toko-online-script-mlbb.vercel.app/api/telegram`,

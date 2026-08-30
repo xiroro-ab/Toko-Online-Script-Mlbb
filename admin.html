@@ -857,6 +857,11 @@ function renderProdukAdmin() {
             });
         }
 
+        // Etalase kini otomatis baca dari Spreadsheet (GAS). Tombol Publikasi hanya info.
+        function publishEtalase() {
+            Swal.fire({ toast: true, icon: 'info', title: 'Etalase otomatis sinkron', text: 'Perubahan produk langsung tampil di web dari Spreadsheet.', background: '#0f172a', color: '#fff' });
+        }
+
         function loadConfig() {
             const config = JSON.parse(localStorage.getItem('xiroro_config')) || { video: "", logo: "", kolom: "grid-cols-4" };
             document.getElementById('cfg-video').value = config.video; document.getElementById('cfg-logo').value = config.logo; document.getElementById('cfg-kolom').value = config.kolom;

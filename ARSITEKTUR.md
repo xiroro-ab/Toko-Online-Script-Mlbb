@@ -176,9 +176,11 @@ Periksa `getWebhookInfo`: url benar, `pending_update_count=0`, `last_error_messa
 
 ## 5. Web pages & cara mereka membaca/menulis
 
-- `index.html` — etalase + checkout + ulasan (user). Baca `produk.json` (GitHub, cepat)
-  + ulasan via GAS. **Grid render LANGSUNG** (tak menunggu ulasan lambat; ulasan diterapkan
-  asinkron). `kirimUlasan` **optimistic** (tampil dulu, server background).
+- `index.html` — etalase + checkout + ulasan (user). Membaca produk **langsung dari GAS
+  `?action=bacaSemuaProduk`** (Spreadsheet) → produk baru otomatis tampil, tanpa bergantung
+  `produk.json` statis. Ulasan juga dari GAS. **Grid render LANGSUNG** (tak menunggu ulasan
+  lambat; ulasan diterapkan asinkron). `kirimUlasan` **optimistic** (tampil dulu, server
+  background).
 - `gratis.html` — sama, produk gratis.
 - `cek.html` — cek status user; **polling 5 detik** `cekStatus`; tombol file muncul jika
   `fileLink` terisi (kini di-backend via lookup katalog bila SELESAI).
@@ -219,6 +221,6 @@ Periksa `getWebhookInfo`: url benar, `pending_update_count=0`, `last_error_messa
 
 1. Cek `AGENTS.md` + `ARSITEKTUR.md` dulu.
 2. Kalau ubah `.gs`: saran ke user **paste ulang + Deploy**, JANGAN push.
-3. Kalau ubah web (`*.html`, `api/*`, `vercel.json`, `sw.js`, `produk.json`, `ulasan.json`):
+3. Kalau ubah web (`*.html`, `api/*`, `vercel.json`, `sw.js`, dll):
    commit & push ke `origin/main` → GitHub Pages rebuild otomatis.
 4. Setelah perubahan: verifikasi via `getWebhookInfo`, `bacaSemuaPesanan?key`, kirim `/menu`.
