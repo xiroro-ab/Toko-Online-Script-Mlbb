@@ -510,6 +510,7 @@
                 if (!res.ok) return;
                 const ulasanArr = await res.json();
                 applyUlasanKeToko(ulasanArr);
+                renderProduk();
             } catch (e) { }
         }
 
@@ -534,7 +535,7 @@
                 // Ulasan & config dimuat asinkron, rating diterapkan setelahnya (grid tak tertunda)
                 fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
                     .then(res => res.json())
-                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); })
+                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); renderProduk(); })
                     .catch(() => { });
 
                 fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
