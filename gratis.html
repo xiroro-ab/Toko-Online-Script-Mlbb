@@ -350,7 +350,7 @@
                 }
 
                 if (!ambilUlasanData) {
-                    ambilUlasanData = fetch('ulasan.json?t=' + Date.now())
+                    ambilUlasanData = fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
                         .then(res => res.json())
                         .then(ulasanArr => {
                             const mapUlasan = {};
@@ -744,7 +744,7 @@
             document.querySelectorAll('.ulasan-item').forEach(el => el.remove());
 
             try {
-                const res = await fetch('ulasan.json?t=' + new Date().getTime());
+                const res = await fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan');
                 let semuaUlasan = [];
                 if (res.ok) {
                     semuaUlasan = await res.json();
