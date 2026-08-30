@@ -805,28 +805,43 @@
 
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec";
 
+        // Optimistic: tampilkan ulasan user instan di panel sebelum server selesai
+        function sundelUlasan(pid, nama, rating, teks) {
+            const c = document.getElementById('katalog-produk');
+            const daftar = c.querySelector('.desc-scroll');
+            if (!daftar) return false;
+            const kosong = daftar.querySelector('.text-sm.text-slate-400.text-center.mt-4');
+            if (kosong) kosong.remove();
+            daftar.insertAdjacentHTML('afterbegin',
+                `<div class="border-b border-slate-700/60 pb-3 mb-3"><div class="flex justify-between items-center mb-1"><span class="text-sm font-bold text-white">${esc(nama)}</span><span class="text-xs text-yellow-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700/50">${bintangR(rating)}</span></div><p class="text-sm text-slate-300">${esc(teks)}</p><div class="text-[10px] text-slate-500 mt-1">Baru saja</div></div>`);
+            const cnum = c.querySelector('.text-xs.text-slate-400.mt-0.5');
+            if (cnum) { const m = (cnum.textContent || '').match(/^(\d+)/); if (m) cnum.textContent = (parseInt(m[1], 10) + 1) + ' total ulasan'; }
+            return true;
+        }
+
         async function kirimUlasan(pid, ev) {
             ev.preventDefault();
             const btn = ev.target.querySelector('button');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
             const nama = document.getElementById('u-nama').value.trim();
             const teks = document.getElementById('u-teks').value.trim();
             const rating = parseInt(document.getElementById('u-rating').value, 10) || 5;
             if (!nama || !teks) return;
-            try {
-                const fd = new URLSearchParams({ action: 'ulasan', produkId: pid, nama: nama, rating: rating, teks: teks });
-                const r = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: fd, mode: 'no-cors' });
-                Swal.fire({ toast: true, icon: 'success', title: 'Ulasan berhasil dikirim!', timer: 2000, showConfirmButton: false, background: '#0f172a', color: '#fff' });
-                setTimeout(async () => {
-                    await refreshUlasanRatings();
+            // Optimistic: tampil sukses & ulasan instan dulu, proses server di background
+            btn.disabled = true;
+            btn.innerHTML = 'Terkirim ✓';
+            Swal.fire({ toast: true, icon: 'success', title: 'Ulasan dikirim!', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+            document.getElementById('u-nama').value = '';
+            document.getElementById('u-teks').value = '';
+            sundelUlasan(pid, nama, rating, teks);
+            const fd = new URLSearchParams({ action: 'ulasan', produkId: pid, nama: nama, rating: rating, teks: teks });
+            fetch(APPS_SCRIPT_URL, { method: 'POST', body: fd, mode: 'no-cors' })
+                .then(() => { refreshUlasanRatings(); muatUlasan(pid); })
+                .catch(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Kirim Ulasan Sekarang';
+                    Swal.fire({ icon: 'warning', title: 'Gagal Tersimpan', text: 'Ulasan belum masuk server, coba lagi.', background: '#0f172a' });
                     muatUlasan(pid);
-                }, 1200);
-            } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mengirim ulasan. Coba lagi.', background: '#0f172a' });
-                btn.disabled = false;
-                btn.innerHTML = 'Kirim Ulasan Sekarang';
-            }
+                });
         }
     </script>
 </body>

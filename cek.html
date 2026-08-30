@@ -64,6 +64,7 @@
         function tampil(d) {
             const status = d.status || 'MENUNGGU';
             const meta = STATUS_META[status] || STATUS_META.MENUNGGU;
+            try { sessionStorage.setItem('xiroro_cek_' + kodeAktif, JSON.stringify(d)); } catch (e) { }
             const isSelesai = status === 'SELESAI';
             const fileLink = d.fileLink || '';
             const hasil = document.getElementById('hasil');
@@ -138,7 +139,12 @@
             if (intervalId) { clearInterval(intervalId); intervalId = null; }
             const hasil = document.getElementById('hasil');
             hasil.className = 'glass p-5 rounded-2xl text-center';
-            hasil.innerHTML = '<p class="text-cyan-400"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa status pesanan...</p>';
+            // Optimistic: tampilkan status terakhir dari cache instan (tanpa nunggu fetch)
+            try {
+                const cache = sessionStorage.getItem('xiroro_cek_' + kode);
+                if (cache) { tampil(JSON.parse(cache)); }
+                else { hasil.innerHTML = '<p class="text-cyan-400"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa status pesanan...</p>'; }
+            } catch (e) { hasil.innerHTML = '<p class="text-cyan-400"><i class="fa-solid fa-spinner fa-spin"></i> Memeriksa status pesanan...</p>'; }
 
             fetchStatus(kode);
             intervalId = setInterval(() => {

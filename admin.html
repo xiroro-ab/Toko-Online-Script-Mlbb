@@ -500,7 +500,7 @@
                         <div class="text-xs text-slate-400 space-y-1 mb-3">
                             <p><i class="fa-solid fa-money-bill-wave text-green-400 mr-1"></i> Rp ${(d.nominal || 0).toLocaleString('id-ID')}${mapHarga && d.produkId && mapHarga[d.produkId] != null && parseInt(mapHarga[d.produkId]) !== parseInt(d.nominal) ? ` <span class="text-yellow-400 border border-yellow-500/40 rounded px-1.5 py-0.5 text-[10px]">Beda dgn katalog (Rp ${(parseInt(mapHarga[d.produkId])||0).toLocaleString('id-ID')})</span>` : ''}</p>
                             <p><i class="fa-solid fa-user text-cyan-400 mr-1"></i> DANA: <b class="text-white">${escP(d.namaDana)}</b></p>
-                            <p><i class="fa-solid fa-clock text-purple-400 mr-1"></i> ${waktu}</p>
+                            <p class="mt-2 pt-2 border-t border-slate-700/40 text-[11px] text-purple-300/90"><i class="fa-solid fa-clock text-purple-400 mr-1"></i> ${waktu}</p>
                             ${d.noRef ? `<p><i class="fa-solid fa-fingerprint text-blue-400 mr-1"></i> No. Ref: <b class="text-white font-mono">${escP(d.noRef)}</b></p>` : ''}
                             ${d.catatan ? `<p><i class="fa-solid fa-note-sticky text-amber-400 mr-1"></i> Catatan: <b class="text-white">${escP(d.catatan)}</b></p>` : ''}
                         </div>
@@ -514,6 +514,12 @@
                     </div>
                 `;
             });
+        }
+
+        // Optimistic: update status di memori + render instan (tanpa tunggu server)
+        function perbaharuiLokal(id, patch) {
+            const o = semuaPesanan.find(x => x.id === id);
+            if (o) { Object.assign(o.data, patch); renderPesananAdmin(); }
         }
 
         async function syncTelegram(pid) {
@@ -547,7 +553,7 @@
                               background: '#1e293b'
                           });
                       })();
-                      loadPesanan();
+                      perbaharuiLokal(id, { status: 'TERVERIFIKASI', noRef: res.value.trim() });
                   });
               };
   
@@ -578,14 +584,14 @@
                       } else {
                           Swal.fire({ icon: 'warning', title: 'Tidak Ada Link File', text: 'Pesanan ini tidak menyimpan link file. Periksa link di katalog produk.', background: '#1e293b' });
                       }
-                      loadPesanan();
+                      perbaharuiLokal(id, { status: 'SELESAI', fileLink: fl });
                   });
               } else {
                   Swal.fire({ title: 'Tolak Pesanan?', text: 'Pastikan pembayaran tidak masuk sebelum menolak.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', background: '#1e293b' }).then(async res => {
                       if (res.isConfirmed) { 
                           const body = new URLSearchParams({ action: 'adminTolakPesanan', pesananId: id });
                           await fetch(appsScriptUrl, { method: 'POST', body: body });
-                          loadPesanan(); 
+                          perbaharuiLokal(id, { status: 'DITOLAK' }); 
                       }
                   });
               }
@@ -854,14 +860,14 @@ function renderProdukAdmin() {
         async function simpanConfig() {
             const cfg = { video: document.getElementById('cfg-video').value, logo: document.getElementById('cfg-logo').value, kolom: document.getElementById('cfg-kolom').value };
             localStorage.setItem('xiroro_config', JSON.stringify(cfg));
-            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            // Optimistic: tampil instan, proses server di background
+            Swal.fire({ toast: true, icon: 'success', title: 'Tersimpan', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
             try {
                 const res = await fetch(appsScriptUrl, { method: 'POST', body: new URLSearchParams({ action: 'adminSimpanConfig', configData: JSON.stringify(cfg) }) });
                 const json = await res.json();
-                if (json.ok) Swal.fire('Tersimpan!', 'Tema tersimpan ke server. Semua pembeli akan otomatis melihatnya.', 'success');
-                else throw new Error(json.error);
+                if (!json.ok) throw new Error(json.error);
             } catch (err) {
-                Swal.fire('Tersimpan Lokal', 'Gagal simpan ke server: ' + err.message + '. Tema hanya berlaku di browser ini.', 'warning');
+                Swal.fire('Gagal Simpan ke Server', 'Tema hanya tersimpan di browser ini: ' + err.message, 'warning');
             }
         }
 
