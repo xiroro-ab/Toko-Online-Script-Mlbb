@@ -109,13 +109,30 @@
         </section>
 
         <section id="section-pesanan" class="hidden">
-            <div class="glass p-8 rounded-2xl border-t-4 border-t-green-500 text-center">
-                <i class="fa-solid fa-table-list text-6xl text-green-400 mb-4"></i>
-                <h2 class="text-2xl font-bold text-white mb-2">Manajemen Pesanan Pindah ke Google Sheets</h2>
-                <p class="text-slate-400 mb-6">Sistem pesanan kini 100% menggunakan Google Sheets agar terbebas dari limit Firebase. Anda dapat mengelola semua pesanan langsung di Spreadsheet.</p>
-                <a href="https://docs.google.com/spreadsheets/d/1Z0Z0XCB86FrUOzxSnzagHQnoA4-NHaOSJiAaP1dHVlg/edit" target="_blank" class="inline-block bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(34,197,94,0.3)]">
-                    <i class="fa-solid fa-up-right-from-square mr-2"></i> Buka Google Sheets Pesanan
-                </a>
+            <div class="glass p-8 rounded-2xl border-t-4 border-t-green-500">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-green-400"><i class="fa-solid fa-clipboard-list"></i> Log Pesanan</h2>
+                    <button onclick="loadPesanan()" class="text-green-400 hover:text-green-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                    <select id="bulanPesanan" onchange="renderPesananAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-green-500 text-white cursor-pointer">
+                        <option value="">Semua Bulan</option>
+                    </select>
+                    <input type="text" id="cariPesanan" oninput="renderPesananAdmin()" placeholder="Cari kode / produk / nama DANA..." class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-green-500">
+                    <div class="flex gap-2">
+                        <button onclick="exportPesananPDF()" class="flex-1 bg-red-600/80 hover:bg-red-500 text-white px-4 py-3 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
+                        <button onclick="exportPesananCSV()" class="flex-1 bg-blue-600/80 hover:bg-blue-500 text-white px-4 py-3 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-file-csv mr-1"></i> CSV</button>
+                        <button onclick="hapusBulan()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-trash-can mr-1"></i> Hapus Bulan</button>
+                    </div>
+                </div>
+                <div id="list-pesanan" class="space-y-3 max-h-[600px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #22c55e #1e293b;">
+                    <p class="text-center text-slate-500">Belum ada pesanan.</p>
+                </div>
+                <div class="w-full mt-6 glass rounded-xl p-4">
+                    <h3 class="text-sm font-bold text-green-400 mb-3"><i class="fa-solid fa-chart-pie mr-1"></i> Pendapatan 6 Bulan Terakhir</h3>
+                    <canvas id="chartPesanan" height="80"></canvas>
+                </div>
+                <div id="statAdmin" class="w-full mt-6"></div>
             </div>
         </section>
 
@@ -145,13 +162,28 @@
         </section>
 
         <section id="section-ulasan" class="hidden">
-            <div class="glass p-8 rounded-2xl border-t-4 border-t-amber-500 text-center">
-                <i class="fa-solid fa-star text-6xl text-amber-400 mb-4"></i>
-                <h2 class="text-2xl font-bold text-white mb-2">Manajemen Ulasan Pindah ke Google Sheets</h2>
-                <p class="text-slate-400 mb-6">Ulasan pelanggan kini disimpan langsung di Google Sheets Anda. Anda dapat mengedit, menghapus, atau memfilter ulasan dari Spreadsheet. Ulasan akan otomatis diperbarui di website ketika ada ulasan baru masuk.</p>
-                <a href="https://docs.google.com/spreadsheets/d/1Z0Z0XCB86FrUOzxSnzagHQnoA4-NHaOSJiAaP1dHVlg/edit" target="_blank" class="inline-block bg-amber-600 hover:bg-amber-500 text-white px-8 py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-                    <i class="fa-solid fa-up-right-from-square mr-2"></i> Buka Google Sheets Ulasan
-                </a>
+            <div class="glass p-8 rounded-2xl border-t-4 border-t-amber-500">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-amber-400"><i class="fa-solid fa-star"></i> Kelola Ulasan Produk</h2>
+                    <button onclick="loadUlasan()" class="text-amber-400 hover:text-amber-300 text-sm"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                    <select id="filterProdukUlasan" onchange="renderUlasanAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-amber-500 text-white cursor-pointer">
+                        <option value="">Semua Produk</option>
+                    </select>
+                    <select id="filterRatingUlasan" onchange="renderUlasanAdmin()" class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-amber-500 text-white cursor-pointer">
+                        <option value="">Semua Rating</option>
+                        <option value="5">5 Bintang</option>
+                        <option value="4">4 Bintang</option>
+                        <option value="3">3 Bintang</option>
+                        <option value="2">2 Bintang</option>
+                        <option value="1">1 Bintang</option>
+                    </select>
+                    <input type="text" id="cariUlasan" oninput="renderUlasanAdmin()" placeholder="Cari nama / isi ulasan..." class="bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-amber-500">
+                </div>
+                <div id="list-ulasan" class="space-y-3 max-h-[600px] overflow-y-auto pr-2" style="scrollbar-width: thin; scrollbar-color: #fbbf24 #1e293b;">
+                    <p class="text-center text-slate-500">Memuat ulasan...</p>
+                </div>
             </div>
         </section>
     </div>
@@ -229,7 +261,81 @@
             const map = { MENUNGGU: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40', TERVERIFIKASI: 'bg-blue-500/20 text-blue-300 border-blue-500/40', SELESAI: 'bg-green-500/20 text-green-400 border-green-500/40', DITOLAK: 'bg-red-500/20 text-red-400 border-red-500/40' };
             return `<span class="text-[10px] px-2 py-1 rounded-full border ${map[s] || 'bg-slate-700 text-slate-300 border-slate-600'}">${s}</span>`;
         }
+        const fmt = num => Number(num).toLocaleString('id-ID');
         function escP(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+        
+        function grafikPesanan() {
+            const canvas = document.getElementById('chartPesanan');
+            if (!canvas || !window.Chart) return;
+            const labels = [];
+            const values = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const t = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                labels.push(t.toLocaleString('id-ID', { month: 'short', year: '2-digit' }));
+                const pref = t.toISOString().slice(0, 7);
+                const tot = semuaPesanan.filter(o => (o.data.status === 'TERVERIFIKASI' || o.data.status === 'SELESAI') && (o.data.waktu || '').slice(0, 7) === pref).reduce((s, o) => s + (parseInt(o.data.nominal) || 0), 0);
+                values.push(tot);
+            }
+            if (window.chartObj) window.chartObj.destroy();
+            window.chartObj = new Chart(canvas, {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ label: 'Pendapatan (Rp)', data: values, backgroundColor: 'rgba(34,197,94,0.6)', borderColor: '#22c55e', borderWidth: 1 }] },
+                options: { plugins: { legend: { labels: { color: '#cbd5e1' } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } }
+            });
+        }
+
+        
+        function renderStatistik() {
+            const el = document.getElementById('statAdmin');
+            if (!el) return;
+            if (!semuaPesanan.length) { el.innerHTML = ''; return; }
+            const now = new Date();
+            const mm = now.getFullYear() + '-' + (now.getMonth() + 1);
+            const ter = o => o.data.status === 'TERVERIFIKASI' || o.data.status === 'SELESAI';
+            const cur = semuaPesanan.filter(o => ter(o) && (o.data.waktu || '').slice(0, 7) === mm);
+            const per = {};
+            cur.forEach(o => {
+                const n = o.data.namaProduk || '-';
+                per[n] = (per[n] || 0) + (parseInt(o.data.nominal) || 0);
+            });
+            const top = Object.keys(per).sort((a, b) => per[b] - per[a]).slice(0, 5);
+
+            const totalMinggu = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+                const pref = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                totalMinggu.push(semuaPesanan.filter(o => {
+                    if (!ter(o)) return false;
+                    const w = o.data.waktu ? new Date(o.data.waktu) : null;
+                    if (!w) return false;
+                    return (w.getFullYear() + '-' + (w.getMonth() + 1) + '-' + w.getDate()) === pref;
+                }).reduce((s, o) => s + (parseInt(o.data.nominal) || 0), 0));
+            }
+            const maxHari = Math.max.apply(null, totalMinggu.concat([1]));
+            const namaHari = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+            el.innerHTML = `
+                <div class="glass rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-green-400 mb-3"><i class="fa-solid fa-trophy mr-1"></i> Top 5 Produk (Bulan Ini)</h3>
+                        ${top.length ? top.map((p, i) => `<div class="flex justify-between text-xs text-slate-300 border-b border-slate-700/50 pb-1 mb-1"><span class="truncate pr-2">${i + 1}. ${escP(p)}</span><span class="text-cyan-400 font-bold whitespace-nowrap">Rp ${(per[p] || 0).toLocaleString('id-ID')}</span></div>`).join('') : '<p class="text-xs text-slate-500">Belum ada penjualan bulan ini.</p>'}
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-green-400 mb-3"><i class="fa-solid fa-bars-progress mr-1"></i> Pendapatan 7 Hari Terakhir</h3>
+                        ${totalMinggu.map((v, i) => {
+                            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (6 - i));
+                            return `<div class="flex items-center gap-2 text-[11px] text-slate-300 mb-1">
+                                <span class="w-8">${namaHari[d.getDay()]} ${d.getDate()}</span>
+                                <div class="flex-1 bg-slate-800 rounded h-3 overflow-hidden"><div class="bg-green-500 h-3 rounded" style="width:${(v / maxHari * 100).toFixed(0)}%"></div></div>
+                                <span class="text-xs text-cyan-400 font-bold w-20 text-right">Rp ${v.toLocaleString('id-ID')}</span>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
 
         async function loadPesanan() {
             const list = document.getElementById('list-pesanan');
@@ -462,13 +568,13 @@
             // MENGGUNAKAN LINK ABSOLUT: Pastikan link selalu mengarah ke halaman depan
             let baseUrl = "https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/";
             
-            // Ambil harga & nama langsung dari database (anti error karakter aneh)
+            // Ambil harga & nama langsung dari semuaProduk
             let hargaNum = 0, namaScript = "Script";
             try {
-                const snap = await db.collection("script").doc(id).get();
-                if (snap.exists) {
-                    hargaNum = parseInt(snap.data().harga) || 0;
-                    namaScript = snap.data().nama || "Script";
+                const p = semuaProduk.find(x => x.id === id);
+                if (p) {
+                    hargaNum = parseInt(p.data.harga) || 0;
+                    namaScript = p.data.namaProduk || p.data.nama || "Script";
                 }
             } catch (e) { }
 
@@ -633,9 +739,9 @@
         async function prepareEdit(id) {
             document.getElementById('form-title').innerHTML = "<i class='fa-solid fa-pen-to-square'></i> Edit Produk";
             try {
-                const snap = await db.collection("script").doc(id).get();
-                if (!snap.exists) { Swal.fire('Error', 'Data produk tidak ditemukan.', 'error'); return; }
-                const data = snap.data();
+                const prod = semuaProduk.find(p => p.id === id);
+                if (!prod) { Swal.fire('Error', 'Data produk tidak ditemukan.', 'error'); return; }
+                const data = prod.data;
                 document.getElementById('edit-id').value = id;
                 document.getElementById('gambarUrlLama').value = data.gambarUrl || '';
                 document.getElementById('nama').value = data.nama || '';
@@ -662,7 +768,15 @@
 
         async function hapusProduk(id) {
             Swal.fire({ title: 'Hapus Produk?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Hapus' }).then(async (result) => {
-                if (result.isConfirmed) { await db.collection("script").doc(id).delete(); loadProduk(); publishEtalase(); }
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+                    try {
+                        const res = await fetch(appsScriptUrl, { method: 'POST', body: new URLSearchParams({ action: 'adminHapusProduk', produkId: id }) });
+                        const json = await res.json();
+                        if (json.ok) { Swal.fire('Terhapus!', 'Produk dihapus.', 'success'); loadProduk(); publishEtalase(); }
+                        else { Swal.fire('Gagal', json.error, 'error'); }
+                    } catch (e) { Swal.fire('Error', e.message, 'error'); }
+                }
             });
         }
 
@@ -671,12 +785,18 @@
             document.getElementById('cfg-video').value = config.video; document.getElementById('cfg-logo').value = config.logo; document.getElementById('cfg-kolom').value = config.kolom;
         }
 
-        function simpanConfig() {
+        async function simpanConfig() {
             const cfg = { video: document.getElementById('cfg-video').value, logo: document.getElementById('cfg-logo').value, kolom: document.getElementById('cfg-kolom').value };
             localStorage.setItem('xiroro_config', JSON.stringify(cfg));
-            db.collection("config").doc("site").set(cfg)
-                .then(() => Swal.fire('Tersimpan!', 'Tema tersimpan ke server. Semua pembeli akan otomatis melihatnya.', 'success'))
-                .catch(err => Swal.fire('Tersimpan Lokal', 'Gagal simpan ke server: ' + err.message + '. Tema hanya berlaku di browser ini.', 'warning'));
+            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            try {
+                const res = await fetch(appsScriptUrl, { method: 'POST', body: new URLSearchParams({ action: 'adminSimpanConfig', configData: JSON.stringify(cfg) }) });
+                const json = await res.json();
+                if (json.ok) Swal.fire('Tersimpan!', 'Tema tersimpan ke server. Semua pembeli akan otomatis melihatnya.', 'success');
+                else throw new Error(json.error);
+            } catch (err) {
+                Swal.fire('Tersimpan Lokal', 'Gagal simpan ke server: ' + err.message + '. Tema hanya berlaku di browser ini.', 'warning');
+            }
         }
 
         // ============ ULASAN MANAGEMENT ============
@@ -700,7 +820,7 @@
                 if(!resU || resU.length === 0) { list.innerHTML = "<p class='text-center text-slate-500'>Belum ada ulasan.</p>"; return; }
                 
                 resU.forEach(doc => {
-                    const data = doc.data;
+                    const data = doc;
                     const nmPr = mapProdukNama[data.produkId] || "Produk Dihapus";
                     let star = "";
                     for(let i=1; i<=5; i++) {
@@ -839,7 +959,9 @@
                 const teks = document.getElementById('edit-teks').value.trim();
                 if (!nama || !teks) { Swal.fire('Error', 'Nama dan isi ulasan wajib diisi.', 'error'); return; }
                 try {
-                    await db.collection("ulasan").doc(id).update({ nama, rating, teks });
+                    const res = await fetch(appsScriptUrl, { method: 'POST', body: new URLSearchParams({ action: 'adminEditUlasan', ulasanId: id, nama: nama, rating: rating, teks: teks }) });
+                    const json = await res.json();
+                    if (!json.ok) throw new Error(json.error);
                     Swal.fire('Tersimpan!', 'Ulasan diperbarui.', 'success');
                     loadUlasan();
                 } catch (e) { Swal.fire('Gagal', e.message, 'error'); }
@@ -860,7 +982,9 @@
             }).then(async res => {
                 if (!res.isConfirmed) return;
                 try {
-                    await db.collection("ulasan").doc(id).delete();
+                    const res = await fetch(appsScriptUrl, { method: 'POST', body: new URLSearchParams({ action: 'adminHapusUlasan', ulasanId: id }) });
+                    const json = await res.json();
+                    if (!json.ok) throw new Error(json.error);
                     Swal.fire('Terhapus!', 'Ulasan dihapus.', 'success');
                     loadUlasan();
                 } catch (e) { Swal.fire('Gagal', e.message, 'error'); }

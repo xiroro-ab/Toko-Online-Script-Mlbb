@@ -30,9 +30,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    
+            
     <style>
         body { background-color: #000; color: white; font-family: 'Poppins', sans-serif; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         /* TEMA HIJAU UNTUK HALAMAN GRATIS */
@@ -193,17 +191,7 @@
     </a>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAXfLH19B6nQkEwUwnDoA2C-Nh5DQhwEIo",
-            authDomain: "toko-mod-mlbb.firebaseapp.com",
-            projectId: "toko-mod-mlbb",
-            storageBucket: "toko-mod-mlbb.firebasestorage.app",
-            messagingSenderId: "814354818916",
-            appId: "1:814354818916:web:452a04732f528abdec7c71",
-            measurementId: "G-20KBWYYJXE"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+
         
         window.dataToko = [];
 
@@ -334,28 +322,9 @@
                 buildChips();
                 const targetId = new URLSearchParams(window.location.search).get('id'); 
                 if (targetId && catatKlik(targetId, 'view')) {
-                    try { db.collection("stats").doc(targetId).set({ views: firebase.firestore.FieldValue.increment(1) }, { merge: true }); } catch(e) { }
+                    
                 }
-                const ambilStats = fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/stats?pageSize=1000`)
-                    .then(res => res.json())
-                    .then(sj => {
-                        const map = {};
-                        (sj.documents || []).forEach(d => {
-                            const f = d.fields || {};
-                            map[d.name.split('/').pop()] = {
-                                views: f.views && f.views.integerValue ? Number(f.views.integerValue) : 0,
-                                terjual: f.terjual && f.terjual.integerValue ? Number(f.terjual.integerValue) : 0
-                            };
-                        });
-                        window.dataToko.forEach(d => {
-                            const s = map[d.name.split('/').pop()];
-                            if (!s) return;
-                            d.fields.views = d.fields.views || { integerValue: 0 };
-                            d.fields.terjual = d.fields.terjual || { integerValue: 0 };
-                            if (s.views) d.fields.views.integerValue += s.views;
-                            if (s.terjual) d.fields.terjual.integerValue += s.terjual;
-                        });
-                    }).catch(() => {});
+                
                 
                 let cacheRaw = localStorage.getItem('xiroro_ulasan_map_cache');
                 let cacheTime = localStorage.getItem('xiroro_ulasan_map_time');
@@ -412,10 +381,7 @@
                         }).catch(() => {});
                 }
 
-                Promise.all([ambilStats, ambilUlasanData]).then(() => db.collection("config").doc("site").get()
-                    .then(cfgSnap => { if (cfgSnap.exists) localStorage.setItem('xiroro_config', JSON.stringify(cfgSnap.data())); })
-                    .catch(function(){})
-                    .finally(() => { renderProduk(); if (targetId) muatUlasan(targetId); }));
+                fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site").then(res => res.json()).then(cfg => { if (cfg) localStorage.setItem('xiroro_config', cfg); }).catch(()=>{ }).finally(() => { renderProduk(); if (targetId) muatUlasan(targetId); });
             })
             .catch(err => document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal muat etalase. <br><span class="text-sm">(${err.message})</span></p>`);
 
@@ -734,7 +700,7 @@
                 return;
             }
 
-            try { db.collection("stats").doc(id).set({ terjual: firebase.firestore.FieldValue.increment(1) }, { merge: true }); } catch(e) { }
+            
 
             window.open(linkCheckout, '_blank');
 
