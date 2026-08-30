@@ -352,9 +352,9 @@
                 if (!res.ok) return;
                 const ulasanArr = await res.json();
                 applyUlasanKeToko(ulasanArr);
-                renderProduk();
                 const tid = new URLSearchParams(window.location.search).get('id');
-                if (tid) muatUlasan(tid);
+                if (!tid) renderProduk();
+                else muatUlasan(tid);
             } catch (e) {}
         }
 
@@ -378,7 +378,7 @@
 
                 fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
                     .then(res => res.json())
-                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); renderProduk(); if (targetId) muatUlasan(targetId); })
+                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); if (targetId) muatUlasan(targetId); else renderProduk(); })
                     .catch(() => {});
 
                 fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
@@ -743,10 +743,8 @@
         }
 
         async function muatUlasan(pid) {
-            const c = document.getElementById('section-ulasan');
-            if (!c) return;
-            c.classList.remove('hidden');
-            c.innerHTML = '';
+            const c = document.getElementById('katalog-produk');
+            document.querySelectorAll('.ulasan-item').forEach(el => el.remove());
 
             try {
                 const res = await fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan');
