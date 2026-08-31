@@ -36,7 +36,7 @@
         /* TEMA HIJAU UNTUK HALAMAN GRATIS */
         #video-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -1; opacity: 0.3; filter: hue-rotate(90deg); }
         .glass-panel { background: rgba(6, 78, 59, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-        .card { border-radius: 10px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 6px 6px rgba(0,0,0,0.3); transition: transform 0.2s, box-shadow 0.2s; margin: 10px; border: 1px solid rgba(16,185,129,0.3); }
+        .card { border-radius: 16px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 6px 6px rgba(0,0,0,0.3); transition: transform 0.2s, box-shadow 0.2s; margin: 0; border: 1px solid rgba(16,185,129,0.3); }
         .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(16,185,129,0.2), 0 10px 10px rgba(0,0,0,0.5); border-color: rgba(16,185,129,0.8); }
         .swal2-title { color: #10b981 !important; }
         .swal2-popup { background: rgba(6,78,59,0.9) !important; backdrop-filter: blur(10px) !important; color: white !important; border-radius: 15px !important; border: 1px solid rgba(16,185,129,0.5) !important; }
@@ -351,9 +351,11 @@
                 const res = await fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan');
                 if (!res.ok) return;
                 const ulasanArr = await res.json();
-                applyUlasanKeToko(ulasanArr);
+                window.semuaUlasan = ulasanArr || [];
+                applyUlasanKeToko(window.semuaUlasan);
                 const tid = new URLSearchParams(window.location.search).get('id');
                 if (!tid) renderProduk();
+                else muatUlasan(tid, window.semuaUlasan);
             } catch (e) {}
         }
 
@@ -371,18 +373,18 @@
                     
                 }
 
-                // Home: render cepat (rating 0 sementara), lalu update bintang setelah ulasan masuk
-                if (!targetId) renderProduk();
+                // Render produk cepat (produk card + ulasan instan jika ada targetId)
+                renderProduk();
 
-                // Ulasan & config dimuat asinkron, setelah rating: render kartu (bintang) + kartu ulasan sejajar
+                // Ulasan & config dimuat asinkron
                 fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
                     .then(res => res.json())
-                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); renderProduk(); if (targetId) muatUlasan(targetId); })
-                    .catch(() => {});
-
-                fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
-                    .then(res => res.json())
-                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); if (!targetId) renderProduk(); })
+                    .then(ulasanArr => {
+                        window.semuaUlasan = ulasanArr || [];
+                        applyUlasanKeToko(window.semuaUlasan);
+                        if (!targetId) renderProduk();
+                        else muatUlasan(targetId, window.semuaUlasan);
+                    })
                     .catch(() => {});
 
                 fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
@@ -484,10 +486,10 @@
                 let textDeskripsi = esc(f.deskripsi ? f.deskripsi.stringValue : '').replace(/\n/g, '<br>');
 
                 let lebarClass = isSlider ? "w-[300px] min-w-[300px] snap-start flex-shrink-0" : (targetId ? "w-full h-full min-h-[500px]" : "w-full h-[500px]");
-                let extraClass = targetId ? 'animate__animated animate__zoomIn border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : '';
+                let extraClass = targetId ? 'border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : '';
 
                 return `
-                    <div class="produk-card card glass-panel flex flex-col ${lebarClass} ${extraClass}" ${!targetId ? `onclick="location.href='gratis.html?id=${id}'" style="cursor:pointer;"` : ''}>
+                    <div class="produk-card card glass-panel rounded-2xl p-5 md:p-6 flex flex-col ${lebarClass} ${extraClass}" ${!targetId ? `onclick="location.href='gratis.html?id=${id}'" style="cursor:pointer;"` : ''}>
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
                             <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-download text-emerald-400 mr-1"></i> Diunduh ${terjualCount}x</span>
@@ -574,6 +576,7 @@
                 }
 
                 dataTampil.forEach(doc => { container.innerHTML += cetakKartu(doc, false); });
+                if (targetId) muatUlasan(targetId);
                 return;
             }
 
@@ -746,58 +749,54 @@
             return s;
         }
 
-        async function muatUlasan(pid) {
+        async function muatUlasan(pid, ulasanData = null) {
             const c = document.getElementById('katalog-produk');
-            document.querySelectorAll('.ulasan-item').forEach(el => el.remove());
+            if (!c) return;
 
-            try {
-                const res = await fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan');
-                let semuaUlasan = [];
-                if (res.ok) {
-                    semuaUlasan = await res.json();
-                }
-                let arr = semuaUlasan.filter(x => x.produkId === pid);
-                const avg = arr.length ? (arr.reduce((s, x) => s + (Number(x.rating)||0), 0) / arr.length) : 0;
+            let arr = null;
+            if (Array.isArray(ulasanData)) {
+                arr = ulasanData.filter(x => x.produkId === pid);
+            } else if (Array.isArray(window.semuaUlasan)) {
+                arr = window.semuaUlasan.filter(x => x.produkId === pid);
+            }
 
-                let listHtml = '';
-                arr.slice(0, 10).forEach(x => {
-                    listHtml += `
-                        <div class="border-b border-slate-700/60 pb-3 mb-3">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-sm font-bold text-white">${esc(x.nama)}</span>
-                                <span class="text-xs text-yellow-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700/50">${bintangR(x.rating)}</span>
-                            </div>
-                            <p class="text-sm text-slate-300">${esc(x.teks)}</p>
-                            <div class="text-[10px] text-slate-500 mt-1">${x.waktu ? new Date(x.waktu).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : ''}</div>
-                        </div>`;
-                });
-                if (!arr.length) listHtml = '<p class="text-sm text-slate-400 text-center mt-4">Belum ada ulasan. Jadilah yang pertama!</p>';
+            let listContainer = document.getElementById('ulasan-list-box');
+            let avgScoreEl = document.getElementById('ulasan-avg-score');
+            let avgStarsEl = document.getElementById('ulasan-avg-stars');
+            let totalCountEl = document.getElementById('ulasan-total-count');
+
+            if (!listContainer) {
+                document.querySelectorAll('.ulasan-item').forEach(el => el.remove());
 
                 c.insertAdjacentHTML('beforeend', `
                     <!-- Kolom Daftar Ulasan -->
-                    <div class="ulasan-item glass-panel rounded-2xl p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col h-full animate__animated animate__fadeInRight">
+                    <div class="ulasan-item card glass-panel rounded-2xl p-5 md:p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex flex-col w-full h-full min-h-[500px]">
                         <h3 class="font-extrabold text-white text-lg mb-2 flex-shrink-0"><i class="fa-solid fa-star text-yellow-400 mr-2"></i> Ulasan Pembeli</h3>
                         <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-700/50 flex-shrink-0">
-                            <div class="text-3xl font-bold text-emerald-400">${avg.toFixed(1)}</div>
+                            <div id="ulasan-avg-score" class="text-3xl font-bold text-emerald-400">0.0</div>
                             <div class="flex flex-col">
-                                <div class="text-yellow-400 text-sm">${avg ? bintangR(avg) : bintangR(0)}</div>
-                                <div class="text-xs text-slate-400 mt-0.5">${arr.length} total ulasan</div>
+                                <div id="ulasan-avg-stars" class="text-yellow-400 text-sm">${bintangR(0)}</div>
+                                <div id="ulasan-total-count" class="text-xs text-slate-400 mt-0.5">Memuat...</div>
                             </div>
                         </div>
-                        <div class="overflow-y-auto pr-3 desc-scroll max-h-[260px]">${listHtml}</div>
+                        <div id="ulasan-list-box" class="overflow-y-auto pr-2 desc-scroll flex-grow min-h-[220px] max-h-[380px]">
+                            <div class="flex items-center justify-center h-full text-slate-400 text-sm py-8">
+                                <i class="fa-solid fa-spinner fa-spin mr-2 text-emerald-400"></i> Memuat ulasan...
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Kolom Form Ulasan -->
-                    <div class="ulasan-item glass-panel rounded-2xl p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col h-full animate__animated animate__fadeInRight" style="animation-delay: 0.1s">
+                    <div class="ulasan-item card glass-panel rounded-2xl p-5 md:p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex flex-col w-full h-full min-h-[500px]">
                         <h3 class="font-extrabold text-white text-lg mb-4 flex-shrink-0"><i class="fa-solid fa-pen-to-square text-emerald-400 mr-2"></i> Tulis Pengalaman Anda</h3>
-                        <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-4 flex flex-col flex-grow">
+                        <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-3 flex flex-col flex-grow">
                             <div>
-                                <label class="block text-xs text-slate-400 mb-1 ml-1">Nama</label>
-                                <input id="u-nama" required placeholder="Masukkan nama..." class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
+                                <label class="block text-xs text-slate-400 mb-1 ml-1 font-semibold">Nama Anda</label>
+                                <input id="u-nama" required placeholder="Masukkan nama..." class="w-full bg-slate-800/80 border border-slate-700/70 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
                             </div>
                             <div>
-                                <label class="block text-xs text-slate-400 mb-1 ml-1">Penilaian</label>
-                                <select id="u-rating" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
+                                <label class="block text-xs text-slate-400 mb-1 ml-1 font-semibold">Penilaian</label>
+                                <select id="u-rating" class="w-full bg-slate-800/80 border border-slate-700/70 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
                                     <option value="5">⭐⭐⭐⭐⭐ (5 - Luar Biasa)</option>
                                     <option value="4">⭐⭐⭐⭐ (4 - Bagus)</option>
                                     <option value="3">⭐⭐⭐ (3 - Cukup)</option>
@@ -805,15 +804,56 @@
                                     <option value="1">⭐ (1 - Buruk)</option>
                                 </select>
                             </div>
-                            <div class="flex-1 flex flex-col min-h-[70px]">
-                                <label class="block text-xs text-slate-400 mb-1 ml-1">Ulasan</label>
-                                <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl flex-grow h-24 text-white focus:outline-none focus:border-emerald-500 transition resize-none text-sm"></textarea>
+                            <div class="flex-1 flex flex-col min-h-[90px]">
+                                <label class="block text-xs text-slate-400 mb-1 ml-1 font-semibold">Ulasan / Kesan</label>
+                                <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700/70 p-3 rounded-xl flex-grow text-white focus:outline-none focus:border-emerald-500 transition resize-none text-sm min-h-[80px]"></textarea>
                             </div>
-                            <button type="submit" class="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.3)] mt-2">Kirim Ulasan Sekarang</button>
+                            <button type="submit" class="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.3)] mt-auto flex-shrink-0">
+                                <i class="fa-solid fa-paper-plane mr-2"></i> Kirim Ulasan Sekarang
+                            </button>
                         </form>
                     </div>
                 `);
-            } catch (e) { console.error(e); }
+
+                listContainer = document.getElementById('ulasan-list-box');
+                avgScoreEl = document.getElementById('ulasan-avg-score');
+                avgStarsEl = document.getElementById('ulasan-avg-stars');
+                totalCountEl = document.getElementById('ulasan-total-count');
+            }
+
+            if (arr === null) {
+                try {
+                    const res = await fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan');
+                    if (res.ok) {
+                        window.semuaUlasan = await res.json();
+                        arr = (window.semuaUlasan || []).filter(x => x.produkId === pid);
+                    }
+                } catch (e) {
+                    arr = [];
+                }
+            }
+
+            if (!arr) arr = [];
+            const avg = arr.length ? (arr.reduce((s, x) => s + (Number(x.rating) || 0), 0) / arr.length) : 0;
+
+            if (avgScoreEl) avgScoreEl.textContent = avg.toFixed(1);
+            if (avgStarsEl) avgStarsEl.innerHTML = avg ? bintangR(avg) : bintangR(0);
+            if (totalCountEl) totalCountEl.textContent = `${arr.length} total ulasan`;
+
+            let listHtml = '';
+            arr.slice(0, 10).forEach(x => {
+                listHtml += `
+                    <div class="border-b border-slate-700/60 pb-3 mb-3 last:border-0 last:mb-0">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-bold text-white">${esc(x.nama)}</span>
+                            <span class="text-xs text-yellow-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700/50">${bintangR(x.rating)}</span>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed">${esc(x.teks)}</p>
+                        <div class="text-[10px] text-slate-500 mt-1">${x.waktu ? new Date(x.waktu).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}</div>
+                    </div>`;
+            });
+            if (!arr.length) listHtml = '<p class="text-sm text-slate-400 text-center py-8">Belum ada ulasan. Jadilah yang pertama!</p>';
+            if (listContainer) listContainer.innerHTML = listHtml;
         }
 
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec";
@@ -825,21 +865,27 @@
             const teks = document.getElementById('u-teks').value.trim();
             const rating = parseInt(document.getElementById('u-rating').value, 10) || 5;
             if (!nama || !teks) return;
+
             btn.disabled = true;
-            btn.innerHTML = 'Mengirim...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim...';
+
             const fd = new URLSearchParams({ action: 'ulasan', produkId: pid, nama: nama, rating: rating, teks: teks });
-            fetch(APPS_SCRIPT_URL, { method: 'POST', body: fd, mode: 'no-cors' })
-                .then(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = 'Kirim Ulasan Sekarang';
-                    muatUlasan(pid);
-                })
-                .catch(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = 'Kirim Ulasan Sekarang';
-                    Swal.fire({ icon: 'warning', title: 'Gagal Tersimpan', text: 'Ulasan belum masuk server, coba lagi.', background: '#0f172a' });
-                    muatUlasan(pid);
-                });
+            try {
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', body: fd, mode: 'no-cors' });
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i> Kirim Ulasan Sekarang';
+                Swal.fire({ toast: true, icon: 'success', title: 'Ulasan dikirim!', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+                document.getElementById('u-nama').value = '';
+                document.getElementById('u-teks').value = '';
+
+                if (!window.semuaUlasan) window.semuaUlasan = [];
+                window.semuaUlasan.unshift({ produkId: pid, nama: nama, rating: rating, teks: teks, waktu: new Date().toISOString() });
+                refreshUlasanRatings();
+            } catch (e) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i> Kirim Ulasan Sekarang';
+                Swal.fire({ icon: 'warning', title: 'Gagal Tersimpan', text: 'Ulasan belum masuk server, coba lagi.', background: '#0f172a' });
+            }
         }
     </script>
 </body>
