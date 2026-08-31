@@ -371,9 +371,14 @@
                     
                 }
 
-                // Grid render LANGSUNG (tidak menunggu ulasan/config yang lambat)
-                renderProduk();
-                if (targetId) muatUlasan(targetId);
+                // Home: render cepat (rating 0 sementara), lalu update bintang setelah ulasan masuk
+                if (!targetId) renderProduk();
+
+                // Ulasan & config dimuat asinkron, setelah rating: render kartu (bintang) + kartu ulasan sejajar
+                fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
+                    .then(res => res.json())
+                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); renderProduk(); if (targetId) muatUlasan(targetId); })
+                    .catch(() => {});
 
                 fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
                     .then(res => res.json())
@@ -779,7 +784,7 @@
                                 <div class="text-xs text-slate-400 mt-0.5">${arr.length} total ulasan</div>
                             </div>
                         </div>
-                        <div class="flex-grow overflow-y-auto pr-3 desc-scroll h-0 min-h-[150px]">${listHtml}</div>
+                        <div class="overflow-y-auto pr-3 desc-scroll max-h-[260px]">${listHtml}</div>
                     </div>
                     
                     <!-- Kolom Form Ulasan -->
@@ -800,9 +805,9 @@
                                     <option value="1">⭐ (1 - Buruk)</option>
                                 </select>
                             </div>
-                            <div class="flex-grow flex flex-col min-h-[100px]">
+                            <div class="flex-1 flex flex-col min-h-[70px]">
                                 <label class="block text-xs text-slate-400 mb-1 ml-1">Ulasan</label>
-                                <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl flex-grow text-white focus:outline-none focus:border-emerald-500 transition resize-none text-sm"></textarea>
+                                <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700 p-3 rounded-xl flex-grow h-24 text-white focus:outline-none focus:border-emerald-500 transition resize-none text-sm"></textarea>
                             </div>
                             <button type="submit" class="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.3)] mt-2">Kirim Ulasan Sekarang</button>
                         </form>
