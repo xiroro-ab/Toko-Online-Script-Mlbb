@@ -206,6 +206,7 @@ Agar tidak blink/duplikat/bintang hilang, aturannya:
 ### Counter views / beli / download (kolom Views & Terjual)
 
 - `catatKlik(id, tipe)` di index/gratis → POST `hitKlik` ke GAS. Tipe: `view`, `beli`, `download`.
+- **Live Real-time Update**: `catatKlik` & `applyUlasanKeToko` memperbarui data `window.dataToko` di memori dan meng-update elemen DOM `#card-views-${id}`, `#card-terjual-${id}`, serta `#card-rating-${id}` secara instan di layar **tanpa reload**.
 - `cek.html` `catatDownload(nama)` utk klik tombol download.
 - Backend `hitKlik` (di `.gs`) meng-increment **views (kolom 12)** atau **terjual (kolom 13)**,
   mencocokkan produk by **ID ATAU Nama** (agar `cek.html` yg cuma punya nama produk bisa hit).

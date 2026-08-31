@@ -126,6 +126,8 @@ noRef:7, fileLink:8, tgChat:9, tgMsgId:10, catatan:11`.
 5. Setelah kirim ulasan, **jangan panggil `renderProduk()`** (membangun ulang grid =
    terasa reload); cukup `refreshUlasanRatings()` + `muatUlasan()`.
 6. `admin.html` polling = **5 detik**; `checkLogin` menghindari interval ganda.
+7. **Pembaruan Instan Rating & Counter (Views/Checkout)**: Saat user mengirim ulasan atau klik beli/view, `applyUlasanKeToko()` & `catatKlik()` memperbarui nilai `ratingAvg`, `ratingCount`, `views`, `terjual` secara *optimistic* di memori (`window.dataToko`) dan langsung memperbarui elemen DOM `#card-rating-${pId}`, `#card-views-${pId}`, `#card-terjual-${pId}` **tanpa reload halaman**.
+8. **Render Detail Produk 1-Pass & Bebas Blink**: Saat membuka detail (`?id=...`), `renderProduk()` mencetak Kartu Produk bersamaan dengan panggilan `muatUlasan(targetId)` sehingga Kartu 1 (Produk), Kartu 2 (Ulasan), dan Kartu 3 (Form Ulasan) ter-render **serentak dalam 1 siklus DOM pass**. `muatUlasan()` melakukan update *in-place* tanpa menghapus elemen DOM `.ulasan-item` atau memicu *flicker*.
 
 ## 8. Cara kerja perubahan
 

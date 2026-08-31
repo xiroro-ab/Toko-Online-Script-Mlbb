@@ -375,6 +375,28 @@
                 const key = 'xiroro_hit_v2_' + tipe + '_' + id;
                 if (localStorage.getItem(key)) return false;
                 localStorage.setItem(key, '1');
+
+                if (window.dataToko) {
+                    const doc = window.dataToko.find(d => d.name.split('/').pop() === id);
+                    if (doc && doc.fields) {
+                        if (tipe === 'view') {
+                            const oldV = doc.fields.views && doc.fields.views.integerValue ? Number(doc.fields.views.integerValue) : 0;
+                            doc.fields.views = { integerValue: oldV + 1 };
+                            const vEl = document.getElementById(`card-views-${id}`);
+                            if (vEl) {
+                                vEl.innerHTML = `<i class="fa-solid fa-eye mr-1"></i> ${oldV + 1} Dilihat`;
+                            }
+                        } else if (tipe === 'beli') {
+                            const oldT = doc.fields.terjual && doc.fields.terjual.integerValue ? Number(doc.fields.terjual.integerValue) : 0;
+                            doc.fields.terjual = { integerValue: oldT + 1 };
+                            const tEl = document.getElementById(`card-terjual-${id}`);
+                            if (tEl) {
+                                tEl.innerHTML = `<i class="fa-solid fa-cart-arrow-down text-orange-400 mr-1"></i> Dicheckout ${oldT + 1}`;
+                            }
+                        }
+                    }
+                }
+
                 try {
                     const body = new URLSearchParams({ action: 'hitKlik', id: id, tipe: tipe });
                     fetch(APPS_SCRIPT_URL, { method: 'POST', body: body }).catch(() => { });
@@ -664,8 +686,8 @@
                     <div class="produk-card card glass-panel rounded-2xl p-5 md:p-6 flex flex-col ${lebarClass} ${extraClass}" ${!targetId ? `onclick="location.href='index.html?id=${id}'" style="cursor:pointer;"` : ''}>
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
-                            <span class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-cart-arrow-down text-orange-400 mr-1"></i> Dicheckout ${terjualCount}</span>
-                            <span class="text-[10px] text-cyan-400"><i class="fa-solid fa-eye mr-1"></i> ${viewCount} Dilihat</span>
+                            <span id="card-terjual-${id}" class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-cart-arrow-down text-orange-400 mr-1"></i> Dicheckout ${terjualCount}</span>
+                            <span id="card-views-${id}" class="text-[10px] text-cyan-400"><i class="fa-solid fa-eye mr-1"></i> ${viewCount} Dilihat</span>
                         </div>
                         
                         <div class="flex justify-between items-center mb-2 flex-shrink-0">
