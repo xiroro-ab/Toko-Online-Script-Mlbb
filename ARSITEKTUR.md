@@ -178,10 +178,42 @@ Periksa `getWebhookInfo`: url benar, `pending_update_count=0`, `last_error_messa
 
 - `index.html` — etalase + checkout + ulasan (user). Membaca produk **langsung dari GAS
   `?action=bacaSemuaProduk`** (Spreadsheet) → produk baru otomatis tampil, tanpa bergantung
-  `produk.json` statis. Ulasan juga dari GAS. **Grid render LANGSUNG** (tak menunggu ulasan
-  lambat; ulasan diterapkan asinkron). `kirimUlasan` **optimistic** (tampil dulu, server
-  background).
+  `produk.json` statis. Ulasan juga dari GAS. Grid di-render setelah rating ulasan dihitung
+  (agar bintang tampil). `kirimUlasan` → setelah POST OK, `muatUlasan` sekali (lihat alur di bawah).
 - `gratis.html` — sama, produk gratis.
+
+### Alur render produk & ulasan (KUNCI — sering jadi sumber blink/duplikat/bintang hilang)
+
+`#katalog-produk` adalah grid yang menampung KARTU PRODUK (`renderProduk()`) **dan**
+KARTU ULASAN + FORM (`muatUlasan()` menyuntik `.ulasan-item` ke grid yang sama).
+
+Agar tidak blink/duplikat/bintang hilang, aturannya:
+
+1. **`muatUlasan()` dipanggil HANYA SEKALI** dari alur load (`if (targetId) muatUlasan(targetId)`).
+   JANGAN panggil `muatUlasan` lagi di `.then` ulasan, di `refreshUlasanRatings`, atau
+   (setelah kirim ulasan) lebih dari sekali — tiap panggilan = hapus & re-render kartu
+   ulasan → **blink 2x** & **duplikat**.
+2. **Bintang kartu produk** butuh `ratingAvg` dari `applyUlasanKeToko()`. Urutan yang benar
+   di detail: muat ulasan → `applyUlasanKeToko()` → `renderProduk()` (kartu + bintang) →
+   `muatUlasan()` (kartu ulasan sejajar). Jika `renderProduk` dipanggil SEBELUM rating
+   dihitung, kartu detail tampil rating 0 → **bintang kosong/hilang**.
+3. **JANGAN panggil `renderProduk()` setelah `muatUlasan()`** di mode detail — itu menghapus
+   kartu ulasan yang baru dirender. `renderProduk` aman dipanggil ulang di halaman utama
+   (home) utk update bintang, karena home tidak punya kartu ulasan.
+4. `kirimUlasan` optimistic: setelah POST sukses → cukup `muatUlasan(pid)` (SATU kali).
+   Jangan tambah `refreshUlasanRatings()` bersamaan (menyulitkan & bikin ganda).
+
+### Counter views / beli / download (kolom Views & Terjual)
+
+- `catatKlik(id, tipe)` di index/gratis → POST `hitKlik` ke GAS. Tipe: `view`, `beli`, `download`.
+- `cek.html` `catatDownload(nama)` utk klik tombol download.
+- Backend `hitKlik` (di `.gs`) meng-increment **views (kolom 12)** atau **terjual (kolom 13)**,
+  mencocokkan produk by **ID ATAU Nama** (agar `cek.html` yg cuma punya nama produk bisa hit).
+- **Anti-duplikat**: localStorage dengan **prefix `v2`** (`xiroro_hit_v2_<tipe>_<id>`,
+  `xiroro_dl_v2_<nama>`). JANGAN ganti prefix seenaknya — ganti prefix = semua counter
+  perangkat reset & bisa 2x hit.
+- `.gs` harus sudah punya endpoint `hitKlik`, kalau tidak counter tidak tersimpan.
+
 - `cek.html` — cek status user; **polling 5 detik** `cekStatus`; tombol file muncul jika
   `fileLink` terisi (kini di-backend via lookup katalog bila SELESAI).
 - `admin.html` — panel admin; **polling 5 detik** `bacaSemuaPesanan` (butuh `DATA_KEY`);
