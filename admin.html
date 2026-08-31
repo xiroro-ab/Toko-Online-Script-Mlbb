@@ -71,6 +71,16 @@
                                 <input type="text" id="videoID" placeholder="Contoh: dQw4w9WgXcQ" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500">
                             </div>
                         </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm mb-1 text-slate-400">Jumlah Terjual/Unduh</label>
+                                <input type="number" id="terjual" placeholder="Opsional (0)" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1 text-slate-400">Jumlah Views (Dilihat)</label>
+                                <input type="number" id="views" placeholder="Opsional (0)" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg focus:outline-cyan-500">
+                            </div>
+                        </div>
                         <div>
                             <label class="block text-sm mb-1 text-slate-400">Deskripsi Singkat</label>
                             <textarea id="deskripsi" placeholder="Deskripsi mod..." class="w-full bg-slate-800 border border-slate-700 p-2 rounded-lg h-20 focus:outline-cyan-500" required></textarea>
@@ -795,7 +805,9 @@ function renderProdukAdmin() {
                     deskripsi: document.getElementById('deskripsi').value,
                     videoID: document.getElementById('videoID').value,
                     fileLink: document.getElementById('fileLink').value,
-                    gambarUrl: imageUrl
+                    gambarUrl: imageUrl,
+                    views: document.getElementById('views') ? document.getElementById('views').value : 0,
+                    terjual: document.getElementById('terjual') ? document.getElementById('terjual').value : 0
                 });
 
                 const res = await fetch(appsScriptUrl, { method: 'POST', body: dataToSave });
@@ -826,6 +838,8 @@ function renderProdukAdmin() {
                 document.getElementById('deskripsi').value = data.deskripsi || '';
                 document.getElementById('videoID').value = data.videoID || '';
                 document.getElementById('fileLink').value = data.fileLink || '';
+                document.getElementById('terjual').value = data.terjual || 0;
+                document.getElementById('views').value = data.views || 0;
                 document.getElementById('foto').value = '';
                 document.getElementById('info-foto').classList.remove('hidden'); 
 
@@ -837,6 +851,8 @@ function renderProdukAdmin() {
 
         function resetForm() {
             document.getElementById('form-produk').reset(); document.getElementById('edit-id').value = ""; document.getElementById('gambarUrlLama').value = "";
+            if (document.getElementById('views')) document.getElementById('views').value = "";
+            if (document.getElementById('terjual')) document.getElementById('terjual').value = "";
             document.getElementById('form-title').innerHTML = "<i class='fa-solid fa-plus'></i> Tambah Produk Baru"; document.getElementById('info-foto').classList.add('hidden');
             const btn = document.getElementById('btn-submit'); btn.disabled = false; btn.innerHTML = "<i class='fa-solid fa-cloud-arrow-up'></i> Simpan ke Etalase";
             btn.classList.replace('bg-yellow-600', 'bg-cyan-600'); btn.classList.replace('hover:bg-yellow-500', 'hover:bg-cyan-500');
