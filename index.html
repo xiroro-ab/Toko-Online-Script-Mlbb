@@ -904,9 +904,9 @@
         // Reedits Script di sana: tambahkan parser action=notif (lihat tutorial).
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec";
 
-        function notifTelegram(pesananId, kode, namaProduk, nominal, namaDana) {
+        function notifTelegram(pesananId, kode, namaProduk, nominal, namaDana, noHp) {
             try {
-                const params = new URLSearchParams({ action: 'notif', pesananId: pesananId, kode: kode, produk: namaProduk, nominal: nominal, namaDana: namaDana, waktu: new Date().toISOString() });
+                const params = new URLSearchParams({ action: 'notif', pesananId: pesananId, kode: kode, produk: namaProduk, nominal: nominal, namaDana: namaDana, noHp: noHp || '', waktu: new Date().toISOString() });
                 fetch(APPS_SCRIPT_URL, { method: 'POST', body: params, mode: 'no-cors' }).catch(() => { });
             } catch (e) { }
         }
@@ -950,6 +950,7 @@
                             <p class="mb-1"><b class="text-white">4.</b> Alternatif: kirim manual ke nomor DANA <b class="text-white">${DANA_NUMBER}</b></p>
                         </div>
                         <input type="text" id="namaDanaInput" placeholder="Nama akun DANA Anda (untuk verifikasi)" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-cyan-500 mb-2 text-white">
+                        <input type="text" id="noHpInput" placeholder="Nomor HP / WhatsApp Anda" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-lg focus:outline-cyan-500 mb-2 text-white">
                         <p class="text-[11px] text-slate-400 mb-3">Bayar lewat warung/titip? Nama di aplikasi Anda bisa berbeda. Siapkan <b class="text-cyan-400">screenshot dari aplikasi DANA Anda</b> sebagai bukti.</p>
                         <button onclick="kirimVerifikasi('${id}','${kode}','${esc(nama)}','${harga}')" class="block w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl font-bold mb-2">
                             <i class="fa-brands fa-whatsapp mr-2"></i> Saya Sudah Bayar (Kirim Bukti)
@@ -965,7 +966,9 @@
 
         function kirimVerifikasi(id, kode, namaProduk, nominal) {
             const namaDana = document.getElementById('namaDanaInput').value.trim();
+            const noHp = document.getElementById('noHpInput').value.trim();
             if (!namaDana) { Swal.fire({ icon: 'warning', title: 'Isi Nama DANA', text: 'Tulis nama akun DANA yang Anda gunakan untuk transfer.', background: '#0f172a' }); return; }
+            if (!noHp) { Swal.fire({ icon: 'warning', title: 'Isi Nomor HP', text: 'Tulis nomor HP / WhatsApp Anda untuk konfirmasi.', background: '#0f172a' }); return; }
 
             const KEY_SPAM = 'xiroro_last_klaim';
             const last = parseInt(localStorage.getItem(KEY_SPAM) || '0');
@@ -980,6 +983,7 @@
             const pesan = encodeURIComponent(
                 `Halo Xiroro, saya mau verifikasi pembayaran.\n\n` +
                 `Nama akun DANA: ${namaDana}\n` +
+                `No. HP/WA: ${noHp}\n` +
                 `Produk: ${namaProduk}\n` +
                 `Nominal: ${hargaTampil}\n` +
                 `Kode pesanan: ${kode}\n` +
@@ -995,7 +999,7 @@
 
             try {
                 window.__gagalKirim = false;
-                notifTelegram(kode, kode, namaProduk, nominal, namaDana);
+                notifTelegram(kode, kode, namaProduk, nominal, namaDana, noHp);
             } catch (e) {
                 console.error('Gagal simpan pesanan:', e);
                 window.__gagalKirim = true;
