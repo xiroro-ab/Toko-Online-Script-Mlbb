@@ -343,6 +343,11 @@
                     d.fields.ratingAvg = 0;
                     d.fields.ratingCount = 0;
                 }
+
+                const badgeEl = document.getElementById(`card-rating-${pId}`);
+                if (badgeEl) {
+                    badgeEl.innerHTML = `${bintangR(d.fields.ratingAvg || 0)} <span class="text-slate-300 ml-1">(${d.fields.ratingCount || 0})</span>`;
+                }
             });
         }
 
@@ -498,7 +503,7 @@
                         
                         <div class="flex justify-between items-center mb-2 flex-shrink-0">
                             <span class="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full"><i class="fa-solid fa-tag mr-1"></i> ${esc(kategori)}</span>
-                            <div class="text-[10px] flex items-center text-yellow-400 bg-slate-800/60 px-2 py-0.5 rounded-full border border-slate-700/50">
+                            <div id="card-rating-${id}" class="text-[10px] flex items-center text-yellow-400 bg-slate-800/60 px-2 py-0.5 rounded-full border border-slate-700/50">
                                 ${bintangR(f.ratingAvg || 0)} <span class="text-slate-300 ml-1">(${f.ratingCount || 0})</span>
                             </div>
                         </div>
@@ -880,6 +885,8 @@
 
                 if (!window.semuaUlasan) window.semuaUlasan = [];
                 window.semuaUlasan.unshift({ produkId: pid, nama: nama, rating: rating, teks: teks, waktu: new Date().toISOString() });
+                applyUlasanKeToko(window.semuaUlasan);
+                muatUlasan(pid, window.semuaUlasan);
                 refreshUlasanRatings();
             } catch (e) {
                 btn.disabled = false;
