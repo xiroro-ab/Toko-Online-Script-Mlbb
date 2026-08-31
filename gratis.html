@@ -354,7 +354,6 @@
                 applyUlasanKeToko(ulasanArr);
                 const tid = new URLSearchParams(window.location.search).get('id');
                 if (!tid) renderProduk();
-                else muatUlasan(tid);
             } catch (e) {}
         }
 
@@ -378,7 +377,7 @@
 
                 fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
                     .then(res => res.json())
-                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); if (targetId) muatUlasan(targetId); else renderProduk(); })
+                    .then(ulasanArr => { applyUlasanKeToko(ulasanArr); if (!targetId) renderProduk(); })
                     .catch(() => {});
 
                 fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
@@ -828,7 +827,6 @@
                 .then(() => {
                     btn.disabled = false;
                     btn.innerHTML = 'Kirim Ulasan Sekarang';
-                    if (typeof refreshUlasanRatings === 'function') refreshUlasanRatings();
                     muatUlasan(pid);
                 })
                 .catch(() => {
