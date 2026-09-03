@@ -28,9 +28,26 @@
 
         <div id="hasil" class="hidden glass p-5 rounded-2xl text-center"></div>
 
-        <a href="https://wa.me/6285181217627" target="_blank" class="block text-center text-sm text-slate-400 hover:text-emerald-400 mt-4">
+        <button onclick="document.getElementById('qrModal').classList.remove('hidden')" class="block w-full text-center text-sm text-yellow-400 hover:text-yellow-300 mt-5 mb-2 cursor-pointer transition-colors">
+            <i class="fa-solid fa-qrcode mr-1"></i> Belum bayar? Klik di sini untuk melihat QR
+        </button>
+
+        <a href="https://wa.me/6285181217627" target="_blank" class="block text-center text-sm text-slate-400 hover:text-emerald-400 mt-2">
             <i class="fa-brands fa-whatsapp mr-1 text-green-400"></i> Butuh bantuan? Chat admin
         </a>
+    </div>
+
+    <!-- Modal QR -->
+    <div id="qrModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate__animated animate__fadeIn">
+        <div class="glass p-6 rounded-2xl max-w-sm w-full relative text-center">
+            <button onclick="document.getElementById('qrModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-lg font-bold text-cyan-400 mb-4">QR Code Pembayaran</h3>
+            <img src="QR.png" alt="QRIS" class="w-full rounded-xl border border-slate-600 mb-4 mx-auto">
+            <p class="text-xs text-slate-300 mb-4">Silakan scan QR Code di atas menggunakan aplikasi e-Wallet atau m-Banking Anda.</p>
+            <button onclick="document.getElementById('qrModal').classList.add('hidden')" class="w-full bg-cyan-600 hover:bg-cyan-500 py-2 rounded-xl text-sm font-bold transition-colors">Tutup</button>
+        </div>
     </div>
 
     <script>
