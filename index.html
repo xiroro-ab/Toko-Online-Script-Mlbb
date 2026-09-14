@@ -583,7 +583,13 @@
                     .then(cfg => { if (cfg) localStorage.setItem('xiroro_config', cfg); })
                     .catch(() => { });
             })
-            .catch(err => document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal terhubung ke Database. <br><span class="text-sm">(${err.message})</span></p>`);
+            .catch(err => {
+                let errorMsg = err.message;
+                if (errorMsg.includes("Unexpected token '<'") || errorMsg.includes("is not valid JSON")) {
+                    errorMsg = "Akses ke Google Apps Script diblokir oleh provider Anda. Silakan aktifkan <b>DNS Pribadi (Private DNS)</b> di pengaturan HP atau gunakan VPN.";
+                }
+                document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal terhubung ke Database. <br><span class="text-sm mt-2 block">${errorMsg}</span></p>`;
+            });
 
         function renderProduk() {
             const container = document.getElementById('katalog-produk');
