@@ -235,9 +235,9 @@
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch">
-                <!-- FORM PRODUK (50% SEJAJAR) -->
-                <div id="wadah-form-produk" class="glass p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 relative flex flex-col justify-between">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
+                <!-- FORM PRODUK (COL 5) -->
+                <div id="wadah-form-produk" class="lg:col-span-5 glass p-4 sm:p-6 rounded-2xl sm:rounded-3xl h-fit border border-slate-800 relative">
                     <!-- Title & Mode Indicator -->
                     <div class="flex items-center justify-between mb-3 pb-3 border-b border-slate-800">
                         <h2 id="form-title" class="text-sm sm:text-base md:text-lg font-bold text-cyan-400 flex items-center gap-2">
@@ -379,8 +379,8 @@
                     </form>
                 </div>
 
-                <!-- DAFTAR PRODUK (50% SEJAJAR) -->
-                <div id="wadah-daftar-produk" class="glass p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 flex flex-col">
+                <!-- DAFTAR PRODUK (COL 7 - MENYESUAIKAN & FIT) -->
+                <div id="wadah-daftar-produk" class="lg:col-span-7 glass p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 h-fit">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4 pb-3 border-b border-slate-800">
                         <div>
                             <h2 class="text-sm sm:text-base md:text-lg font-bold text-white flex items-center gap-2">
@@ -427,8 +427,8 @@
                         </div>
                     </div>
 
-                    <!-- Product List Container -->
-                    <div id="list-produk" class="space-y-2.5 flex-1 min-h-[480px] max-h-[700px] overflow-y-auto pr-1 desc-scroll">
+                    <!-- Product List Container (Fit Height dengan Scroll) -->
+                    <div id="list-produk" class="space-y-2.5 max-h-[600px] overflow-y-auto pr-1 desc-scroll">
                         <!-- Populated by JavaScript -->
                     </div>
                 </div>
@@ -1127,9 +1127,9 @@
                 const isGratis = hargaNum <= 0;
 
                 html += `
-                    <div class="glass-card flex flex-col p-3 sm:p-4 rounded-xl sm:rounded-2xl gap-2.5">
-                        <div class="flex items-start gap-3 w-full overflow-hidden">
-                            <div class="w-14 h-14 bg-slate-900 rounded-xl overflow-hidden border border-slate-700/80 flex-shrink-0 relative">
+                    <div class="glass-card flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-3.5 rounded-xl sm:rounded-2xl gap-3 hover:border-cyan-500/30 transition">
+                        <div class="flex items-center gap-3 w-full overflow-hidden">
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900 rounded-xl overflow-hidden border border-slate-700/80 flex-shrink-0 relative">
                                 <img src="${esc(imgUrl)}" class="w-full h-full object-cover">
                                 ${data.videoID ? '<div class="absolute bottom-1 right-1 px-1 py-0.2 rounded bg-black/80 text-[8px] text-red-400"><i class="fa-brands fa-youtube"></i></div>' : ''}
                             </div>
@@ -1146,22 +1146,16 @@
                                 <div class="flex flex-wrap items-center gap-1.5 text-[10px] text-slate-400">
                                     <span class="bg-slate-800/80 px-1.5 py-0.5 rounded"><i class="fa-solid fa-download text-emerald-400 mr-0.5"></i> ${data.terjual || 0}</span>
                                     <span class="bg-slate-800/80 px-1.5 py-0.5 rounded"><i class="fa-solid fa-eye text-cyan-400 mr-0.5"></i> ${data.views || 0}</span>
-                                    ${data.fileLink ? `<a href="${esc(data.fileLink)}" target="_blank" class="text-slate-400 hover:text-cyan-300 truncate max-w-[100px]" title="${esc(data.fileLink)}"><i class="fa-solid fa-link text-[8px] mr-0.5"></i> Link</a>` : ''}
+                                    ${data.fileLink ? `<a href="${esc(data.fileLink)}" target="_blank" class="text-slate-400 hover:text-cyan-300 truncate max-w-[120px]" title="${esc(data.fileLink)}"><i class="fa-solid fa-link text-[8px] mr-0.5"></i> Link</a>` : ''}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Touch-friendly Action Buttons di HP -->
-                        <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-800/80">
-                            <button onclick="salinLinkCerdas('${id}')" class="py-2 px-2 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 rounded-xl border border-blue-500/30 transition text-xs font-semibold flex items-center justify-center gap-1 min-h-[38px]" title="Salin Link Bagikan">
-                                <i class="fa-solid fa-share-nodes text-[11px]"></i> <span>Share</span>
-                            </button>
-                            <button onclick="prepareEdit('${id}')" class="py-2 px-2 bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 rounded-xl border border-amber-500/30 transition text-xs font-semibold flex items-center justify-center gap-1 min-h-[38px]" title="Edit Produk">
-                                <i class="fa-solid fa-pen text-[11px]"></i> <span>Edit</span>
-                            </button>
-                            <button onclick="hapusProduk('${id}')" class="py-2 px-2 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-xl border border-red-500/30 transition text-xs font-semibold flex items-center justify-center gap-1 min-h-[38px]" title="Hapus Produk">
-                                <i class="fa-solid fa-trash text-[11px]"></i> <span>Hapus</span>
-                            </button>
+                        <!-- Touch-friendly Action Buttons: Horizontal di Desktop, Rata di HP -->
+                        <div class="flex items-center gap-1.5 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 flex-shrink-0 justify-end">
+                            <button onclick="salinLinkCerdas('${id}')" class="flex-1 sm:flex-none px-3 py-2 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 rounded-xl border border-blue-500/30 transition text-xs font-semibold flex items-center justify-center gap-1 min-h-[36px]" title="Salin Link Bagikan"><i class="fa-solid fa-share-nodes"></i> <span class="sm:hidden text-xs">Share</span></button>
+                            <button onclick="prepareEdit('${id}')" class="flex-1 sm:flex-none px-3 py-2 bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 rounded-xl border border-amber-500/30 transition text-xs font-semibold flex items-center justify-center gap-1 min-h-[36px]" title="Edit Produk"><i class="fa-solid fa-pen"></i> <span class="sm:hidden text-xs">Edit</span></button>
+                            <button onclick="hapusProduk('${id}')" class="flex-1 sm:flex-none px-3 py-2 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-xl border border-red-500/30 transition text-xs font-semibold flex items-center justify-center gap-1 min-h-[36px]" title="Hapus Produk"><i class="fa-solid fa-trash"></i> <span class="sm:hidden text-xs">Hapus</span></button>
                         </div>
                     </div>
                 `;
