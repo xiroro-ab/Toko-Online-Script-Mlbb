@@ -829,6 +829,7 @@ function renderProdukAdmin() {
                 if (!json.ok) throw new Error(json.error);
                 
                 Swal.fire('Berhasil!', 'Data produk tersimpan.', 'success');
+                try { localStorage.removeItem('xiroro_katalog_cache'); } catch (e) { }
                 resetForm();
                 loadProduk();
             } catch (err) {
@@ -880,7 +881,10 @@ function renderProdukAdmin() {
                     try {
                         const res = await fetch(appsScriptUrl, { method: 'POST', body: new URLSearchParams({ action: 'adminHapusProduk', produkId: id }) });
                         const json = await res.json();
-                        if (json.ok) { Swal.fire('Terhapus!', 'Produk dihapus.', 'success'); loadProduk(); publishEtalase(); }
+                        if (json.ok) {
+                            try { localStorage.removeItem('xiroro_katalog_cache'); } catch (e) { }
+                            Swal.fire('Terhapus!', 'Produk dihapus.', 'success'); loadProduk(); publishEtalase();
+                        }
                         else { Swal.fire('Gagal', json.error, 'error'); }
                     } catch (e) { Swal.fire('Error', e.message, 'error'); }
                 }

@@ -605,46 +605,113 @@
             } catch (e) { }
         }
 
-        fetch("https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec?action=bacaSemuaProduk")
-            .then(res => res.json())
-            .then(items => {
-                if (!items || !items.length) {
-                    document.getElementById('katalog-produk').innerHTML = "<p class='col-span-full text-center text-slate-400'>Belum ada produk di etalase.</p>";
-                    return;
-                }
-                window.dataToko = items.map(it => ({ name: "script/" + it.id, fields: fieldsDariData(it.data || {}) }));
-                buildChips();
-                const targetId = new URLSearchParams(window.location.search).get('id');
-                if (targetId && catatKlik(targetId, 'view')) {
-                    
-                }
+        // ================= SISTEM CACHE STALE-WHILE-REVALIDATE =================
+        let initialRenderDone = false;
 
-                // Render produk cepat (produk card + kolom ulasan instan jika ada targetId)
-                renderProduk();
+        function cobaRenderDariCache() {
+            try {
+                const cachedProduk = localStorage.getItem('xiroro_katalog_cache');
+                const cachedUlasan = localStorage.getItem('xiroro_semua_ulasan_cache');
+                if (cachedProduk) {
+                    const items = JSON.parse(cachedProduk);
+                    if (Array.isArray(items) && items.length) {
+                        window.dataToko = items.map(it => ({ name: "script/" + it.id, fields: fieldsDariData(it.data || {}) }));
+                        if (cachedUlasan) {
+                            try {
+                                window.semuaUlasan = JSON.parse(cachedUlasan) || [];
+                                applyUlasanKeToko(window.semuaUlasan);
+                            } catch (e) { }
+                        }
+                        buildChips();
+                        renderProduk();
+                        initialRenderDone = true;
+                        const tid = new URLSearchParams(window.location.search).get('id');
+                        if (tid && catatKlik(tid, 'view')) { }
+                    }
+                }
+            } catch (e) {
+                console.warn("Cache load warning:", e);
+            }
+        }
 
-                // Ulasan & config dimuat asinkron
-                fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
-                    .then(res => res.json())
-                    .then(ulasanArr => {
-                        window.semuaUlasan = ulasanArr || [];
+        function muatDataServer() {
+            const tid = new URLSearchParams(window.location.search).get('id');
+
+            // 1. Fetch Produk dari Google Apps Script
+            fetch("https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec?action=bacaSemuaProduk")
+                .then(res => res.json())
+                .then(items => {
+                    if (!items || !items.length) {
+                        if (!initialRenderDone) {
+                            document.getElementById('katalog-produk').innerHTML = "<p class='col-span-full text-center text-slate-400'>Belum ada produk di etalase.</p>";
+                        }
+                        return;
+                    }
+
+                    const cacheRaw = localStorage.getItem('xiroro_katalog_cache');
+                    const itemsRaw = JSON.stringify(items);
+                    const adaPerubahan = cacheRaw !== itemsRaw;
+
+                    if (adaPerubahan) {
+                        try {
+                            localStorage.setItem('xiroro_katalog_cache', itemsRaw);
+                            localStorage.setItem('xiroro_katalog_time', String(Date.now()));
+                        } catch (e) { }
+                    }
+
+                    window.dataToko = items.map(it => ({ name: "script/" + it.id, fields: fieldsDariData(it.data || {}) }));
+
+                    if (tid && !initialRenderDone && catatKlik(tid, 'view')) { }
+
+                    if (!initialRenderDone) {
+                        buildChips();
+                        renderProduk();
+                        initialRenderDone = true;
+                    } else if (adaPerubahan && !tid) {
+                        // Di halaman utama jika ada produk baru/perubahan, perbarui tampilan tanpa reload
+                        buildChips();
+                        renderProduk();
+                    }
+                })
+                .catch(err => {
+                    if (!initialRenderDone) {
+                        let errorMsg = err.message;
+                        if (errorMsg.includes("Unexpected token '<'") || errorMsg.includes("is not valid JSON")) {
+                            errorMsg = "Akses ke Google Apps Script diblokir oleh provider Anda. Silakan aktifkan <b>DNS Pribadi (Private DNS)</b> di pengaturan HP atau gunakan VPN.";
+                        }
+                        document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal terhubung ke Database. <br><span class="text-sm mt-2 block">${errorMsg}</span></p>`;
+                    }
+                });
+
+            // 2. Fetch Ulasan secara paralel (tanpa menunggu fetch produk selesai)
+            fetch(APPS_SCRIPT_URL + '?action=bacaSemuaUlasan')
+                .then(res => res.json())
+                .then(ulasanArr => {
+                    if (Array.isArray(ulasanArr)) {
+                        try {
+                            localStorage.setItem('xiroro_semua_ulasan_cache', JSON.stringify(ulasanArr));
+                        } catch (e) { }
+                        window.semuaUlasan = ulasanArr;
                         applyUlasanKeToko(window.semuaUlasan);
-                        if (!targetId) renderProduk();
-                        else muatUlasan(targetId, window.semuaUlasan);
-                    })
-                    .catch(() => { });
+                        if (!tid) {
+                            if (window.dataToko) renderProduk();
+                        } else if (!initialRenderDone) {
+                            muatUlasan(tid, window.semuaUlasan);
+                        }
+                    }
+                })
+                .catch(() => { });
 
-                fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
-                    .then(res => res.json())
-                    .then(cfg => { if (cfg) localStorage.setItem('xiroro_config', cfg); })
-                    .catch(() => { });
-            })
-            .catch(err => {
-                let errorMsg = err.message;
-                if (errorMsg.includes("Unexpected token '<'") || errorMsg.includes("is not valid JSON")) {
-                    errorMsg = "Akses ke Google Apps Script diblokir oleh provider Anda. Silakan aktifkan <b>DNS Pribadi (Private DNS)</b> di pengaturan HP atau gunakan VPN.";
-                }
-                document.getElementById('katalog-produk').innerHTML = `<p class='col-span-full text-center text-red-400'>Gagal terhubung ke Database. <br><span class="text-sm mt-2 block">${errorMsg}</span></p>`;
-            });
+            // 3. Fetch Config secara paralel
+            fetch(APPS_SCRIPT_URL + "?action=bacaConfig&key=site")
+                .then(res => res.json())
+                .then(cfg => { if (cfg) localStorage.setItem('xiroro_config', cfg); })
+                .catch(() => { });
+        }
+
+        // Jalankan: render instan jika ada cache, lalu perbarui data dari server di background
+        cobaRenderDariCache();
+        muatDataServer();
 
         function renderProduk() {
             const container = document.getElementById('katalog-produk');
@@ -1271,6 +1338,9 @@
 
                 if (!window.semuaUlasan) window.semuaUlasan = [];
                 window.semuaUlasan.unshift({ produkId: pid, nama: nama, rating: rating, teks: teks, waktu: new Date().toISOString() });
+                try {
+                    localStorage.setItem('xiroro_semua_ulasan_cache', JSON.stringify(window.semuaUlasan));
+                } catch (e) { }
                 applyUlasanKeToko(window.semuaUlasan);
                 muatUlasan(pid, window.semuaUlasan);
                 refreshUlasanRatings();
