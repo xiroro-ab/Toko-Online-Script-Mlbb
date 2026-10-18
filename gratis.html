@@ -247,6 +247,7 @@
     <script>
 
         
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec";
         window.dataToko = [];
 
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -471,7 +472,7 @@
             const tid = new URLSearchParams(window.location.search).get('id');
 
             // 1. Fetch Produk dari Google Apps Script
-            fetch("https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec?action=bacaSemuaProduk")
+            fetch(APPS_SCRIPT_URL + "?action=bacaSemuaProduk")
                 .then(res => res.json())
                 .then(items => {
                     if (!items || !items.length) {
@@ -1007,8 +1008,6 @@
             if (!arr.length) listHtml = '<p class="text-sm text-slate-400 text-center py-8">Belum ada ulasan. Jadilah yang pertama!</p>';
             if (listContainer) listContainer.innerHTML = listHtml;
         }
-
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB0UZRr5PDWnbY4gKkPSMlti17RKpaHx4zUYhdAaGOVt-8KZVu7pG5h0BWFIPrsjCs/exec";
 
         async function kirimUlasan(pid, ev) {
             ev.preventDefault();
