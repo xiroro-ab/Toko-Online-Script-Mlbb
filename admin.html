@@ -89,9 +89,7 @@
     <div id="areaLogin" class="max-w-md mx-auto mt-8 sm:mt-20 glass p-5 sm:p-8 rounded-3xl shadow-2xl border-t-4 border-t-cyan-500 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl"></div>
         <div class="text-center mb-6 relative z-10">
-            <div class="inline-flex p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 mb-3 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
-                <i class="fa-solid fa-user-shield text-3xl"></i>
-            </div>
+            <img src="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/logo-web.png" alt="Xiroro Logo" class="w-20 h-20 rounded-3xl object-cover border-2 border-cyan-500 shadow-[0_0_25px_rgba(6,182,212,0.7)] mx-auto mb-3 bg-slate-900">
             <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">Admin Portal</h2>
             <p class="text-slate-400 text-xs mt-1">Masuk untuk mengelola toko & pesanan Xiroro</p>
         </div>
@@ -130,9 +128,7 @@
         <header class="glass p-3.5 sm:p-5 rounded-2xl border border-slate-800 mb-4 sm:mb-6">
             <div class="flex items-center justify-between gap-2 mb-3 sm:mb-0">
                 <div class="flex items-center gap-2.5 sm:gap-3">
-                    <div class="p-2 sm:p-2.5 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.5)] flex-shrink-0">
-                        <i class="fa-solid fa-shield-halved text-base sm:text-lg"></i>
-                    </div>
+                    <img src="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/logo-web.png" alt="Xiroro" class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl object-cover border-2 border-cyan-500 shadow-[0_0_18px_rgba(6,182,212,0.6)] bg-slate-900 flex-shrink-0">
                     <div>
                         <div class="flex items-center gap-1.5 sm:gap-2">
                             <h1 class="text-base sm:text-xl md:text-2xl font-black tracking-tight text-white leading-tight">XIRORO <span class="text-cyan-400 font-extrabold">CONTROL</span></h1>
@@ -149,8 +145,11 @@
                 </button>
             </div>
 
-            <!-- Quick Links Mobile Row -->
+            <!-- Quick Links Row -->
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 sm:pt-3 border-t border-slate-800/80">
+                <a href="https://safelinkk.vercel.app/admin" target="_blank" class="text-cyan-300 hover:text-cyan-200 text-xs py-1.5 px-3 rounded-xl bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 inline-flex items-center gap-1.5 transition flex-shrink-0 shadow-[0_0_10px_rgba(6,182,212,0.25)] font-semibold" title="Buka Panel Safelink">
+                    <i class="fa-solid fa-shield-halved text-cyan-400 text-xs"></i> <span>Safelink Admin</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-cyan-400/80"></i>
+                </a>
                 <a href="index.html" target="_blank" class="text-slate-300 hover:text-cyan-300 text-xs py-1.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 inline-flex items-center gap-1.5 transition flex-shrink-0">
                     <i class="fa-solid fa-store text-cyan-400 text-xs"></i> <span>Toko Pembeli</span>
                 </a>
@@ -235,9 +234,9 @@
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
-                <!-- FORM PRODUK (COL 5) -->
-                <div id="wadah-form-produk" class="lg:col-span-5 glass p-4 sm:p-6 rounded-2xl sm:rounded-3xl h-fit border border-slate-800 relative">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch">
+                <!-- FORM PRODUK (50% SEJAJAR) -->
+                <div id="wadah-form-produk" class="glass p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 relative flex flex-col justify-between">
                     <!-- Title & Mode Indicator -->
                     <div class="flex items-center justify-between mb-3 pb-3 border-b border-slate-800">
                         <h2 id="form-title" class="text-sm sm:text-base md:text-lg font-bold text-cyan-400 flex items-center gap-2">
@@ -345,7 +344,13 @@
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label class="block text-xs font-semibold text-slate-400">Link File Download <span class="text-red-400">*</span></label>
-                                <button type="button" onclick="testLinkFile()" class="text-[10px] text-cyan-400 hover:text-cyan-300"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Cek Link</button>
+                                <div class="flex items-center gap-2">
+                                    <a href="https://safelinkk.vercel.app/admin" target="_blank" class="text-[10px] text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold" title="Buka Safelink untuk membuat shortlink">
+                                        <i class="fa-solid fa-shield-halved text-[9px]"></i> Safelink
+                                    </a>
+                                    <span class="text-slate-600 text-[10px]">|</span>
+                                    <button type="button" onclick="testLinkFile()" class="text-[10px] text-cyan-400 hover:text-cyan-300"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Cek Link</button>
+                                </div>
                             </div>
                             <input type="text" id="fileLink" placeholder="https://drive.google.com/... atau Mediafire" class="w-full bg-slate-900 border border-slate-700/80 p-2.5 rounded-xl focus:outline-none focus:border-cyan-500 text-white text-sm" required>
                         </div>
@@ -379,8 +384,8 @@
                     </form>
                 </div>
 
-                <!-- DAFTAR PRODUK (COL 7 - MENYESUAIKAN & FIT) -->
-                <div id="wadah-daftar-produk" class="lg:col-span-7 glass p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 h-fit">
+                <!-- DAFTAR PRODUK (50% SEJAJAR) -->
+                <div id="wadah-daftar-produk" class="glass p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 flex flex-col justify-between">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4 pb-3 border-b border-slate-800">
                         <div>
                             <h2 class="text-sm sm:text-base md:text-lg font-bold text-white flex items-center gap-2">
@@ -427,8 +432,8 @@
                         </div>
                     </div>
 
-                    <!-- Product List Container (Fit Height dengan Scroll) -->
-                    <div id="list-produk" class="space-y-2.5 max-h-[600px] overflow-y-auto pr-1 desc-scroll">
+                    <!-- Product List Container (Flex-1 & Sejajar) -->
+                    <div id="list-produk" class="space-y-2.5 flex-1 min-h-[460px] max-h-[740px] overflow-y-auto pr-1 desc-scroll">
                         <!-- Populated by JavaScript -->
                     </div>
                 </div>
@@ -595,6 +600,25 @@
                 </div>
             </div>
         </section>
+
+        <!-- FOOTER COPYRIGHT & QUICK NAVIGATION -->
+        <footer class="mt-8 pt-5 pb-8 border-t border-slate-800/80 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <img src="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/logo-web.png" alt="Xiroro" class="w-6 h-6 rounded-lg object-cover border border-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.4)]">
+                <span class="text-slate-400 font-medium">© 2026 <strong class="text-white font-bold">Xiroro MLBB Store</strong>. Hak Cipta Dilindungi.</span>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-400">
+                <a href="https://safelinkk.vercel.app/admin" target="_blank" class="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition">
+                    <i class="fa-solid fa-shield-halved text-[10px]"></i> Safelink Admin
+                </a>
+                <span class="text-slate-700">•</span>
+                <a href="index.html" target="_blank" class="hover:text-cyan-300 transition">Katalog Pembeli</a>
+                <span class="text-slate-700">•</span>
+                <a href="gratis.html" target="_blank" class="hover:text-emerald-300 transition">Halaman Gratis</a>
+                <span class="text-slate-700">•</span>
+                <a href="cek.html" target="_blank" class="hover:text-yellow-300 transition">Cek Status Pesanan</a>
+            </div>
+        </footer>
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
@@ -1127,9 +1151,9 @@
                 const isGratis = hargaNum <= 0;
 
                 html += `
-                    <div class="glass-card flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-3.5 rounded-xl sm:rounded-2xl gap-3 hover:border-cyan-500/30 transition">
-                        <div class="flex items-center gap-3 w-full overflow-hidden">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900 rounded-xl overflow-hidden border border-slate-700/80 flex-shrink-0 relative">
+                    <div class="glass-card flex flex-col p-3 sm:p-4 rounded-xl sm:rounded-2xl gap-2.5">
+                        <div class="flex items-start gap-3 w-full overflow-hidden">
+                            <div class="w-14 h-14 bg-slate-900 rounded-xl overflow-hidden border border-slate-700/80 flex-shrink-0 relative">
                                 <img src="${esc(imgUrl)}" class="w-full h-full object-cover">
                                 ${data.videoID ? '<div class="absolute bottom-1 right-1 px-1 py-0.2 rounded bg-black/80 text-[8px] text-red-400"><i class="fa-brands fa-youtube"></i></div>' : ''}
                             </div>
@@ -1151,11 +1175,17 @@
                             </div>
                         </div>
 
-                        <!-- Touch-friendly Action Buttons: Horizontal di Desktop, Rata di HP -->
-                        <div class="flex items-center gap-1.5 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 flex-shrink-0 justify-end">
-                            <button onclick="salinLinkCerdas('${id}')" class="flex-1 sm:flex-none px-3 py-2 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 rounded-xl border border-blue-500/30 transition text-xs font-semibold flex items-center justify-center gap-1 min-h-[36px]" title="Salin Link Bagikan"><i class="fa-solid fa-share-nodes"></i> <span class="sm:hidden text-xs">Share</span></button>
-                            <button onclick="prepareEdit('${id}')" class="flex-1 sm:flex-none px-3 py-2 bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 rounded-xl border border-amber-500/30 transition text-xs font-semibold flex items-center justify-center gap-1 min-h-[36px]" title="Edit Produk"><i class="fa-solid fa-pen"></i> <span class="sm:hidden text-xs">Edit</span></button>
-                            <button onclick="hapusProduk('${id}')" class="flex-1 sm:flex-none px-3 py-2 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-xl border border-red-500/30 transition text-xs font-semibold flex items-center justify-center gap-1 min-h-[36px]" title="Hapus Produk"><i class="fa-solid fa-trash"></i> <span class="sm:hidden text-xs">Hapus</span></button>
+                        <!-- 3 Action Buttons berjejer persis tangkapan layar kedua -->
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80">
+                            <button onclick="salinLinkCerdas('${id}')" class="py-2.5 px-2 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 rounded-xl border border-blue-500/30 transition text-xs font-semibold flex items-center justify-center gap-1.5 min-h-[38px]" title="Salin Link Bagikan">
+                                <i class="fa-solid fa-share-nodes text-xs"></i> <span>Share</span>
+                            </button>
+                            <button onclick="prepareEdit('${id}')" class="py-2.5 px-2 bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 rounded-xl border border-amber-500/30 transition text-xs font-semibold flex items-center justify-center gap-1.5 min-h-[38px]" title="Edit Produk">
+                                <i class="fa-solid fa-pen text-xs"></i> <span>Edit</span>
+                            </button>
+                            <button onclick="hapusProduk('${id}')" class="py-2.5 px-2 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-xl border border-red-500/30 transition text-xs font-semibold flex items-center justify-center gap-1.5 min-h-[38px]" title="Hapus Produk">
+                                <i class="fa-solid fa-trash text-xs"></i> <span>Hapus</span>
+                            </button>
                         </div>
                     </div>
                 `;
