@@ -39,11 +39,36 @@
         .card { border-radius: 16px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 6px 6px rgba(0,0,0,0.3); transition: transform 0.2s, box-shadow 0.2s; margin: 0; border: 1px solid rgba(16,185,129,0.3); }
         .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(16,185,129,0.2), 0 10px 10px rgba(0,0,0,0.5); border-color: rgba(16,185,129,0.8); }
         .swal2-title { color: #10b981 !important; }
-        .swal2-popup { background: rgba(6,78,59,0.9) !important; backdrop-filter: blur(10px) !important; color: white !important; border-radius: 15px !important; border: 1px solid rgba(16,185,129,0.5) !important; }
+        .swal2-popup { 
+            background: rgba(6,78,59,0.95) !important; 
+            backdrop-filter: blur(10px) !important; 
+            color: white !important; 
+            border-radius: 15px !important; 
+            border: 1px solid rgba(16,185,129,0.5) !important; 
+            max-width: 95vw !important;
+        }
+        @media (max-width: 640px) {
+            .swal2-popup {
+                padding: 16px 12px !important;
+                border-radius: 12px !important;
+            }
+            .swal2-title {
+                font-size: 1.25rem !important;
+            }
+            .card {
+                padding: 14px;
+                border-radius: 14px;
+            }
+        }
         .swal2-input { background: rgba(0,0,0,0.5) !important; color: white !important; border: 1px solid rgba(16,185,129,0.3) !important; }
         .swal2-input:focus { border-color: #10b981 !important; }
         main { flex-grow: 1; }
         
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .desc-scroll { overscroll-behavior: contain; }
+        .safe-pb { padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
+
         .loader-ring { position: absolute; border-radius: 50%; border: 4px solid transparent; }
         .ring-1 { inset: 0; border-top-color: #10b981; animation: spin 1.5s linear infinite; }
         .ring-2 { inset: 8px; border-right-color: #34d399; animation: spin-reverse 2s linear infinite; }
@@ -70,51 +95,51 @@
 
     <video autoplay muted loop playsinline id="video-bg"></video>
 
-    <div class="glass-panel text-white text-xs py-2 px-4 text-center border-b border-emerald-500/30">
+    <div class="glass-panel text-white text-[11px] sm:text-xs py-1.5 sm:py-2 px-3 sm:px-4 text-center border-b border-emerald-500/30">
         <marquee scrollamount="5" class="max-w-4xl mx-auto">
             <i class="fa-solid fa-gift mr-2"></i> <b>KUMPULAN SCRIPT GRATIS:</b> Nikmati berbagai mod pilihan secara cuma-cuma. Bagikan link website ini ke teman-teman Anda!
         </marquee>
     </div>
 
-    <header class="py-10 text-center glass-panel border-b border-emerald-500/30 relative">
-        <h1 class="text-4xl font-bold animate__animated animate__fadeInDown"><i class="fa-solid fa-gift text-emerald-400"></i> Xiroro <span class="text-emerald-400">Gratisan</span></h1>
-        <div class="mt-6 flex justify-center animate__animated animate__zoomIn">
-            <img id="logo-toko" src="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/logo.png" alt="Logo Toko" class="w-28 h-28 rounded-full border-4 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)] object-cover bg-slate-800">
+    <header class="py-6 sm:py-10 text-center glass-panel border-b border-emerald-500/30 relative px-4">
+        <h1 class="text-2xl sm:text-4xl font-bold animate__animated animate__fadeInDown"><i class="fa-solid fa-gift text-emerald-400"></i> Xiroro <span class="text-emerald-400">Gratisan</span></h1>
+        <div class="mt-4 sm:mt-6 flex justify-center animate__animated animate__zoomIn">
+            <img id="logo-toko" src="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/logo.png" alt="Logo Toko" class="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)] object-cover bg-slate-800">
         </div>
-        <p class="mt-4 text-slate-300 font-medium">Free Mods & Scripts for Everyone</p>
+        <p class="mt-2 sm:mt-4 text-xs sm:text-base text-slate-300 font-medium">Free Mods & Scripts for Everyone</p>
 
-        <div class="mt-6 flex justify-center animate__animated animate__fadeInUp">
-            <a href="index.html" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-6 py-2 rounded-full font-bold shadow-[0_0_15px_rgba(6,182,212,0.5)] transition-all hover:scale-105 border border-cyan-400/50">
-                <i class="fa-solid fa-crown mr-2"></i> Lihat Script Premium
+        <div class="mt-4 sm:mt-6 flex justify-center animate__animated animate__fadeInUp">
+            <a href="index.html" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-5 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm shadow-[0_0_15px_rgba(6,182,212,0.5)] transition-all hover:scale-105 border border-cyan-400/50">
+                <i class="fa-solid fa-crown mr-1.5 sm:mr-2"></i> Lihat Script Premium
             </a>
         </div>
     </header>
 
-    <main class="container mx-auto px-6 py-10">
-        <div class="glass-panel p-6 rounded-2xl mb-10 border border-emerald-500/30 animate__animated animate__fadeInDown">
-            <div class="flex flex-col md:flex-row items-center gap-6">
+    <main class="container mx-auto px-3 sm:px-6 py-6 sm:py-10 safe-pb md:pb-10">
+        <div class="glass-panel p-4 sm:p-6 rounded-2xl mb-6 sm:mb-10 border border-emerald-500/30 animate__animated animate__fadeInDown">
+            <div class="flex flex-col md:flex-row items-center gap-4 sm:gap-6">
                 <div class="w-full md:w-1/3 aspect-video rounded-xl overflow-hidden border-2 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] relative group cursor-pointer bg-slate-900" onclick="bukaVideoDownload()">
                     <img src="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/logo.png" alt="Logo Xiroro" class="w-full h-full object-contain p-2 opacity-80 group-hover:scale-110 transition duration-300">
                     <div class="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/30 transition">
-                    <i class="fa-solid fa-circle-play text-6xl text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,1)] group-hover:scale-110 transition"></i>
+                    <i class="fa-solid fa-circle-play text-5xl sm:text-6xl text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,1)] group-hover:scale-110 transition"></i>
                     </div>
                 </div>
                 
                 <div class="w-full md:w-2/3 text-center md:text-left">
-                    <h2 class="text-2xl font-bold text-emerald-400 mb-2">Cara Melewati Link Download</h2>
-                    <p class="text-slate-300 text-sm leading-relaxed mb-4">Kesulitan saat mendownload script gratis? Tonton video tutorial singkat ini agar Anda paham cara melewati iklan dan langsung mendapatkan file script-nya tanpa kebingungan!</p>
-                    <button onclick="bukaVideoDownload()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-full font-bold shadow-[0_0_10px_rgba(16,185,129,0.4)] transition">
-                        <i class="fa-solid fa-play mr-2"></i> Tonton Tutorial
+                    <h2 class="text-xl sm:text-2xl font-bold text-emerald-400 mb-2">Cara Melewati Link Download</h2>
+                    <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">Kesulitan saat mendownload script gratis? Tonton video tutorial singkat ini agar Anda paham cara melewati iklan dan langsung mendapatkan file script-nya tanpa kebingungan!</p>
+                    <button onclick="bukaVideoDownload()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm shadow-[0_0_10px_rgba(16,185,129,0.4)] transition">
+                        <i class="fa-solid fa-play mr-1.5 sm:mr-2"></i> Tonton Tutorial
                     </button>
                 </div>
             </div>
         </div>
-        <div id="search-container" class="flex flex-col md:flex-row gap-4 mb-10 max-w-3xl mx-auto animate__animated animate__fadeIn" style="display: none;">
+        <div id="search-container" class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-10 max-w-3xl mx-auto animate__animated animate__fadeIn" style="display: none;">
             <div class="relative flex-1">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 text-lg"></i>
-                <input type="text" id="searchInput" oninput="renderProduk()" placeholder="Cari nama script gratis..." class="w-full bg-slate-800/80 border border-emerald-500/50 text-white rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)] backdrop-blur-sm transition-all">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-emerald-400 text-base sm:text-lg"></i>
+                <input type="text" id="searchInput" oninput="renderProduk()" placeholder="Cari nama script gratis..." class="w-full bg-slate-800/80 border border-emerald-500/50 text-white rounded-xl py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)] backdrop-blur-sm transition-all">
             </div>
-            <select id="sortInput" onchange="renderProduk()" class="bg-slate-800/80 border border-emerald-500/50 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)] backdrop-blur-sm cursor-pointer">
+            <select id="sortInput" onchange="renderProduk()" class="bg-slate-800/80 border border-emerald-500/50 text-white rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)] backdrop-blur-sm cursor-pointer">
                 <option value="terbaru">Urutkan: Paling Baru</option>
                 <option value="terlaris">Urutkan: Paling Banyak Diunduh</option>
                 <option value="terpopuler">Urutkan: Paling Banyak Dilihat</option>
@@ -122,9 +147,9 @@
             </select>
         </div>
 
-        <div id="chips" class="flex flex-wrap gap-2 justify-center mb-6 animate__animated animate__fadeIn" style="display:none;"></div>
+        <div id="chips" class="flex overflow-x-auto no-scrollbar sm:flex-wrap sm:justify-center gap-2 pb-2 mb-6 animate__animated animate__fadeIn -mx-3 sm:mx-0 px-3 sm:px-0" style="display:none;"></div>
 
-        <div id="katalog-produk" class="grid grid-cols-1 sm:grid-cols-2 gap-8 items-start">
+        <div id="katalog-produk" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 items-start">
             <div class="col-span-full flex flex-col items-center justify-center py-20 mt-10">
                 <div class="relative w-24 h-24 mb-6">
                     <div class="loader-ring ring-1"></div><div class="loader-ring ring-2"></div><div class="loader-ring ring-3"></div>
@@ -163,34 +188,61 @@
                 </ul>
             </div>
         </div>
-        <div class="border-t border-slate-700/50 pt-6 px-6 flex flex-col md:flex-row justify-between items-center text-xs text-slate-400">
+        <div class="border-t border-slate-700/50 pt-6 px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center text-xs text-slate-400 text-center md:text-left gap-2">
             <p>© 2026 Xiroro Script. All Rights Reserved.</p>
-            <p class="mt-2 md:mt-0 tracking-widest uppercase">Powered by <span class="text-emerald-400 font-bold ml-1">XIRORO</span></p>
+            <p class="tracking-widest uppercase">Powered by <span class="text-emerald-400 font-bold ml-1">XIRORO</span></p>
         </div>
     </footer>
 
+    <!-- Desktop Floating Actions (Muncul di layar md ke atas) -->
+    <div class="hidden md:block">
         <a href="https://wa.me/6285181217627" target="_blank" class="fixed bottom-[88px] right-6 bg-[#25D366] hover:bg-[#128C7E] text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(37,211,102,0.5)] z-50 transition-all hover:scale-110 floating-wa group">
-        <i class="fa-brands fa-whatsapp"></i>
-        
-        <span class="absolute right-16 bg-slate-800 text-cyan-400 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
-            Hubungi via WA
-        </span>
-    </a>
+            <i class="fa-brands fa-whatsapp"></i>
+            
+            <span class="absolute right-16 bg-slate-800 text-cyan-400 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
+                Hubungi via WA
+            </span>
+        </a>
 
-    <button onclick="bukaTutorial()" class="fixed bottom-6 right-6 bg-cyan-600 hover:bg-cyan-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(6,182,212,0.5)] z-50 transition-all hover:scale-110 floating-wa group">
-        <i class="fa-solid fa-wrench"></i>
-        
-        <span class="absolute right-16 bg-slate-800 text-cyan-400 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
-            Cara Pasang Script
-        </span>
-    </button>
+        <button onclick="bukaTutorial()" class="fixed bottom-6 right-6 bg-cyan-600 hover:bg-cyan-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(6,182,212,0.5)] z-50 transition-all hover:scale-110 floating-wa group">
+            <i class="fa-solid fa-wrench"></i>
+            
+            <span class="absolute right-16 bg-slate-800 text-cyan-400 text-xs px-3 py-1.5 rounded-lg border border-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
+                Cara Pasang Script
+            </span>
+        </button>
 
-    <a href="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html" class="fixed bottom-[150px] right-6 bg-slate-800/90 hover:bg-slate-700 border border-emerald-500/50 text-emerald-400 w-14 h-14 rounded-full flex items-center justify-center text-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] z-50 transition-all hover:scale-110 floating-wa group">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <span class="absolute right-16 bg-slate-800 text-emerald-400 text-xs px-3 py-1.5 rounded-lg border border-emerald-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
-            Cek Status Pesanan
-        </span>
-    </a>
+        <a href="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html" class="fixed bottom-[150px] right-6 bg-slate-800/90 hover:bg-slate-700 border border-emerald-500/50 text-emerald-400 w-14 h-14 rounded-full flex items-center justify-center text-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] z-50 transition-all hover:scale-110 floating-wa group">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span class="absolute right-16 bg-slate-800 text-emerald-400 text-xs px-3 py-1.5 rounded-lg border border-emerald-500/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
+                Cek Status Pesanan
+            </span>
+        </a>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar (Khusus di HP / Layar Kecil) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-lg border-t border-emerald-500/30 px-2 py-1.5 flex justify-around items-center text-xs shadow-[0_-5px_20px_rgba(0,0,0,0.6)]">
+        <a href="index.html" class="flex flex-col items-center justify-center text-cyan-400 hover:text-cyan-300 py-1 px-2.5">
+            <i class="fa-solid fa-crown text-lg mb-0.5"></i>
+            <span class="text-[10px] font-semibold">Premium</span>
+        </a>
+        <a href="gratis.html" class="flex flex-col items-center justify-center text-emerald-400 hover:text-emerald-300 py-1 px-2.5">
+            <i class="fa-solid fa-gift text-lg mb-0.5"></i>
+            <span class="text-[10px] font-semibold">Gratis</span>
+        </a>
+        <a href="https://xiroro-ab.github.io/Toko-Online-Script-Mlbb/cek.html" class="flex flex-col items-center justify-center text-slate-300 hover:text-emerald-400 py-1 px-2.5">
+            <i class="fa-solid fa-magnifying-glass text-lg mb-0.5"></i>
+            <span class="text-[10px] font-semibold">Cek Order</span>
+        </a>
+        <button onclick="bukaTutorial()" class="flex flex-col items-center justify-center text-slate-300 hover:text-emerald-400 py-1 px-2.5">
+            <i class="fa-solid fa-wrench text-lg mb-0.5"></i>
+            <span class="text-[10px] font-semibold">Tutorial</span>
+        </button>
+        <a href="https://wa.me/6285181217627" target="_blank" class="flex flex-col items-center justify-center text-green-400 hover:text-green-300 py-1 px-2.5">
+            <i class="fa-brands fa-whatsapp text-lg mb-0.5"></i>
+            <span class="text-[10px] font-semibold">WhatsApp</span>
+        </a>
+    </nav>
 
     <script>
 
@@ -335,8 +387,8 @@
             
             const currentCat = activeCat !== null ? activeCat : window.chipFilter;
 
-            el.innerHTML = `<button type="button" onclick="setChip('')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${currentCat ? 'bg-slate-800/70 border-emerald-500/40 text-emerald-200' : 'bg-emerald-600 text-white'}">Semua</button>` +
-                cats.map(c => `<button type="button" onclick="setChip('${c}')" class="px-4 py-1.5 rounded-full text-xs font-bold border transition ${currentCat === c ? 'bg-emerald-600 text-white' : 'bg-slate-800/70 border-emerald-500/40 text-emerald-200'}">${esc(c)}</button>`).join('');
+            el.innerHTML = `<button type="button" onclick="setChip('')" class="flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold border transition ${currentCat ? 'bg-slate-800/70 border-emerald-500/40 text-emerald-200' : 'bg-emerald-600 text-white'}">Semua</button>` +
+                cats.map(c => `<button type="button" onclick="setChip('${c}')" class="flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold border transition ${currentCat === c ? 'bg-emerald-600 text-white' : 'bg-slate-800/70 border-emerald-500/40 text-emerald-200'}">${esc(c)}</button>`).join('');
         }
 
         function applyUlasanKeToko(ulasanArr) {
@@ -518,14 +570,14 @@
                 let ytThumb = vidId ? `https://img.youtube.com/vi/${vidId}/hqdefault.jpg` : '';
                 let textDeskripsi = esc(f.deskripsi ? f.deskripsi.stringValue : '').replace(/\n/g, '<br>');
 
-                let lebarClass = isSlider ? "w-[300px] min-w-[300px] snap-start flex-shrink-0" : (targetId ? "w-full h-full min-h-[500px]" : "w-full h-[500px]");
+                let lebarClass = isSlider ? "w-[260px] min-w-[260px] sm:w-[300px] sm:min-w-[300px] snap-start flex-shrink-0" : (targetId ? "w-full h-full min-h-[440px] sm:min-h-[500px]" : "w-full h-[470px] sm:h-[500px]");
                 let extraClass = targetId ? 'border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : '';
 
                 return `
-                    <div class="produk-card card glass-panel rounded-2xl p-5 md:p-6 flex flex-col ${lebarClass} ${extraClass}" ${!targetId ? `onclick="location.href='gratis.html?id=${id}'" style="cursor:pointer;"` : ''}>
+                    <div class="produk-card card glass-panel rounded-2xl p-4 sm:p-5 md:p-6 flex flex-col ${lebarClass} ${extraClass}" ${!targetId ? `onclick="location.href='gratis.html?id=${id}'" style="cursor:pointer;"` : ''}>
                         
                         <div class="flex justify-between items-center mb-2 px-1 flex-shrink-0">
-                            <span id="card-terjual-${id}" class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-1 rounded-full"><i class="fa-solid fa-download text-emerald-400 mr-1"></i> Diunduh ${terjualCount}x</span>
+                            <span id="card-terjual-${id}" class="text-[10px] bg-slate-700/50 text-slate-300 px-2 py-0.5 sm:py-1 rounded-full"><i class="fa-solid fa-download text-emerald-400 mr-1"></i> Diunduh ${terjualCount}x</span>
                             <span id="card-views-${id}" class="text-[10px] text-emerald-400"><i class="fa-solid fa-eye mr-1"></i> ${viewCount} Dilihat</span>
                         </div>
                         
@@ -537,41 +589,41 @@
                         </div>
                         
                         <div class="relative mb-3 group flex-shrink-0" onclick="event.stopPropagation()">
-                            <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-40 md:h-44 snap-x pb-2">
+                            <div id="${sliderId}" class="xiroro-slider flex overflow-x-auto gap-2 h-36 sm:h-40 md:h-44 snap-x pb-2">
                                 <img src="${esc(imgUrl)}" class="min-w-full h-full object-cover rounded-xl snap-center border border-slate-700/50" loading="lazy" onerror="this.src='https://dummyimage.com/400x200/1e293b/ef4444.png&text=Gambar+Error'">
                                 ${vidId ? `
                                 <div class="min-w-full h-full rounded-xl snap-center relative cursor-pointer" onclick="putarVideoToko('${vidId}')">
                                     <img src="${esc(ytThumb)}" class="w-full h-full object-cover rounded-xl border border-slate-700/50" loading="lazy">
                                     <div class="absolute inset-0 bg-black/40 hover:bg-black/20 flex items-center justify-center transition">
-                                        <i class="fa-brands fa-youtube text-5xl text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]"></i>
+                                        <i class="fa-brands fa-youtube text-4xl sm:text-5xl text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]"></i>
                                     </div>
                                 </div>
                                 ` : `<div class="min-w-full h-full rounded-xl snap-center bg-black/40 flex flex-col items-center justify-center text-slate-400 border border-slate-700/50"><i class="fa-solid fa-video-slash text-2xl mb-2"></i><span class="text-sm">Video Kosong</span></div>`}
                             </div>
                             
-                            <button onclick="slideMedia('${sliderId}', -1)" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/80 text-yellow-400 rounded-full hover:bg-black transition z-10 border border-yellow-400/50 shadow-[0_0_10px_rgba(250,204,21,0.3)]">
-                                <i class="fa-solid fa-chevron-left text-lg drop-shadow-md"></i>
+                            <button onclick="slideMedia('${sliderId}', -1)" aria-label="Sebelumnya" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/80 text-yellow-400 rounded-full hover:bg-black transition z-10 border border-yellow-400/50 shadow-[0_0_10px_rgba(250,204,21,0.3)]">
+                                <i class="fa-solid fa-chevron-left text-base sm:text-lg drop-shadow-md"></i>
                             </button>
-                            <button onclick="slideMedia('${sliderId}', 1)" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/80 text-yellow-400 rounded-full hover:bg-black transition z-10 border border-yellow-400/50 shadow-[0_0_10px_rgba(250,204,21,0.3)]">
-                                <i class="fa-solid fa-chevron-right text-lg drop-shadow-md"></i>
+                            <button onclick="slideMedia('${sliderId}', 1)" aria-label="Selanjutnya" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/80 text-yellow-400 rounded-full hover:bg-black transition z-10 border border-yellow-400/50 shadow-[0_0_10px_rgba(250,204,21,0.3)]">
+                                <i class="fa-solid fa-chevron-right text-base sm:text-lg drop-shadow-md"></i>
                             </button>
                         </div>
                         
                         <div class="flex flex-col flex-grow overflow-hidden">
-                            <h3 class="text-lg font-bold mb-1 text-white max-h-[3.5rem] overflow-y-auto desc-scroll leading-tight flex-shrink-0 pr-1">${esc(nama)}</h3>
+                            <h3 class="text-base sm:text-lg font-bold mb-1 text-white max-h-[3rem] sm:max-h-[3.5rem] overflow-y-auto desc-scroll leading-tight flex-shrink-0 pr-1">${esc(nama)}</h3>
                             <div class="text-xs text-slate-300 overflow-y-auto pr-2 leading-relaxed desc-scroll flex-grow mb-2">${textDeskripsi}</div>
                         </div>
                         
-                        <div class="mt-auto pt-3 border-t border-slate-700/50 flex-shrink-0" onclick="event.stopPropagation()">
-                            <div class="text-xl font-extrabold text-emerald-400 mb-3 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">GRATIS</div>
+                        <div class="mt-auto pt-2.5 sm:pt-3 border-t border-slate-700/50 flex-shrink-0" onclick="event.stopPropagation()">
+                            <div class="text-lg sm:text-xl font-extrabold text-emerald-400 mb-2.5 sm:mb-3 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">GRATIS</div>
                             <div class="flex gap-2">
-                                <button onclick="event.stopPropagation(); klikBeli('${id}')" class="flex-1 bg-emerald-600/80 hover:bg-emerald-500 text-white py-2 rounded-lg font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] backdrop-blur-sm border border-emerald-400/50"><i class="fa-solid fa-cloud-arrow-down mr-2"></i> Download</button>
+                                <button onclick="event.stopPropagation(); klikBeli('${id}')" class="flex-1 bg-emerald-600/80 hover:bg-emerald-500 text-white py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm transition shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] backdrop-blur-sm border border-emerald-400/50 flex items-center justify-center"><i class="fa-solid fa-cloud-arrow-down mr-1.5 sm:mr-2"></i> Download</button>
                                 
-                                <button onclick="event.stopPropagation(); toggleFavorit('${id}')" class="w-12 bg-slate-700/80 hover:bg-slate-600 rounded-lg flex items-center justify-center transition border border-slate-600 hover:border-red-400/50" title="Simpan ke Favorit">
+                                <button onclick="event.stopPropagation(); toggleFavorit('${id}')" class="w-10 sm:w-12 h-10 sm:h-auto bg-slate-700/80 hover:bg-slate-600 rounded-lg flex items-center justify-center transition border border-slate-600 hover:border-red-400/50" title="Simpan ke Favorit">
                                     <i class="${isFavorit ? 'fa-solid text-red-500' : 'fa-regular text-white'} fa-heart"></i>
                                 </button>
                                 
-                                <button onclick="event.stopPropagation(); bagikanScript('${id}')" class="w-12 bg-slate-700/80 hover:bg-slate-600 text-white rounded-lg flex items-center justify-center transition border border-slate-600 hover:border-emerald-400/50 hover:text-emerald-400" title="Bagikan"><i class="fa-solid fa-share-nodes"></i></button>
+                                <button onclick="event.stopPropagation(); bagikanScript('${id}')" class="w-10 sm:w-12 h-10 sm:h-auto bg-slate-700/80 hover:bg-slate-600 text-white rounded-lg flex items-center justify-center transition border border-slate-600 hover:border-emerald-400/50 hover:text-emerald-400" title="Bagikan"><i class="fa-solid fa-share-nodes"></i></button>
                             </div>
                         </div>
                     </div>
@@ -582,15 +634,15 @@
 
             // ================= MODE KATEGORI / CARI / FAVORIT / SINGLE ID =================
             if (targetKategori || targetId || inputCari || inputSort === 'favorit') {
-                container.className = targetId ? "grid grid-cols-1 lg:grid-cols-3 items-stretch w-full pb-10 gap-6" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full";
+                container.className = targetId ? "grid grid-cols-1 lg:grid-cols-3 items-stretch w-full pb-6 sm:pb-10 gap-4 sm:gap-6" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 w-full";
 
                 if (targetKategori || targetId) {
                     container.innerHTML += `
                         <div class="col-span-full mb-2 animate__animated animate__fadeInDown w-full text-center">
-                            <a href="${targetId ? 'gratis.html' : '#'}" ${targetId ? '' : 'onclick="kembaliKeEtalase(event);return false;"'} class="inline-block bg-slate-800/80 border border-emerald-600 hover:bg-slate-700 hover:border-emerald-400 text-emerald-400 py-2 px-5 rounded-xl transition backdrop-blur-md">
+                            <a href="${targetId ? 'gratis.html' : '#'}" ${targetId ? '' : 'onclick="kembaliKeEtalase(event);return false;"'} class="inline-block bg-slate-800/80 border border-emerald-600 hover:bg-slate-700 hover:border-emerald-400 text-emerald-400 py-2 px-4 sm:px-5 rounded-xl text-sm sm:text-base transition backdrop-blur-md">
                                 <i class="fa-solid fa-arrow-left mr-2"></i> ${targetId ? 'Kembali ke Etalase Utama' : 'Lihat Semua Produk Gratis'}
                             </a>
-                            ${targetKategori ? `<h2 class="text-2xl font-extrabold text-white mt-4"><span class="text-emerald-400 border-b-2 border-emerald-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
+                            ${targetKategori ? `<h2 class="text-xl sm:text-2xl font-extrabold text-white mt-4"><span class="text-emerald-400 border-b-2 border-emerald-500/50 pb-1">${esc(targetKategori)}</span></h2>` : ''}
                         </div>
                     `;
                 }
@@ -614,7 +666,7 @@
             }
 
             // ================= HALAMAN UTAMA: GRUP KATEGORI OTOMATIS =================
-            container.className = "flex flex-col w-full gap-10";
+            container.className = "flex flex-col w-full gap-6 sm:gap-10";
 
             if (dataTampil.length === 0) {
                 container.innerHTML += `
@@ -655,11 +707,11 @@
 
                     container.innerHTML += `
                         <div class="w-full animate__animated animate__fadeInUp">
-                            <div class="flex justify-between items-end mb-4 px-1 border-b border-slate-700/50 pb-2">
-                                <a href="?kategori=${encodeURIComponent(namaKategori)}" class="text-2xl font-extrabold text-white hover:underline decoration-2 decoration-emerald-500 transition-all tracking-wide drop-shadow-md">${esc(namaKategori)}</a>
-                                <a href="?kategori=${encodeURIComponent(namaKategori)}" class="text-sm text-emerald-400 hover:text-emerald-300"><i class="fa-solid fa-arrow-right mr-1"></i> Lihat Semua</a>
+                            <div class="flex justify-between items-end mb-3 sm:mb-4 px-1 border-b border-slate-700/50 pb-2">
+                                <a href="?kategori=${encodeURIComponent(namaKategori)}" class="text-xl sm:text-2xl font-extrabold text-white hover:underline decoration-2 decoration-emerald-500 transition-all tracking-wide drop-shadow-md">${esc(namaKategori)}</a>
+                                <a href="?kategori=${encodeURIComponent(namaKategori)}" class="text-xs sm:text-sm text-emerald-400 hover:text-emerald-300 whitespace-nowrap"><i class="fa-solid fa-arrow-right mr-1"></i> Lihat Semua</a>
                             </div>
-                            <div class="xiroro-slider flex overflow-x-auto gap-4 pb-4 snap-x w-full">${barisHtml}</div>
+                            <div class="xiroro-slider flex overflow-x-auto gap-3 sm:gap-4 pb-3 sm:pb-4 snap-x w-full">${barisHtml}</div>
                         </div>
                     `;
                 });
@@ -803,16 +855,16 @@
 
                 c.insertAdjacentHTML('beforeend', `
                     <!-- Kolom Daftar Ulasan -->
-                    <div class="ulasan-item card glass-panel rounded-2xl p-5 md:p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex flex-col w-full h-full min-h-[500px]">
-                        <h3 class="font-extrabold text-white text-lg mb-2 flex-shrink-0"><i class="fa-solid fa-star text-yellow-400 mr-2"></i> Ulasan Pembeli</h3>
-                        <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-700/50 flex-shrink-0">
-                            <div id="ulasan-avg-score" class="text-3xl font-bold text-emerald-400">0.0</div>
+                    <div class="ulasan-item card glass-panel rounded-2xl p-4 sm:p-5 md:p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex flex-col w-full min-h-[360px] sm:min-h-[480px]">
+                        <h3 class="font-extrabold text-white text-base sm:text-lg mb-2 flex-shrink-0"><i class="fa-solid fa-star text-yellow-400 mr-2"></i> Ulasan Pembeli</h3>
+                        <div class="flex items-center gap-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-slate-700/50 flex-shrink-0">
+                            <div id="ulasan-avg-score" class="text-2xl sm:text-3xl font-bold text-emerald-400">0.0</div>
                             <div class="flex flex-col">
-                                <div id="ulasan-avg-stars" class="text-yellow-400 text-sm">${bintangR(0)}</div>
-                                <div id="ulasan-total-count" class="text-xs text-slate-400 mt-0.5">Memuat...</div>
+                                <div id="ulasan-avg-stars" class="text-yellow-400 text-xs sm:text-sm">${bintangR(0)}</div>
+                                <div id="ulasan-total-count" class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Memuat...</div>
                             </div>
                         </div>
-                        <div id="ulasan-list-box" class="overflow-y-auto pr-2 desc-scroll flex-grow min-h-[220px] max-h-[380px]">
+                        <div id="ulasan-list-box" class="overflow-y-auto pr-2 desc-scroll flex-grow min-h-[160px] max-h-[350px]">
                             <div class="flex items-center justify-center h-full text-slate-400 text-sm py-8">
                                 <i class="fa-solid fa-spinner fa-spin mr-2 text-emerald-400"></i> Memuat ulasan...
                             </div>
@@ -820,16 +872,16 @@
                     </div>
                     
                     <!-- Kolom Form Ulasan -->
-                    <div class="ulasan-item card glass-panel rounded-2xl p-5 md:p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex flex-col w-full h-full min-h-[500px]">
-                        <h3 class="font-extrabold text-white text-lg mb-4 flex-shrink-0"><i class="fa-solid fa-pen-to-square text-emerald-400 mr-2"></i> Tulis Pengalaman Anda</h3>
+                    <div class="ulasan-item card glass-panel rounded-2xl p-4 sm:p-5 md:p-6 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex flex-col w-full min-h-[360px] sm:min-h-[480px]">
+                        <h3 class="font-extrabold text-white text-base sm:text-lg mb-3 sm:mb-4 flex-shrink-0"><i class="fa-solid fa-pen-to-square text-emerald-400 mr-2"></i> Tulis Pengalaman Anda</h3>
                         <form onsubmit="kirimUlasan('${pid}', event)" class="space-y-3 flex flex-col flex-grow">
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1 ml-1 font-semibold">Nama Anda</label>
-                                <input id="u-nama" required placeholder="Masukkan nama..." class="w-full bg-slate-800/80 border border-slate-700/70 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
+                                <input id="u-nama" required placeholder="Masukkan nama..." class="w-full bg-slate-800/80 border border-slate-700/70 p-2.5 sm:p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
                             </div>
                             <div>
                                 <label class="block text-xs text-slate-400 mb-1 ml-1 font-semibold">Penilaian</label>
-                                <select id="u-rating" class="w-full bg-slate-800/80 border border-slate-700/70 p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
+                                <select id="u-rating" class="w-full bg-slate-800/80 border border-slate-700/70 p-2.5 sm:p-3 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition text-sm">
                                     <option value="5">⭐⭐⭐⭐⭐ (5 - Luar Biasa)</option>
                                     <option value="4">⭐⭐⭐⭐ (4 - Bagus)</option>
                                     <option value="3">⭐⭐⭐ (3 - Cukup)</option>
@@ -837,11 +889,11 @@
                                     <option value="1">⭐ (1 - Buruk)</option>
                                 </select>
                             </div>
-                            <div class="flex-1 flex flex-col min-h-[90px]">
+                            <div class="flex-1 flex flex-col min-h-[80px]">
                                 <label class="block text-xs text-slate-400 mb-1 ml-1 font-semibold">Ulasan / Kesan</label>
-                                <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700/70 p-3 rounded-xl flex-grow text-white focus:outline-none focus:border-emerald-500 transition resize-none text-sm min-h-[80px]"></textarea>
+                                <textarea id="u-teks" required placeholder="Bagaimana performa script ini?" class="w-full bg-slate-800/80 border border-slate-700/70 p-2.5 sm:p-3 rounded-xl flex-grow text-white focus:outline-none focus:border-emerald-500 transition resize-none text-sm min-h-[70px]"></textarea>
                             </div>
-                            <button type="submit" class="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.3)] mt-auto flex-shrink-0">
+                            <button type="submit" class="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white py-2.5 sm:py-3 rounded-xl font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.3)] mt-auto flex-shrink-0 text-sm sm:text-base">
                                 <i class="fa-solid fa-paper-plane mr-2"></i> Kirim Ulasan Sekarang
                             </button>
                         </form>
