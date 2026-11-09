@@ -1619,14 +1619,14 @@
                                 <span class="text-emerald-400 font-bold text-xs sm:text-sm font-mono">Rp ${fmt(d.nominal)}</span>
                             </div>
                             <div>
-                                <span class="text-slate-500 text-[10px] block">DANA:</span>
+                                <span class="text-slate-500 text-[10px] block">Pengirim:</span>
                                 <span class="text-white font-semibold truncate flex items-center gap-1 text-xs">
                                     <i class="fa-solid fa-user text-cyan-400 text-[9px]"></i> ${esc(d.namaDana)}
                                 </span>
                             </div>
                             ${d.noRef ? `
                             <div class="col-span-full border-t border-slate-800 pt-1">
-                                <span class="text-slate-500 text-[9px] block">No. Ref DANA:</span>
+                                <span class="text-slate-500 text-[9px] block">No. Ref / Mutasi:</span>
                                 <span class="text-blue-400 font-mono font-bold text-xs">${esc(d.noRef)}</span>
                             </div>` : ''}
                             ${d.catatan ? `
@@ -1693,7 +1693,7 @@
                 const fl = orP.fileLink || '';
                 pesan += `✅ Pembayaran Anda telah terverifikasi dan pesanan SELESAI!\n🔗 *Link Download Script:* ${fl || cekUrl}\n\nAtau pantau langsung di: ${cekUrl}\n\nTerima kasih sudah berbelanja di Toko Xiroro Script!`;
             } else if (status === 'TERVERIFIKASI') {
-                pesan += `✅ Pembayaran Anda TERVERIFIKASI.\nNo. Referensi DANA Anda sudah dicocokkan.\nFile akan segera dikirim, atau pantau live di:\n${cekUrl}`;
+                pesan += `✅ Pembayaran Anda TERVERIFIKASI.\nNo. Referensi / Bukti transfer Anda sudah dicocokkan.\nFile akan segera dikirim, atau pantau live di:\n${cekUrl}`;
             } else {
                 pesan += `Pesanan Anda saat ini berstatus ${status}. Pantau status real-time di:\n${cekUrl}`;
             }
@@ -1734,7 +1734,7 @@
         function aturPesanan(id, statusBaru) {
             const promptNoRef = () => {
                 Swal.fire({
-                    title: 'Kunci No. Ref DANA',
+                    title: 'Kunci No. Referensi Transaksi',
                     input: 'text',
                     inputPlaceholder: 'Nomor transaksi pada aplikasi DANA Anda',
                     showCancelButton: true,

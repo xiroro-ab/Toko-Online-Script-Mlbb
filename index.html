@@ -1015,7 +1015,7 @@
                         <p>A: Pantau terus channel YouTube kami. Jika ada perubahan sistem besar-besaran dari developer resmi, kami akan menginfokan update terbaru di sana.</p>
                         
                         <h4 class="text-white font-bold mt-4">Q: Setelah membayar, di mana saya mendapatkan script-nya?</h4>
-                        <p>A: Bayar via scan barcode DANA sesuai nominal. Setelah itu klik tombol "Saya Sudah Bayar" dan kirim bukti transfer ke WhatsApp admin. File akan dikirim manual oleh admin.</p>
+                        <p>A: Bayar via scan QRIS resmi sesuai nominal (bisa menggunakan aplikasi m-Banking seperti BCA, Mandiri, BRI, BNI atau E-Wallet seperti DANA, GoPay, OVO, ShopeePay, dll). Setelah itu klik tombol "Saya Sudah Bayar" dan kirim bukti transfer ke WhatsApp admin. File akan langsung dikirim oleh admin.</p>
                         
                         <h4 class="text-white font-bold mt-4">Q: Saya gagal bayar atau link error?</h4>
                         <p>A: Jangan panik! Silakan langsung klik tombol WhatsApp melayang di pojok kanan bawah dan kirimkan bukti pembayaran Anda kepada Admin. Kami akan bantu manual.</p>
@@ -1051,7 +1051,7 @@
             tampilPopupBayar();
         }
 
-        function tampilPopupBayar() {
+                function tampilPopupBayar() {
             if (!pesananAktif) return;
             const nama = pesananAktif.nama;
             const harga = pesananAktif.harga;
@@ -1060,23 +1060,26 @@
             const hargaTampil = "Rp " + harga.toLocaleString('id-ID');
 
             Swal.fire({
-                title: 'Bayar Lewat DANA',
+                title: 'Bayar via QRIS (Semua Bank & E-Wallet)',
                 html: `
                     <div class="text-center">
-                        <img src="${QR_DANA_URL}" alt="QR Dana" onclick="bukaQR()" class="w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 mx-auto rounded-2xl border-4 border-cyan-400 shadow-[0_0_25px_rgba(6,182,212,0.5)] object-contain bg-white p-2 mb-2 cursor-zoom-in" title="Ketuk untuk perbesar">
-                        <p class="text-[11px] text-slate-400 mb-2 sm:mb-3">Ketuk barcode untuk perbesar atau download</p>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold mb-2">
+                            <i class="fa-solid fa-qrcode"></i> Support Semua Bank & E-Wallet Nasional
+                        </div>
+                        <img src="${QR_DANA_URL}" alt="QRIS Resmi Xiroro" onclick="bukaQR()" class="w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 mx-auto rounded-2xl border-4 border-cyan-400 shadow-[0_0_25px_rgba(6,182,212,0.5)] object-contain bg-white p-2 mb-2 cursor-zoom-in" title="Ketuk untuk perbesar atau download">
+                        <p class="text-[11px] text-slate-400 mb-2 sm:mb-3">Ketuk barcode untuk perbesar atau download gambar QRIS</p>
                         <h3 class="text-lg sm:text-xl font-extrabold text-cyan-400 mb-1">${esc(nama)}</h3>
                         <p class="text-xl sm:text-2xl font-black text-white mb-2">${hargaTampil}</p>
                         <p class="text-red-400 text-xs sm:text-sm font-bold mb-3">PERHATIAN: BAYAR TEPAT nominal di atas. Jangan bayar nominal lain!</p>
-                        <div class="bg-slate-800 rounded-lg p-2.5 sm:p-3 mb-3 text-left text-xs sm:text-sm text-slate-300">
-                            <p class="mb-1"><b class="text-white">1.</b> Buka aplikasi DANA, scan barcode di atas.</p>
-                            <p class="mb-1"><b class="text-white">2.</b> Masukkan nominal <b class="text-cyan-400">TEPAT</b> ${hargaTampil}.</p>
-                            <p class="mb-1"><b class="text-white">3.</b> Simpan kode pesanan: <b class="text-yellow-400">${kode}</b></p>
-                            <p class="mb-1"><b class="text-white">4.</b> Alternatif: kirim manual ke nomor DANA <b class="text-white">${DANA_NUMBER}</b></p>
+                        <div class="bg-slate-800 rounded-lg p-2.5 sm:p-3 mb-3 text-left text-xs sm:text-sm text-slate-300 space-y-1">
+                            <p><b class="text-white">1.</b> Buka aplikasi <b class="text-cyan-400">Mobile Banking</b> (BCA, Mandiri, BRI, BNI, dll) atau <b class="text-cyan-400">E-Wallet</b> (DANA, GoPay, OVO, ShopeePay, dll), lalu scan QRIS di atas.</p>
+                            <p><b class="text-white">2.</b> Masukkan nominal <b class="text-cyan-400">TEPAT</b> ${hargaTampil} (jangan dilebihkan/dibulatkan).</p>
+                            <p><b class="text-white">3.</b> Simpan kode pesanan: <b class="text-yellow-400 font-mono">${kode}</b></p>
+                            <p><b class="text-white">4.</b> Alternatif transfer langsung sesama DANA: kirim ke <b class="text-white font-mono">${DANA_NUMBER}</b></p>
                         </div>
-                        <input type="text" id="namaDanaInput" placeholder="Nama akun DANA Anda (untuk verifikasi)" class="w-full bg-slate-800 border border-slate-700 p-2.5 sm:p-3 rounded-lg focus:outline-cyan-500 mb-2 text-white text-xs sm:text-sm">
+                        <input type="text" id="namaDanaInput" placeholder="Nama Pengirim / Akun Anda (Bank / E-Wallet)" class="w-full bg-slate-800 border border-slate-700 p-2.5 sm:p-3 rounded-lg focus:outline-cyan-500 mb-2 text-white text-xs sm:text-sm">
                         <input type="text" id="noHpInput" placeholder="Nomor HP / WhatsApp Anda" class="w-full bg-slate-800 border border-slate-700 p-2.5 sm:p-3 rounded-lg focus:outline-cyan-500 mb-2 text-white text-xs sm:text-sm">
-                        <p class="text-[10px] sm:text-[11px] text-slate-400 mb-3">Bayar lewat warung/titip? Nama di aplikasi Anda bisa berbeda. Siapkan <b class="text-cyan-400">screenshot dari aplikasi DANA Anda</b> sebagai bukti.</p>
+                        <p class="text-[10px] sm:text-[11px] text-slate-400 mb-3">Bayar via bank/akun lain/warung? Tuliskan nama pengirim yang tertera di bukti transfer. Siapkan <b class="text-cyan-400">screenshot bukti transfer</b> sebagai bukti.</p>
                         <button onclick="kirimVerifikasi('${id}','${kode}','${esc(nama)}','${harga}')" class="block w-full bg-green-600 hover:bg-green-500 text-white py-2.5 sm:py-3 rounded-xl font-bold mb-2 text-sm sm:text-base">
                             <i class="fa-brands fa-whatsapp mr-2"></i> Saya Sudah Bayar (Kirim Bukti)
                         </button>
@@ -1092,7 +1095,7 @@
         function kirimVerifikasi(id, kode, namaProduk, nominal) {
             const namaDana = document.getElementById('namaDanaInput').value.trim();
             const noHp = document.getElementById('noHpInput').value.trim();
-            if (!namaDana) { Swal.fire({ icon: 'warning', title: 'Isi Nama DANA', text: 'Tulis nama akun DANA yang Anda gunakan untuk transfer.', background: '#0f172a' }); return; }
+            if (!namaDana) { Swal.fire({ icon: 'warning', title: 'Isi Nama Pengirim', text: 'Tulis nama akun e-wallet atau rekening bank yang Anda gunakan untuk transfer.', background: '#0f172a' }); return; }
             if (!noHp) { Swal.fire({ icon: 'warning', title: 'Isi Nomor HP', text: 'Tulis nomor HP / WhatsApp Anda untuk konfirmasi.', background: '#0f172a' }); return; }
 
             const KEY_SPAM = 'xiroro_last_klaim';
@@ -1107,7 +1110,8 @@
             const waktu = new Date().toLocaleString('id-ID');
             const pesan = encodeURIComponent(
                 `Halo Xiroro, saya mau verifikasi pembayaran.\n\n` +
-                `Nama akun DANA: ${namaDana}\n` +
+                `Nama Pengirim: ${namaDana}\n` +
+                `Metode: QRIS (Semua Bank / E-Wallet)\n` +
                 `No. HP/WA: ${noHp}\n` +
                 `Produk: ${namaProduk}\n` +
                 `Nominal: ${hargaTampil}\n` +
@@ -1141,11 +1145,11 @@
                         ` : `
                             <p class="text-xs text-emerald-400"><i class="fa-solid fa-circle-check mr-1"></i> Pesanan Anda sudah tercatat. Admin akan memproses setelah verifikasi.</p>
                         `}
-                        <p><b class="text-cyan-400">1.</b> Buka aplikasi <b class="text-white">DANA</b> di HP Anda.</p>
-                        <p><b class="text-cyan-400">2.</b> Ketuk <b class="text-white">Riwayat</b> (Riwayat Transaksi).</p>
-                        <p><b class="text-cyan-400">3.</b> Pilih transaksi pembayaran tadi, lalu <b class="text-white">screenshot / tangkapan layar</b> halaman detailnya (yang menampilkan nominal, tanggal, dan nama akun).</p>
+                        <p><b class="text-cyan-400">1.</b> Buka aplikasi <b class="text-white">Bank atau E-Wallet</b> yang Anda gunakan di HP.</p>
+                        <p><b class="text-cyan-400">2.</b> Buka menu <b class="text-white">Riwayat / Mutasi Transaksi</b>.</p>
+                        <p><b class="text-cyan-400">3.</b> Pilih transaksi pembayaran tadi, lalu <b class="text-white">screenshot / tangkapan layar</b> halaman detail buktinya (menampilkan nominal, tanggal, dan nama pengirim).</p>
                         <p><b class="text-cyan-400">4.</b> Klik tombol <b class="text-white">WhatsApp hijau</b> di bawah untuk mengirim bukti beserta kode pesanan Anda.</p>
-                        <p class="text-yellow-400 border-t border-slate-700 pt-2 mt-2"><b>JANGAN kirim screenshot halaman website / chat ini.</b> Yang dibutuhkan admin hanyalah bukti dari aplikasi DANA.</p>
+                        <p class="text-yellow-400 border-t border-slate-700 pt-2 mt-2"><b>JANGAN kirim screenshot halaman website / chat ini.</b> Yang dibutuhkan admin adalah bukti transfer asli dari aplikasi m-Banking atau E-Wallet Anda.</p>
                         <a href="https://wa.me/${WA_ADMIN}?text=${pesan}" target="_blank" class="block w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-xl font-bold text-center mt-3">
                             <i class="fa-brands fa-whatsapp mr-2"></i> Kirim Bukti ke WhatsApp
                         </a>
@@ -1161,13 +1165,13 @@
 
         function bukaQR() {
             Swal.fire({
-                title: 'Barcode DANA',
+                title: 'QRIS Resmi (Semua Bank & E-Wallet)',
                 html: `
                     <div class="text-center">
                         <img id="qr-besar" src="${QR_DANA_URL}" alt="QR Dana" class="w-full max-w-[280px] sm:max-w-[360px] md:max-w-[400px] mx-auto object-contain bg-white rounded-2xl border-4 border-cyan-400 p-2 shadow-[0_0_30px_rgba(6,182,212,0.5)]">
-                        <p class="text-xs text-slate-400 mt-3 mb-2">Scan dengan aplikasi DANA untuk membayar. Tutup (X) untuk kembali ke halaman pembayaran.</p>
+                        <p class="text-xs text-slate-400 mt-3 mb-2">Scan dengan aplikasi Mobile Banking (BCA, Mandiri, BRI, BNI, dll) atau E-Wallet (DANA, GoPay, OVO, ShopeePay, dll). Tutup (X) untuk kembali ke rincian pesanan.</p>
                         <button onclick="downloadQR()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold transition">
-                            <i class="fa-solid fa-download mr-2"></i> Download Barcode
+                            <i class="fa-solid fa-download mr-2"></i> Download Gambar QRIS
                         </button>
                     </div>
                 `,
@@ -1186,7 +1190,7 @@
                 .then(blob => {
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
-                    link.download = 'Barcode_DANA_Xiroro.png';
+                    link.download = 'QRIS_Xiroro_Script.png';
                     link.href = url;
                     document.body.appendChild(link);
                     link.click();
